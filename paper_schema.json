@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "landscape-map/paper/v0.5",
+  "title": "Paper Schema",
+  "description": "A paper as (1) a semilattice element describing what it measured, computed, or analyzed and under what conditions, and (2) an argument DAG recording ALL its claims — both the primary conclusions and the supporting intermediate steps — together with how those claims depend on each other internally. The semilattice half supports inter-paper comparability (meet is commutative, idempotent, order-preserving; two papers can be compared iff their grounds have a non-trivial meet). The argument-DAG half supports intra-paper reasoning: when a primary claim is contested by another paper, the dependency graph localizes which supporting claims the contestation actually reaches, so rewrites or retractions can be scoped rather than global.",
+
+  "type": "object",
+  "required": ["paper_id", "bibliographic", "observational_ground", "claims"],
+  "properties": {
+
+    "paper_id": {
+      "type": "string",
+      "description": "Unique identifier for the paper. E.g. 'Liekhus2026'"
+    },
+
+    "bibliographic": {
+      "type": "object",
+      "description": "Standard bibliographic metadata.",
+      "required": ["title", "authors", "year"],
+      "properties": {
+        "title": { "type": "string" },
+        "authors": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "year": { "type": "integer" },
+        "doi": { "type": "string" },
+        "venue": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+
+    "observational_ground": {
+      "type": "object",
+      "description": "The semilattice element describing this paper's context. Each sub-field has a known partial order and meet rule so that paper_A.ground ∧ paper_B.ground is well-defined. See per-field descriptions for meet operations.",
+      "properties": {
+
+        "physical_system": {
+          "type": "string",
+          "description": "The physical system studied. E.g. 'pendulum', 'spring', 'ball'. Ordered by taxonomic refinement. MEET: most specific common ancestor in the system taxonomy."
+        },
+
+        "phenomena_studied": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "The phenomena the paper investigates, as a set. E.g. ['small-amplitude oscillation', 'amplitude-period coupling', 'damped decay']. Ordered by set inclusion. MEET: set intersection. Phenomena should map to a controlled vocabulary so that synonymous terms (e.g. 'large-angle correction' and 'anharmonic period shift') match."
+        },
+
+        "parameter_regime": {
+          "type": "object",
+          "description": "Parameter ranges the paper covers. Each parameter is an interval; the parameter_regime is a collection of intervals. MEET: pairwise interval intersection per parameter (may be empty, in which case the two regimes do not overlap).",
+          "properties": {
+            "parameters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "symbol": { "type": "string" },
+                  "range": { "type": "string", "description": "Interval, e.g. '[0.33, 10]' or '> 0.8'. Must be parseable into a numeric interval for meet computation." },
+                  "units": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+
+        "computational_framework": {
+          "type": "string",
+          "description": "The theoretical/computational approach, as free text for detail. E.g. 'small-angle linearization', '4th-order Runge-Kutta integration of the nonlinear equation of motion'. The structured ordering is carried by 'model_level'; this field is for descriptive precision. Not used directly in meet computation."
+        },
+
+        "geometry": {
+          "type": "string",
+          "description": "Geometric configuration studied. E.g. 'planar rigid-rod pendulum', 'spherical bob on massless string', '3D double pendulum'. Ordered by geometric refinement (rigid_rod ≤ planar_pendulum ≤ pendulum). MEET: most specific common geometry."
+        },
+
+        "measurements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What quantities are measured, computed, or derived. For theoretical papers: what is proven or derived. Ordered by set inclusion. MEET: set intersection."
+        }
+      }
+    },
+
+    "model_level": {
+      "type": "string",
+      "description": "The modeling fidelity level within the paper's domain. This is a domain-specific hierarchy — each field carries its own controlled vocabulary ordered from coarsest to most detailed, and the application instantiating this schema specifies the ordering. 'experimental' is always comparable with any model level (experiments do not commit to a model). 'reduced_model' (for surrogate models, neural operators, etc.) is comparable only with explicit indication of which level it approximates. Examples of domain hierarchies: pendulum dynamics = [small_amplitude_linear < damped_linear < driven_damped_nonlinear < chaotic_coupled < experimental]; classical mechanics = [point_mass < rigid_body < continuum < field_theoretic < experimental]. MEET: the lower (coarser) of the two levels, since a coarser claim is also a statement about what a finer model should show at this resolution. Model-level difference between two papers is the most common source of non-trivial semilattice structure."
+    },
+
+    "paper_type": {
+      "type": "string",
+      "enum": ["experimental", "computational", "analytical", "review", "theoretical"],
+      "description": "Primary methodology of the paper"
+    },
+
+    "scope_exclusions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What this paper explicitly does not address. Critical for identifying research gaps — the dashboard surfaces scope_exclusions across a stalk to show which questions the field has collectively deferred. E.g. ['air resistance', 'pivot friction', 'three-dimensional motion']. Extracted from 'limitations' / 'future work' sections."
+    },
+
+    "claims": {
+      "type": "array",
+      "description": "The argument DAG of this paper. Lists ALL extracted claims — both the primary conclusions the paper is advertising and the supporting intermediate steps the conclusions rest on — and records how they depend on each other. Each entry carries a claim_id (which references the full claim content in its own claim JSON file), a role flag (primary vs supporting), an optional short label for readability, and an internal `depends_on` list. The graph MUST be acyclic; extractors SHOULD fail validation if a cycle is introduced. Dependencies are restricted to claim_ids within this same paper — cross-paper relationships live in the corpus-level divergence and sheaf layers, not here. A well-populated argument DAG lets downstream tools answer questions like: 'if claim X is contested, which supporting steps does the contestation reach?' and 'which claims are terminal — i.e. not depended on by any other claim in this paper — and thus represent the paper's headline conclusions?'",
+      "items": {
+        "type": "object",
+        "required": ["claim_id", "kind"],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "description": "Reference to the claim's own JSON file (same identifier used in that file's `claim_id` field). E.g. 'Liekhus2026:02'."
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["primary", "supporting"],
+            "description": "The claim's role in this paper's argument. 'primary' = a headline conclusion the paper is advertising (typically what appears in the abstract, conclusions, or as a numbered main result). 'supporting' = an intermediate step, observation, lemma, definition, or calibration result that other claims in this paper depend on but is not itself the point of the paper. A paper usually has 1–5 primary claims and many more supporting claims; the argument DAG's leaves (claims that nothing depends on) are usually the primaries and its roots (claims that depend on nothing else in the paper) are usually the supportings."
+          },
+          "short_label": {
+            "type": "string",
+            "description": "A short (≤ 100 char) paraphrase of the claim, so the paper schema is readable without opening every referenced claim JSON. E.g. 'period increases as T_0·(1 + θ²/16) at second order in amplitude'. Optional but SHOULD be populated."
+          },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of claim_ids within this paper that this claim directly rests on. Direct dependencies only — transitive dependencies should not be listed (they're inferable by graph traversal). E.g. a claim about the second-order amplitude correction to a pendulum's period might have depends_on=['Liekhus2026:01', 'Liekhus2026:04'] where 01 establishes the equation of motion and 04 establishes energy conservation over one cycle. Empty array means the claim is a root of the argument DAG — typically an observation, definition, or cited prior result."
+          },
+          "rhetorical_section": {
+            "type": "string",
+            "description": "Optional marker for where this claim appears in the paper — 'abstract', 'introduction', 'methods', 'results', 'discussion', 'conclusion', or a specific subsection name. Useful for presentation (e.g. showing headline claims from the abstract prominently) and for calibrating extraction confidence (abstract claims are usually more carefully worded than mid-results claims)."
+          }
+        }
+      }
+    },
+
+    "extraction": {
+      "type": "object",
+      "description": "Provenance for how this schema was populated",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["manual", "llm_single", "llm_median", "hybrid"]
+        },
+        "model": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

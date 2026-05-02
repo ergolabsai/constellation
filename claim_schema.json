@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "landscape-map/claim/v0.5",
+  "title": "Claim Schema",
+  "description": "A self-contained, simple (indecomposable) claim extracted from a single paper. Claims are directed relations — every direction except 'correlates_with' is asymmetric: flipping cause and effect produces a different claim. Claims have two scopes (claimed and evidenced) extracted separately. Each claim carries a `credibility_score` used to compare between claims from different papers, and an `evidence` object that records the type, description, strengths, and honest weaknesses of the evidence offered. v0.5 replaces v0.4's `evidence_type` (a bare enum) and `quantitative` (narrowly numerical) with a unified `evidence` object — strengths and weaknesses are first-class because they are load-bearing for the v2 pipeline's alternative generation step.",
+
+  "type": "object",
+  "required": ["claim_id", "paper_id", "cause", "effect", "direction", "strength", "credibility_score", "extraction"],
+  "properties": {
+
+    "claim_id": {
+      "type": "string",
+      "description": "Unique identifier: {paper_id}:{sequential_number}, e.g. 'schmaltz2026:CN-01'"
+    },
+
+    "paper_id": {
+      "type": "string",
+      "description": "Reference to the paper this claim was extracted from"
+    },
+
+    "claim_type": {
+      "type": "string",
+      "enum": ["causal", "observational", "mathematical", "definitional"],
+      "description": "What kind of claim this is. 'causal' = X causes/prevents/modulates Y. 'observational' = X correlates with Y in data. 'mathematical' = X derives/implies/generalizes Y (theoretical consequence). 'definitional' = establishes a definition, framework, or existence result. Determines how to interpret the cause/effect/direction fields."
+    },
+
+    "cause": {
+      "type": "string",
+      "description": "For causal/observational claims: the antecedent or independent variable. For mathematical claims: the premises or assumptions. For definitional claims: the framework or conditions being established."
+    },
+
+    "effect": {
+      "type": "string",
+      "description": "For causal/observational claims: the consequent or dependent variable. For mathematical claims: the derived result or consequence. For definitional claims: what is established or defined."
+    },
+
+    "direction": {
+      "type": "string",
+      "enum": [
+        "causes",
+        "modulates",
+        "sufficient_for",
+        "necessary_for",
+        "correlates_with",
+        "inhibits",
+        "requires",
+        "contradicts",
+        "derives",
+        "generalizes",
+        "establishes"
+      ],
+      "description": "The type of relationship claimed. Claims are directed relations; every direction except 'correlates_with' is asymmetric — flipping cause and effect produces a different claim. Causal: causes, modulates, sufficient_for, necessary_for, inhibits. Observational (symmetric): correlates_with. Logical: requires, contradicts. Mathematical: derives (consequence follows from premises), generalizes (one framework subsumes another as a special case), establishes (proves existence of a mathematical/physical object or defines a framework)."
+    },
+
+    "strength": {
+      "type": "string",
+      "enum": ["strong", "moderate", "weak", "speculative"],
+      "description": "How strongly the paper asserts this claim. 'strong' = definitive/demonstrated/proven. 'moderate' = supported but qualified. 'weak' = suggested/preliminary. 'speculative' = hypothesized/proposed without direct evidence."
+    },
+
+    "credibility_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "How well-supported this claim is, in [0, 1]. Used by the stalk pipeline's to compare claims. At MVP this is an LLM judgment produced during extraction — the LLM's assessment of how confidently this paper establishes this claim, considering evidence strength, framework fit, and internal consistency. Will be replaced by output from a dedicated scoring agent in Phase 2; downstream consumers treat the value as opaque [0, 1] either way. Distinct from `extraction.confidence`, which measures how reliably the claim was extracted (not how well-supported it is)."
+    },
+
+    "scope": {
+      "type": "object",
+      "description": "What the claim applies to — the domain of validity. Split into claimed and evidenced sub-scopes because a paper can assert universal generality (claimed) while its evidence only covers a narrow regime (evidenced).",
+      "properties": {
+        "claimed": {
+          "type": "object",
+          "description": "The scope the paper asserts the claim holds under. Extracted from the paper's statement of the claim itself.",
+          "properties": {
+            "generality": {
+              "type": "string",
+              "enum": ["universal", "domain_specific", "case_specific"],
+              "description": "How broadly the paper asserts the claim applies. 'universal' = claimed to hold in general. 'domain_specific' = holds within a specific regime. 'case_specific' = holds only for a particular case."
+            },
+            "framework": {
+              "type": "string",
+              "description": "The theoretical or computational framework within which the claim is asserted. E.g. 'classical mechanics', 'special relativity'."
+            },
+            "conditions": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Explicit conditions the paper says the claim holds under. E.g. 'for small perturbations modes only', 'at mass > 1 kg'."
+            }
+          }
+        },
+        "evidenced": {
+          "type": "object",
+          "description": "The scope the paper's evidence actually covers. Extracted from methods, parameter regimes, proof conditions, or experimental setup — not from the statement of the claim.",
+          "properties": {
+            "generality": {
+              "type": "string",
+              "enum": ["universal", "domain_specific", "case_specific"],
+              "description": "How broadly the evidence actually supports the claim. Often narrower than the claimed generality. If claimed generality is broader than evidenced generality, the claim is an overreach — flagged by the dashboard."
+            },
+            "framework": {
+              "type": "string",
+              "description": "The framework the evidence is actually obtained in. Usually matches claimed framework but may be narrower (e.g., a theorem claimed for classical mechanics but only proved for a specific spring system)."
+            },
+            "conditions": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "The actual conditions the evidence covers. E.g. 'for small perturbations modes only', 'at mass > 1 kg'."
+            }
+          }
+        }
+      }
+    },
+
+    "evidence": {
+      "type": "object",
+      "description": "Evidence the paper offers for this claim: its type, a description of what the evidence actually consists of (including quantitative content where relevant), and the honest strengths and weaknesses of that evidence. Replaces the v0.4 `evidence_type` enum and `quantitative` object. The strengths/weaknesses split is load-bearing: the v2 pipeline's alternative generation step rewrites contested claims by pulling their scope in toward what the evidence's strengths actually support, and the weaknesses list is where that scope-narrowing finds its justification.",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["analytical", "computational", "experimental", "review", "theoretical"],
+          "description": "The kind of evidence the paper offers. 'analytical' = closed-form derivation. 'computational' = simulation or numerical calculation. 'experimental' = measurement or empirical observation. 'review' = synthesis of prior published evidence. 'theoretical' = conceptual argument without closed-form derivation or computation."
+        },
+        "description": {
+          "type": "string",
+          "description": "Prose description of what the evidence actually consists of: what was measured, derived, or computed, the key quantitative content (expressions, values, ranges, units, uncertainties) where applicable, and the relevant methodological details (e.g., grid resolution, measurement technique, equilibrium profile used, parameter sweep endpoints). This field absorbs the v0.4 `quantitative` content as prose — a deliberate tradeoff that keeps the evidence story together at the cost of losing structured numeric auto-comparison."
+        },
+        "strengths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What makes this evidence well-supported for the stated claim. Examples: direct measurement of the claimed variable, agreement with an independent measurement, large parameter sweep, validated code, tight uncertainty, coverage of the full claimed regime, repeated observation, cross-method consistency. Each entry is one discrete strength; keep entries specific rather than generic ('agreement with Zhang et al. 2019 FuZE profile data' rather than 'well-validated'). SHOULD be populated during extraction; may be empty if no identifiable strengths."
+        },
+        "weaknesses": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Honest limitations of the evidence as support for the claim. Examples: scope gap between evidenced regime and claimed regime, assumptions not tested (uniform shear, equal Ti/Te, etc.), uncertainties not quantified, correlation-not-causation gaps, specialization to a single profile family or parameter set, model-vs-experiment gaps, reliance on cited prior work rather than direct demonstration, indirect rather than direct measurement of the relevant variable. Each entry is one discrete weakness. SHOULD be populated during extraction — weaknesses are where v2 alternative generation finds its traction for rewriting contested claims: the typical rewrite pulls a claim's scope in from `claimed` toward a narrower region that the weaknesses list acknowledges."
+        },
+        "quantitative": {
+          "type": "object",
+          "description": "Optional structured numeric content of the evidence. Kept alongside `description` (which still carries the full prose narrative) so that claims with a primary numeric characterization — a threshold, a growth rate, a measured parameter — remain programmatically comparable across the corpus. Extract when a single expression/value/units/uncertainty captures the core quantitative content; omit when the evidence is not well-summarized by one number (e.g., multi-parameter scans) or when the claim is purely qualitative. For multi-value evidence, put the primary value here and list secondary numbers in the description prose.",
+          "properties": {
+            "expression": {
+              "type": "string",
+              "description": "Mathematical expression the evidence supports. E.g. 'dV_z/dr > 0.1 k V_A', 'γ t_a ~ 0.7', 'Ln/r > 2/7'."
+            },
+            "value": {
+              "type": "number",
+              "description": "Primary numerical value if a single number characterizes the claim, in the units field's units. E.g. 0.1 for the threshold 0.1 k V_A."
+            },
+            "units": {
+              "type": "string",
+              "description": "Units of the primary value. E.g. 'k V_A (dimensionless prefactor)', 'm/s', '1/s', 'eV', 'dimensionless'."
+            },
+            "uncertainty": {
+              "type": "string",
+              "description": "Uncertainty or range on the primary value. Free-form string because uncertainty is reported inconsistently in the literature. E.g. '±15%', 'order of magnitude', 'within factor of 2', 'assumes uniform flow shear; Arber & Howell find Mach 2 needed for different profile — threshold is profile-dependent'."
+            }
+          }
+        }
+      }
+    },
+
+    "embedding": {
+      "type": "array",
+      "items": { "type": "number" },
+      "description": "Latent embedding vector of this claim. Computed by an embedding model over a canonical text representation: `{cause} {direction} {effect} {conditions}`. Used for stalk clustering (step 3 of the pipeline) and as a signal for divergence scoring."
+    },
+
+    "extraction": {
+      "type": "object",
+      "description": "Provenance metadata for how this claim was extracted.",
+      "required": ["method"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["manual", "llm_single", "llm_median", "hybrid"],
+          "description": "'manual' = human-extracted. 'llm_single' = single LLM pass (MVP default). 'llm_median' = median of N LLM extractions (Phase 2). 'hybrid' = LLM-extracted, human-verified."
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Extraction confidence — how reliably this claim was extracted from the paper text. Distinct from `credibility_score`, which measures how well-supported the claim is within the paper."
+        },
+        "supporting_quote": {
+          "type": ["string", "null"],
+          "description": "Direct quote from the paper that supports this claim extraction. Null if not available."
+        },
+        "section": {
+          "type": "string",
+          "description": "Which section of the paper this claim was extracted from. E.g. 'abstract', 'results', 'discussion', 'conclusion'."
+        },
+        "model": {
+          "type": "string",
+          "description": "LLM model used for extraction, if applicable."
+        },
+        "n_runs": {
+          "type": "integer",
+          "description": "Number of LLM runs used for median extraction. Null for single-pass or manual."
+        }
+      }
+    }
+  }
+}

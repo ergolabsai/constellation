@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "landscape-map/sheaf/v0.1",
+  "title": "Sheaf Schema",
+  "description": "A sheaf over the corpus's claim base space. Records (1) the hypothesis-space stalk per claim — the original claim and every evidence-faithful alternative reading of the same data that was generated to meet some neighbor claim; (2) the restriction maps between comparable claims — comparability edges with per-variant-pair compatibility scores; (3) the MAP global section — one variant chosen per claim to maximize coherence minus rewrite cost; (4) the residual H¹ — edges that remain in disagreement under the selected section; and (5) the frustration diagnostics (ρ, Penrose triangles) on that selection. One sheaf per corpus; one Idea (ε-state) document downstream per knowledge unit that the sheaf's selected section consolidates into. Full variant-pair compatibility scores are retained (not just the MAP-selected pair) so that the section can be replayed at different λ rewrite penalties without re-scoring. This schema supersedes the v0.4 stalk schema, which conflated hypothesis spaces, pre-clustering, and within-cluster coherence into a single file type; v0.1 splits those three concerns into stalks (inline here), restriction maps (inline here), and Ideas (separate documents).",
+
+  "type": "object",
+  "required": ["sheaf_id", "corpus", "base", "stalks", "restriction_maps", "map_section", "extraction"],
+  "properties": {
+
+    "sheaf_id": {
+      "type": "string",
+      "description": "Unique identifier for this sheaf. E.g. 'pendulum_corpus/sheaf_v2_2026-04'."
+    },
+
+    "corpus": {
+      "type": "string",
+      "description": "Human-readable name of the corpus this sheaf covers. E.g. 'Pendulum large-amplitude dynamics, 4 papers'."
+    },
+
+    "pipeline_version": {
+      "type": "string",
+      "description": "Which pipeline version produced this sheaf. E.g. 'v2_paper_as_stalk'."
+    },
+
+    "created_at": {
+      "type": "string",
+      "description": "ISO 8601 timestamp of sheaf construction. E.g. '2026-04-23T06:12:00Z'."
+    },
+
+    "base": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "The 0-cells of the comparability complex — the list of claim_ids this sheaf is defined over. Every claim_id in this list must have an entry in `stalks`. Order is not semantic but SHOULD be alphabetical for readability."
+    },
+
+    "stalks": {
+      "type": "object",
+      "description": "Map from claim_id to its hypothesis-space stalk. Each stalk is the set of variants for that one claim: the original statement plus any evidence-faithful alternatives generated to meet neighbor claims. Most stalks are singletons (just the `#original` variant) for claims that were never contested; contested claims carry 2–5 variants typically. The stalk is where 'what this claim could have said, consistent with its own evidence, to avoid contradicting a neighbor' is recorded.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["claim_id", "variants"],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "description": "The claim this stalk is attached to. Must appear in the sheaf's `base` list."
+          },
+          "variants": {
+            "type": "array",
+            "description": "The hypothesis space for this claim. Always contains at least one entry (the `#original`). Additional entries are generated when a neighbor claim's restriction check fails against the original; each additional variant is a rewrite of the claim that (a) respects the same underlying evidence and (b) restricts compatibly into at least one specified neighbor.",
+            "items": {
+              "type": "object",
+              "required": ["variant_id", "text", "rewrite_distance", "evidence_faithful"],
+              "properties": {
+                "variant_id": {
+                  "type": "string",
+                  "description": "Stable identifier for this variant, of the form `{claim_id}#{tag}` where tag is either 'original' or a short descriptor of the rewrite direction. E.g. 'Liekhus2026:02#original', 'Liekhus2026:02#alt_small_angle'."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "The variant's statement, expressed in the same cause/direction/effect natural-language form as the original claim. Rewrites narrow, qualify, or rescope the original; they do not add data."
+                },
+                "rewrite_distance": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "How far this variant departs from the original claim, on a 0-to-1 scale. 0 is the original itself. Small distances (~0.1–0.3) are minor scope narrowings, boundary qualifications, or stylistic softenings. Medium distances (~0.4–0.6) replace or drop a quantitative commitment. Large distances (~0.7–1.0) reinterpret the claim's mechanism or demote a causal claim to correlational. MAP selection penalizes rewrite distance with a λ coefficient so that minimal interventions win when they suffice."
+                },
+                "targets": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "List of claim_ids this variant was specifically generated to satisfy. An empty array means the variant is the `#original` or a paper-internal refinement not targeted at a specific neighbor. E.g. ['Chen2024:03', 'Zhao2025:01'] means this variant was produced because restriction against Chen2024:03 and Zhao2025:01 failed against the original."
+                },
+                "evidence_strengths_invoked": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "List of items from the claim's own `evidence.strengths` (see claim schema v0.5) that this variant preserves. A rewrite that discards a strength paid for by the claim's own evidence is not evidence-faithful."
+                },
+                "evidence_weaknesses_invoked": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "List of items from the claim's own `evidence.weaknesses` that this variant's rewrite is grounded in. This is the load-bearing connection: an evidence-faithful rewrite narrows the scope by invoking a weakness the claim's own paper acknowledges. E.g. if a pendulum paper's claim has weakness 'assumed small-angle approximation, amplitudes above 15° not measured', an evidence-faithful rewrite can narrow the claim to θ ≤ 15° by invoking exactly that weakness."
+                },
+                "evidence_faithful": {
+                  "type": "boolean",
+                  "description": "Whether this variant preserves all the claim's own evidence as support for itself. The `#original` is always true by definition. A rewrite is evidence-faithful iff it (a) does not require evidence the paper did not present, and (b) any scope narrowings are justified by the paper's own stated weaknesses. MAP should only select non-faithful variants with heavy weight — they represent taking a position the paper itself does not support."
+                },
+                "faithfulness_note": {
+                  "type": "string",
+                  "description": "Free-form prose justifying the evidence_faithful verdict. SHOULD cite specific entries from `evidence_strengths_invoked` and `evidence_weaknesses_invoked`. E.g. 'Rewrite narrows the validity to θ ≤ 15° by invoking the paper's own weakness entry acknowledging amplitudes above 15° were not directly measured; the second-order amplitude-correction strength is preserved.'"
+                },
+                "extraction": {
+                  "type": "object",
+                  "description": "How this variant was produced. For `#original`, method='paper'. For rewrites, method='llm_single' or 'manual' with note on which neighbor triggered the generation.",
+                  "properties": {
+                    "method": {
+                      "type": "string",
+                      "enum": ["paper", "llm_single", "llm_median", "manual", "hybrid"]
+                    },
+                    "model": { "type": "string" },
+                    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                    "triggered_by_edge": {
+                      "type": "string",
+                      "description": "For rewrite variants: identifier of the restriction_map edge whose failure triggered this variant's generation. E.g. 'restriction:Liekhus2026:02↔Chen2024:03'."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "restriction_maps": {
+      "type": "array",
+      "description": "The 1-cells of the comparability complex: edges between claim_ids that are comparable under the combined (semilattice-meet, SNAG-overlap) test. Each edge carries the meet structure, the SNAG overlap diagnostics, and — crucially — the FULL compatibility-score matrix over the two stalks' variants (every variant of claim_a crossed with every variant of claim_b). Storing the full matrix rather than just the MAP-selected pair lets the section be replayed at different λ rewrite penalties or under different scoring rules without re-invoking the LLM judge.",
+      "items": {
+        "type": "object",
+        "required": ["edge_id", "claim_a", "claim_b", "compatibility_scores"],
+        "properties": {
+          "edge_id": {
+            "type": "string",
+            "description": "Stable identifier for this restriction map. Of the form `restriction:{claim_a}↔{claim_b}` with claim_a < claim_b alphabetically. E.g. 'restriction:Chen2024:03↔Liekhus2026:02'."
+          },
+          "claim_a": { "type": "string", "description": "First claim_id (alphabetically lower)." },
+          "claim_b": { "type": "string", "description": "Second claim_id (alphabetically higher)." },
+          "semilattice_meet": {
+            "type": "object",
+            "description": "The shared regime where these two claims overlap — the non-empty meet of their `scope.evidenced` blocks. Computed field-by-field via the paper schema's meet rules.",
+            "properties": {
+              "mode_meet": { "type": "string", "description": "E.g. 'small-amplitude oscillation' if both claims are about small-amplitude pendulum motion." },
+              "framework_meet": { "type": "string", "description": "E.g. 'nonlinear equation of motion, 4th-order Runge-Kutta' if both used this framework." },
+              "conditions_meet": { "type": "array", "items": { "type": "string" }, "description": "Intersection of the two `scope.evidenced.conditions` lists." }
+            }
+          },
+          "snag_overlap": {
+            "type": "number",
+            "description": "The SNAG (cause-effect graph) overlap score between the two claims. Higher values indicate the claims invoke more shared mechanism variables. Used as an edge weight when MAP is solved by message-passing; also a tie-breaker signal when the compatibility score is near zero."
+          },
+          "restriction_kind": {
+            "type": "string",
+            "enum": ["symmetric_compatibility", "asymmetric_conclusion_into_data"],
+            "description": "'symmetric_compatibility' = claim_a and claim_b are checked for mutual agreement under restriction to their meet. 'asymmetric_conclusion_into_data' = the conclusion of claim_a is checked for consistency against the DATA of claim_b (and vice versa). The asymmetric mode is the sharper sheaf-theoretic test and surfaces cases where the conclusion is internally evidenced but fails against a neighbor's observational ground."
+          },
+          "compatibility_scores": {
+            "type": "array",
+            "description": "Full cube of per-variant-pair compatibility scores. Size = |stalk_a.variants| × |stalk_b.variants|. Every pair is scored so that MAP can be replayed at any λ without rescoring.",
+            "items": {
+              "type": "object",
+              "required": ["variant_a_id", "variant_b_id", "score"],
+              "properties": {
+                "variant_a_id": { "type": "string" },
+                "variant_b_id": { "type": "string" },
+                "score": {
+                  "type": "number",
+                  "minimum": -1,
+                  "maximum": 1,
+                  "description": "Compatibility in [-1, 1]. +1 = strong agreement (the two variants say the same thing or one extends the other). 0 = boundary or orthogonal. -1 = direct contradiction. Same scale as v1 divergence scores; carried forward for continuity."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": ["agreement", "extension", "refinement", "qualification", "boundary", "contradiction"],
+                  "description": "Categorical label matching the score's sign and magnitude. 'agreement' (~0.6 to 1.0), 'extension' (~0.4 to 0.8, one generalizes the other), 'refinement' (~0.4 to 0.7, one is a more specific version of the other), 'qualification' (~0.2 to 0.5, one constrains or caveats the other), 'boundary' (~-0.2 to 0.2, non-overlapping but non-contradictory), 'contradiction' (< -0.2)."
+                },
+                "explanation": {
+                  "type": "string",
+                  "description": "Short prose justification for the score. E.g. 'Chen2024:03 directly refutes Liekhus2026:02#original but is consistent with Liekhus2026:02#alt_small_angle under restriction to θ ≤ 15°.'"
+                }
+              }
+            }
+          },
+          "extraction": {
+            "type": "object",
+            "description": "Provenance for this restriction map. Typically method='llm_single' with model = the divergence-scoring LLM.",
+            "properties": {
+              "method": { "type": "string", "enum": ["manual", "llm_single", "llm_median", "hybrid"] },
+              "model": { "type": "string" },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    },
+
+    "map_section": {
+      "type": "object",
+      "description": "The MAP global section: one variant selected per claim, maximizing coherence minus rewrite cost. This is the sheaf's 'answer' — the maximally-consistent reading of the corpus under the faithfulness constraint. Alternative sections (at different λ or near-optimal) are retained for sensitivity analysis.",
+      "required": ["selected", "total_score", "coherence", "rewrite_cost", "lambda_rewrite_penalty"],
+      "properties": {
+        "selected": {
+          "type": "object",
+          "description": "Map from claim_id to the variant_id selected by MAP. Every claim in `base` appears here. E.g. {'Liekhus2026:02': 'Liekhus2026:02#alt_small_angle', 'Chen2024:03': 'Chen2024:03#original', ...}.",
+          "additionalProperties": { "type": "string" }
+        },
+        "total_score": {
+          "type": "number",
+          "description": "The MAP objective value: coherence − λ × rewrite_cost. Higher is better. Directly comparable only within the same sheaf (different corpora have different edge counts)."
+        },
+        "coherence": {
+          "type": "number",
+          "description": "Sum of compatibility_scores over all restriction-map edges, evaluated on the selected variant pair. Positive = the section's pairs agree on average; negative = the corpus is structurally contradictory even after rewriting."
+        },
+        "rewrite_cost": {
+          "type": "number",
+          "description": "Sum of rewrite_distance over all selected variants. 0 means no claim was rewritten; larger values mean more scope-narrowing was required to achieve the coherence."
+        },
+        "lambda_rewrite_penalty": {
+          "type": "number",
+          "description": "The λ coefficient used in total_score = coherence − λ × rewrite_cost. A knob controlling how aggressively to preserve the papers' original voices. Typical values: λ ≈ 0.2 (rewrite eagerly for coherence), λ ≈ 0.4 (balanced), λ ≈ 0.8 (preserve originals strongly). SHOULD be reported alongside the section."
+        },
+        "alternative_sections": {
+          "type": "array",
+          "description": "Other high-scoring sections — typically the top 3–5 besides the MAP winner. Each has the same schema as the primary selection. Useful for sensitivity analysis: if the top-2 total scores are close, the MAP is not decisive and the corpus can be read multiple ways.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "selected": { "type": "object", "additionalProperties": { "type": "string" } },
+              "total_score": { "type": "number" },
+              "coherence": { "type": "number" },
+              "rewrite_cost": { "type": "number" },
+              "rank": { "type": "integer", "description": "1 = winner, 2 = runner-up, etc." }
+            }
+          }
+        },
+        "residual_h1": {
+          "type": "array",
+          "description": "The edges still in disagreement under the selected section — restriction-map edges whose compatibility_score on the selected variant pair is ≤ 0. These are the sheaf's unresolved obstructions to a global section; they are what the Idea schema's `open_questions` feed from.",
+          "items": {
+            "type": "object",
+            "required": ["edge_id", "claim_a", "claim_b", "selected_score"],
+            "properties": {
+              "edge_id": { "type": "string" },
+              "claim_a": { "type": "string" },
+              "claim_b": { "type": "string" },
+              "selected_score": { "type": "number" },
+              "why_unresolved": {
+                "type": "string",
+                "description": "Prose explanation of why no section variant achieves positive compatibility on this edge. Typically: neither claim's stalk contains a rewrite that satisfies the other without violating evidence-faithfulness."
+              }
+            }
+          }
+        },
+        "solver": {
+          "type": "object",
+          "description": "How the MAP section was computed.",
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": ["enumerate", "loopy_bp", "ilp", "simulated_annealing", "manual"],
+              "description": "'enumerate' is feasible when Π |stalk| is small (say < 10⁴). 'loopy_bp' scales to corpora with hundreds of claims. 'ilp' for exact solutions with moderate scale. 'simulated_annealing' for stochastic approximation at large scale."
+            },
+            "runtime_ms": { "type": "number" },
+            "n_sections_evaluated": { "type": "integer" }
+          }
+        }
+      }
+    },
+
+    "frustration": {
+      "type": "object",
+      "description": "Penrose-triangle frustration diagnostics on the MAP section. Computed over the restriction-maps graph with signs taken from compatibility_scores evaluated at the selected variant pair.",
+      "properties": {
+        "n_triangles": { "type": "integer", "description": "Total number of 3-cycles in the restriction-maps graph." },
+        "n_signed_triangles": { "type": "integer", "description": "Triangles where all three edges have non-zero compatibility_score." },
+        "n_penrose": {
+          "type": "integer",
+          "description": "Triangles where sign(e_ab) × sign(e_ac) × sign(e_bc) < 0 — structurally inconsistent. A Penrose triangle cannot be resolved by any single-claim rewrite; it signals a genuine three-way structural tension."
+        },
+        "rho": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Discrete-H¹ surrogate: n_penrose / n_signed_triangles. 0 = fully resolvable; 1 = all signed triangles frustrated. Directly comparable to v1 stalk-level ρ."
+        },
+        "penrose_triangles": {
+          "type": "array",
+          "description": "Explicit list of unresolved triangles, for inspection.",
+          "items": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "Three claim_ids forming a Penrose triangle."
+          }
+        }
+      }
+    },
+
+    "extraction": {
+      "type": "object",
+      "required": ["method"],
+      "description": "Provenance for how this sheaf was populated.",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["manual", "llm_single", "llm_median", "hybrid"]
+        },
+        "model": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,159 @@
+"""Render a self-contained HTML visualization of a completed pipeline run.
+
+Loads sheaf.json + claims/ + papers/ + ideas/ from a run directory, projects
+them into a viz-friendly payload, and substitutes that into an HTML template
+that ships with the package. The output is a single self-contained file:
+double-click it, no server needed (D3 loads from CDN).
+
+Two modes baked in:
+  - structural  (nodes by paper, edges by sign, hulls per Idea)
+  - priority    (nodes red on residual-edge participation, hulls by ρ,
+                 side panel = aggregated next-steps)
+"""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from .paths import Run
+
+TEMPLATE_PATH = Path(__file__).parent / "templates" / "viz.html"
+
+
+def _build_payload(run: Run) -> dict:
+    sheaf = json.loads(run.sheaf_path.read_text())
+
+    # papers
+    papers = []
+    for f in sorted(run.papers_dir.glob("*.json")):
+        p = json.loads(f.read_text())
+        papers.append(
+            {
+                "paper_id": p["paper_id"],
+                "title": p.get("bibliographic", {}).get("title", p["paper_id"]),
+                "year": p.get("bibliographic", {}).get("year"),
+            }
+        )
+
+    # claims (full records, indexed by id)
+    claim_by_id = {}
+    for f in sorted(run.claims_dir.glob("*.json")):
+        c = json.loads(f.read_text())
+        claim_by_id[c["claim_id"]] = c
+
+    # ideas (full records) + claim → idea mapping
+    ideas_full = []
+    claim_to_idea = {}
+    for f in sorted(run.ideas_dir.glob("*.json")):
+        idea = json.loads(f.read_text())
+        ideas_full.append(idea)
+        for cc in idea["contributing_claims"]:
+            # if a claim appears in multiple ideas (the duplicate-claim wart),
+            # last one wins for graph rendering purposes
+            claim_to_idea[cc["claim_id"]] = idea["idea_id"]
+
+    # MAP section
+    selected = sheaf["map_section"]["selected"]
+    residual_pairs = {
+        (r["claim_a"], r["claim_b"])
+        for r in sheaf["map_section"].get("residual_h1", [])
+    }
+
+    # build edges (one per restriction_map, using the MAP-selected pair score)
+    edges = []
+    residual_claim_ids: set[str] = set()
+    for rm in sheaf["restriction_maps"]:
+        a, b = rm["claim_a"], rm["claim_b"]
+        va, vb = selected[a], selected[b]
+        score_entry = next(
+            s
+            for s in rm["compatibility_scores"]
+            if s["variant_a_id"] == va and s["variant_b_id"] == vb
+        )
+        is_residual = (a, b) in residual_pairs
+        if score_entry["score"] <= 0:
+            residual_claim_ids.add(a)
+            residual_claim_ids.add(b)
+        edges.append(
+            {
+                "edge_id": rm["edge_id"],
+                "source": a,
+                "target": b,
+                "selected_score": score_entry["score"],
+                "kind": score_entry["kind"],
+                "explanation": score_entry["explanation"],
+                "is_residual": is_residual,
+            }
+        )
+
+    # build viz-side claims (only those in MAP)
+    viz_claims = []
+    for cid, vid in selected.items():
+        c = claim_by_id.get(cid, {})
+        viz_claims.append(
+            {
+                "claim_id": cid,
+                "paper_id": c.get("paper_id"),
+                "credibility": c.get("credibility_score", 0.5),
+                "cause": (c.get("cause") or "")[:300],
+                "effect": (c.get("effect") or "")[:300],
+                "direction": c.get("direction"),
+                "selected_variant_id": vid,
+                "is_rewritten": not vid.endswith("#original"),
+                "in_residual_edge": cid in residual_claim_ids,
+                "idea_id": claim_to_idea.get(cid),
+            }
+        )
+
+    # viz-side ideas
+    viz_ideas = []
+    for idea in ideas_full:
+        viz_ideas.append(
+            {
+                "idea_id": idea["idea_id"],
+                "label": idea["label"],
+                "description": idea["description"],
+                "scope": idea.get("scope", {}),
+                "claim_ids": [cc["claim_id"] for cc in idea["contributing_claims"]],
+                "rho": idea["frustration"]["rho"],
+                "agreement_score": idea["consensus"]["agreement_score"],
+                "n_papers": idea["consensus"]["n_papers_represented"],
+                "n_open_questions": len(idea.get("open_questions", [])),
+                "open_questions": idea.get("open_questions", []),
+            }
+        )
+
+    fr = sheaf.get("frustration", {})
+    ms = sheaf["map_section"]
+    return {
+        "corpus": sheaf.get("corpus", run.root.name),
+        "run_id": sheaf.get("sheaf_id", run.root.name),
+        "lambda_rewrite_penalty": ms.get("lambda_rewrite_penalty"),
+        "stats": {
+            "n_papers": len(papers),
+            "n_claims": len(viz_claims),
+            "n_edges": len(edges),
+            "n_ideas": len(viz_ideas),
+            "rho": fr.get("rho", 0),
+            "n_penrose": fr.get("n_penrose", 0),
+            "n_residual_h1": len(ms.get("residual_h1", [])),
+            "n_rewrites": sum(1 for c in viz_claims if c["is_rewritten"]),
+            "coherence": ms.get("coherence", 0),
+            "rewrite_cost": ms.get("rewrite_cost", 0),
+        },
+        "papers": papers,
+        "claims": viz_claims,
+        "edges": edges,
+        "ideas": viz_ideas,
+    }
+
+
+def render(run: Run, out_path: Path | None = None) -> Path:
+    """Render the viz HTML for `run`. Returns the path written."""
+    payload = _build_payload(run)
+    template = TEMPLATE_PATH.read_text()
+    html = template.replace("__PAYLOAD_JSON__", json.dumps(payload))
+    if out_path is None:
+        out_path = run.root / "constellation.html"
+    out_path.write_text(html)
+    return out_path
