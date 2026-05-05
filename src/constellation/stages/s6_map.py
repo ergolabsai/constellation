@@ -29,6 +29,8 @@ console = Console()
 
 LAMBDA_REWRITE_PENALTY = 0.4   # architecture default
 N_ALTERNATIVE_SECTIONS = 4     # how many runners-up to keep
+ENUMERATE_LIMIT = 100_000      # use coord-ascent when |Π F(c)| exceeds this
+COORD_ASCENT_RESTARTS = 5      # restarts to escape local optima
 
 
 def _build_indexes(sheaf: dict) -> tuple[dict, dict, dict]:
@@ -94,6 +96,109 @@ def _enumerate_sections(
     return sections
 
 
+def _coord_ascent(
+    variants_per_claim: dict[str, list[str]],
+    rms: list[dict],
+    rewrite_distance: dict[str, float],
+    score_by_pair: dict[tuple[str, str], dict],
+    lam: float,
+    *,
+    seed: dict[str, str] | None = None,
+) -> dict:
+    """Coordinate-ascent MAP solver — usable when |Π F(c)| is too large for
+    exhaustive enumeration. Greedy: starting from the seed, iterate over each
+    claim and switch to whichever variant locally maximizes total_score, holding
+    every other claim fixed. Repeat until a full pass produces no change.
+
+    Converges in O(n_claims × max_variants × n_passes × n_edges) time. Often
+    finds the global optimum; can get stuck in local optima — caller should
+    multi-restart and keep the best.
+    """
+    claim_ids = sorted(variants_per_claim.keys())
+    if seed is None:
+        # Default seed: every claim's first variant (canonically the original)
+        selected = {cid: variants_per_claim[cid][0] for cid in claim_ids}
+    else:
+        selected = dict(seed)
+
+    # Per-claim edge index for fast incremental scoring
+    edges_by_claim: dict[str, list[dict]] = {cid: [] for cid in claim_ids}
+    for rm in rms:
+        edges_by_claim[rm["claim_a"]].append(rm)
+        edges_by_claim[rm["claim_b"]].append(rm)
+
+    def _claim_local_score(cid: str, vid: str) -> float:
+        """Sum of compatibility on every edge touching `cid`, with `cid`
+        assigned variant `vid` and all other selections held fixed.
+        Plus the −λ·rewrite_distance contribution from this claim."""
+        coh = 0.0
+        for rm in edges_by_claim[cid]:
+            other = rm["claim_b"] if rm["claim_a"] == cid else rm["claim_a"]
+            other_vid = selected[other]
+            if rm["claim_a"] == cid:
+                key = (vid, other_vid)
+            else:
+                key = (other_vid, vid)
+            coh += score_by_pair[key]["score"]
+        return coh - lam * rewrite_distance[vid]
+
+    changed = True
+    while changed:
+        changed = False
+        for cid in claim_ids:
+            variants = variants_per_claim[cid]
+            if len(variants) == 1:
+                continue
+            best_vid = selected[cid]
+            best_local = _claim_local_score(cid, best_vid)
+            for vid in variants:
+                if vid == best_vid:
+                    continue
+                s = _claim_local_score(cid, vid)
+                if s > best_local + 1e-12:
+                    best_local = s
+                    best_vid = vid
+            if best_vid != selected[cid]:
+                selected[cid] = best_vid
+                changed = True
+
+    return _evaluate_section(selected, rms, rewrite_distance, score_by_pair, lam)
+
+
+def _coord_ascent_multistart(
+    variants_per_claim: dict[str, list[str]],
+    rms: list[dict],
+    rewrite_distance: dict[str, float],
+    score_by_pair: dict[tuple[str, str], dict],
+    lam: float,
+    n_restarts: int,
+) -> list[dict]:
+    """Run coordinate ascent from multiple seeds; return all found sections
+    sorted by −total_score. Seeds: first is all-originals; remaining are random.
+    """
+    import random
+
+    rng = random.Random(0xC0DE)
+    claim_ids = sorted(variants_per_claim.keys())
+
+    seeds = [None]   # all-originals seed
+    for _ in range(max(0, n_restarts - 1)):
+        seeds.append({cid: rng.choice(variants_per_claim[cid]) for cid in claim_ids})
+
+    seen: dict[tuple, dict] = {}
+    for seed in seeds:
+        result = _coord_ascent(
+            variants_per_claim, rms, rewrite_distance, score_by_pair, lam, seed=seed
+        )
+        # De-dup by selected tuple
+        key = tuple(sorted(result["selected"].items()))
+        if key not in seen or seen[key]["total_score"] < result["total_score"]:
+            seen[key] = result
+    sections = list(seen.values())
+    sections.sort(key=lambda s: -s["total_score"])
+    return sections
+
+
 def _residual_h1(
     selected: dict[str, str],
     rms: list[dict],
@@ -147,19 +252,39 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
     n_sections = 1
     for v in variants_per_claim.values():
         n_sections *= len(v)
-    console.print(
-        f"stage 6: enumerating MAP section over {n_sections} candidates "
-        f"(λ = {LAMBDA_REWRITE_PENALTY})"
-    )
+
+    use_enumerate = n_sections <= ENUMERATE_LIMIT
+    method = "enumerate" if use_enumerate else "coord_ascent"
+    if use_enumerate:
+        console.print(
+            f"stage 6: enumerating MAP section over {n_sections:,} candidates "
+            f"(λ = {LAMBDA_REWRITE_PENALTY})"
+        )
+    else:
+        console.print(
+            f"stage 6: section space is {n_sections:,} "
+            f"(> {ENUMERATE_LIMIT:,} limit) — using coord ascent with "
+            f"{COORD_ASCENT_RESTARTS} restarts (λ = {LAMBDA_REWRITE_PENALTY})"
+        )
 
     t0 = time.perf_counter()
-    sections = _enumerate_sections(
-        variants_per_claim,
-        sheaf["restriction_maps"],
-        rewrite_distance,
-        score_by_pair,
-        LAMBDA_REWRITE_PENALTY,
-    )
+    if use_enumerate:
+        sections = _enumerate_sections(
+            variants_per_claim,
+            sheaf["restriction_maps"],
+            rewrite_distance,
+            score_by_pair,
+            LAMBDA_REWRITE_PENALTY,
+        )
+    else:
+        sections = _coord_ascent_multistart(
+            variants_per_claim,
+            sheaf["restriction_maps"],
+            rewrite_distance,
+            score_by_pair,
+            LAMBDA_REWRITE_PENALTY,
+            n_restarts=COORD_ASCENT_RESTARTS,
+        )
     runtime_ms = (time.perf_counter() - t0) * 1000.0
 
     winner = sections[0]
@@ -187,9 +312,10 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
         ],
         "residual_h1": residual,
         "solver": {
-            "method": "enumerate",
+            "method": method,
             "runtime_ms": runtime_ms,
             "n_sections_evaluated": len(sections),
+            "section_space_size": n_sections,
         },
     }
     sheaf["extraction"]["notes"] = (

@@ -29,7 +29,8 @@ from ..prompt_loader import load_prompt
 
 console = Console()
 
-MAX_RETRIES = 1  # tagging is simpler than extraction; one retry is plenty
+MAX_RETRIES = 1  # per-batch retry; batches keep individual call output bounded
+TAG_BATCH_SIZE = 30  # claims per LLM call — bounds output size + isolates failures
 
 
 # ---------- shared loaders ---------------------------------------------------
@@ -104,6 +105,16 @@ def _validate_vocabulary(vocab: Any) -> None:
 
     seen_dims = set()
     for dim in vocab["semilattice_dimensions"]:
+        # For hierarchical dimensions, the hierarchy keys ARE the values; derive
+        # `values` from them if the LLM omitted it. (Strict requirement
+        # otherwise — a discrete dim without `values` is genuinely malformed.)
+        if (
+            "values" not in dim
+            and dim.get("ordering") == "hierarchical"
+            and isinstance(dim.get("hierarchy"), dict)
+        ):
+            dim["values"] = sorted(dim["hierarchy"].keys())
+
         for required in ("name", "values", "ordering"):
             if required not in dim:
                 raise ValueError(f"dimension missing required key '{required}': {dim}")
@@ -150,26 +161,24 @@ def _load_or_propose_vocabulary(
 # ---------- 2b: per-claim tagging --------------------------------------------
 
 
-def _tag_claims(llm: LLM, vocab: dict, claims: list[dict]) -> dict[str, Any]:
-    """One LLM call to tag all claims against the vocabulary."""
-    system_template = load_prompt("s2b_tag_claims")
-    system = system_template.replace("{vocabulary_json}", json.dumps(vocab, indent=2))
-
-    payload = [_claim_summary(c) for c in claims]
+def _tag_one_batch(
+    llm: LLM, vocab: dict, batch: list[dict], system: str
+) -> dict[str, Any]:
+    """Tag one batch of claims. Per-batch retry on JSON/validation failure."""
+    payload = [_claim_summary(c) for c in batch]
     user_text = (
         "Tag the following claims using the vocabulary in the system prompt. "
         "Return ONLY the JSON object keyed by claim_id.\n\n# Claims\n\n```json\n"
         + json.dumps(payload, indent=2)
         + "\n```"
     )
-
-    last_error: Exception | None = None
     messages = [{"role": "user", "content": [{"type": "text", "text": user_text}]}]
+    last_error: Exception | None = None
     for attempt in range(MAX_RETRIES + 1):
         try:
             text = llm.chat(system=system, messages=messages, max_tokens=16384)
             tags = parse_json_response(text)
-            _validate_tags(tags, vocab, claims)
+            _validate_tags(tags, vocab, batch)
             return tags
         except (ValueError, json.JSONDecodeError) as e:
             last_error = e
@@ -192,7 +201,46 @@ def _tag_claims(llm: LLM, vocab: dict, claims: list[dict]) -> dict[str, Any]:
                     ],
                 },
             ]
-    raise RuntimeError(f"tagging failed after {MAX_RETRIES + 1} attempts: {last_error}")
+    raise RuntimeError(
+        f"batch tagging failed after {MAX_RETRIES + 1} attempts: {last_error}"
+    )
+
+
+def _tag_claims(llm: LLM, vocab: dict, claims: list[dict]) -> dict[str, Any]:
+    """Tag all claims by chunking into batches.
+
+    A single call for hundreds of claims hits two failure modes: (1) max_tokens
+    truncation, (2) the model losing structural fidelity over very long outputs.
+    Chunking bounds both. Per-batch failures don't kill the run — we log and
+    continue, so a partial tagging is better than nothing.
+    """
+    system_template = load_prompt("s2b_tag_claims")
+    system = system_template.replace("{vocabulary_json}", json.dumps(vocab, indent=2))
+
+    n_batches = (len(claims) + TAG_BATCH_SIZE - 1) // TAG_BATCH_SIZE
+    all_tags: dict[str, Any] = {}
+    failures: list[tuple[int, str]] = []
+
+    for i in range(n_batches):
+        batch = claims[i * TAG_BATCH_SIZE : (i + 1) * TAG_BATCH_SIZE]
+        console.print(
+            f"    batch {i + 1}/{n_batches}: tagging {len(batch)} claims…"
+        )
+        try:
+            batch_tags = _tag_one_batch(llm, vocab, batch, system)
+            all_tags.update(batch_tags)
+        except Exception as e:
+            failures.append((i + 1, str(e)))
+            console.print(f"      [red]batch {i + 1} failed[/red]: {e}")
+
+    if failures:
+        console.print(
+            f"  [yellow]warning[/yellow]: {len(failures)}/{n_batches} tag batches "
+            f"failed; {len(all_tags)}/{len(claims)} claims tagged"
+        )
+    if not all_tags:
+        raise RuntimeError("tagging produced no successful batches")
+    return all_tags
 
 
 def _validate_tags(tags: Any, vocab: dict, claims: list[dict]) -> None:

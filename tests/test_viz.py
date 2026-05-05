@@ -229,3 +229,92 @@ def test_render_to_custom_path(tmp_path: Path):
     out = render(run, out_path=custom)
     assert out == custom
     assert custom.exists()
+
+
+# ---------- synthesis paper flag --------------------------------------------
+
+
+def test_synthesis_paper_marks_papers_and_claims(tmp_path: Path):
+    run = _toy_run(tmp_path)
+    payload = _build_payload(run, synthesis_paper_id="p")
+    assert payload["synthesis_paper_id"] == "p"
+    assert all(p["is_synthesis"] is True for p in payload["papers"] if p["paper_id"] == "p")
+    # All claims in the toy run come from paper "p", so all should be flagged
+    assert all(c["is_synthesis_paper"] is True for c in payload["claims"])
+
+
+def test_synthesis_paper_default_none(tmp_path: Path):
+    run = _toy_run(tmp_path)
+    payload = _build_payload(run)   # no synthesis flag
+    assert payload["synthesis_paper_id"] is None
+    assert all(c["is_synthesis_paper"] is False for c in payload["claims"])
+    assert all(p["is_synthesis"] is False for p in payload["papers"])
+
+
+def test_synthesis_paper_unknown_raises(tmp_path: Path):
+    import pytest
+    run = _toy_run(tmp_path)
+    with pytest.raises(ValueError, match="not found in run"):
+        _build_payload(run, synthesis_paper_id="ghost")
+
+
+def test_render_passes_synthesis_into_html(tmp_path: Path):
+    run = _toy_run(tmp_path)
+    out = render(run, synthesis_paper_id="p")
+    text = out.read_text()
+    assert '"synthesis_paper_id": "p"' in text
+    assert '"is_synthesis_paper": true' in text
+
+
+# ---------- rewrite_info on rewritten claims ---------------------------------
+
+
+def test_rewrite_info_present_for_rewritten_claim(tmp_path: Path):
+    run = _toy_run(tmp_path)
+    # Mutate the toy: give p:01 an alternative variant and have MAP select it
+    sheaf = json.loads(run.sheaf_path.read_text())
+    sheaf["stalks"]["p:01"]["variants"].append(
+        {
+            "variant_id": "p:01#alt_narrow",
+            "text": "X narrowly causes Y under condition C",
+            "rewrite_distance": 0.3,
+            "targets": ["p:02"],
+            "evidence_strengths_invoked": ["s1"],
+            "evidence_weaknesses_invoked": ["w1"],
+            "evidence_faithful": True,
+            "faithfulness_note": "narrowed by invoking w1",
+        }
+    )
+    sheaf["map_section"]["selected"]["p:01"] = "p:01#alt_narrow"
+    # The restriction map only had the orig-orig score; add the alt-orig pair
+    # so viz._build_payload can look it up.
+    sheaf["restriction_maps"][0]["compatibility_scores"].append(
+        {
+            "variant_a_id": "p:01#alt_narrow",
+            "variant_b_id": "p:02#original",
+            "score": 0.65,
+            "kind": "qualification",
+            "explanation": "narrowed",
+        }
+    )
+    run.sheaf_path.write_text(json.dumps(sheaf))
+
+    payload = _build_payload(run)
+    by_id = {c["claim_id"]: c for c in payload["claims"]}
+    assert by_id["p:01"]["is_rewritten"] is True
+    r = by_id["p:01"]["rewrite_info"]
+    assert r is not None
+    assert r["text"] == "X narrowly causes Y under condition C"
+    assert r["rewrite_distance"] == 0.3
+    assert r["targets"] == ["p:02"]
+    assert r["evidence_weaknesses_invoked"] == ["w1"]
+    assert r["faithfulness_note"] == "narrowed by invoking w1"
+
+
+def test_rewrite_info_none_for_unmodified_claim(tmp_path: Path):
+    run = _toy_run(tmp_path)
+    payload = _build_payload(run)
+    # All toy claims are #original, so rewrite_info should be None for all
+    for c in payload["claims"]:
+        assert c["is_rewritten"] is False
+        assert c["rewrite_info"] is None

@@ -101,6 +101,32 @@ def test_validate_vocabulary_rejects_hierarchical_without_hierarchy():
         _validate_vocabulary(bad)
 
 
+def test_validate_vocabulary_derives_values_from_hierarchy():
+    """For a hierarchical dim, the hierarchy keys ARE the values — derive them
+    if the LLM omitted the explicit `values` key."""
+    bad = _ok_vocab()
+    bad["semilattice_dimensions"][1] = {
+        "name": "framework",
+        "ordering": "hierarchical",
+        "hierarchy": {"x": None, "y": "x", "z": "y"},
+        # no `values` key
+    }
+    _validate_vocabulary(bad)
+    assert bad["semilattice_dimensions"][1]["values"] == ["x", "y", "z"]
+
+
+def test_validate_vocabulary_does_not_derive_for_discrete():
+    """A discrete dim without `values` is genuinely malformed — must reject."""
+    bad = _ok_vocab()
+    bad["semilattice_dimensions"][0] = {
+        "name": "mode",
+        "ordering": "discrete",
+        # no `values` key, no hierarchy either
+    }
+    with pytest.raises(ValueError, match="missing required key 'values'"):
+        _validate_vocabulary(bad)
+
+
 def test_validate_vocabulary_rejects_dup_dim_name():
     bad = _ok_vocab()
     bad["semilattice_dimensions"].append(

@@ -247,7 +247,7 @@
           "properties": {
             "method": {
               "type": "string",
-              "enum": ["enumerate", "loopy_bp", "ilp", "simulated_annealing", "manual"],
+              "enum": ["enumerate", "loopy_bp", "ilp", "simulated_annealing", "coord_ascent", "manual"],
               "description": "'enumerate' is feasible when Π |stalk| is small (say < 10⁴). 'loopy_bp' scales to corpora with hundreds of claims. 'ilp' for exact solutions with moderate scale. 'simulated_annealing' for stochastic approximation at large scale."
             },
             "runtime_ms": { "type": "number" },

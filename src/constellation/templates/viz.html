@@ -106,7 +106,37 @@
   .node { stroke: white; stroke-width: 1.5; cursor: pointer; }
   .node.dim { opacity: 0.25; }
   .node.selected { stroke: black; stroke-width: 2.5; }
+  /* Rewritten by MAP — dashed dark border, orthogonal to color/size channels. */
+  .node.rewritten { stroke: #111827; stroke-width: 2; stroke-dasharray: 3,2; }
+  .node.rewritten.selected { stroke: #000; stroke-width: 3; stroke-dasharray: 3,2; }
+  /* Synthesis-paper claims: star shape (a path) instead of circle. Same fill +
+     stroke conventions; the shape itself carries the synthesis signal. */
+  .node-synth { stroke: white; stroke-width: 1.5; cursor: pointer; }
+  .node-synth.dim { opacity: 0.25; }
+  .node-synth.selected { stroke: black; stroke-width: 2.5; }
+  .node-synth.rewritten { stroke: #111827; stroke-width: 2; stroke-dasharray: 3,2; }
   .node-label { pointer-events: none; font-size: 9px; fill: var(--text-dim); text-anchor: middle; }
+  .node-label.rewritten { font-weight: 700; fill: #111827; }
+  /* Small legend overlay — bottom-left of the graph area */
+  .legend {
+    position: absolute; left: 12px; bottom: 12px;
+    background: rgba(255,255,255,0.94); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 10px; font-size: 11px; line-height: 1.6;
+    color: var(--text); max-width: 240px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .legend h4 { margin: 0 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+  .legend .row { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; }
+  .legend .swatch.rewritten { border: 2px dashed #111827; background: #cbd5e1; box-sizing: border-box; }
+  .legend .swatch.normal { border: 1.5px solid white; box-shadow: 0 0 0 1px var(--border); background: #94a3b8; }
+  .legend .line { display: inline-block; width: 18px; height: 0; border-top: 3px solid; }
+  .legend .star { display: inline-block; width: 14px; text-align: center; color: #94a3b8; font-size: 16px; line-height: 14px; }
+  /* Idea-coverage bars (synthesis-paper panel) */
+  .coverage-row { display: grid; grid-template-columns: 1fr 50px; gap: 6px; align-items: center; margin: 4px 0; }
+  .coverage-bar { background: #e5e7eb; height: 14px; border-radius: 2px; position: relative; overflow: hidden; }
+  .coverage-bar .fill { background: var(--accent); height: 100%; }
+  .coverage-row .label { font-size: 11px; line-height: 1.3; }
+  .coverage-row .num { text-align: right; font-size: 11px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -122,6 +152,16 @@
     <div id="graph-wrap">
       <svg id="graph"></svg>
       <div class="tooltip" id="tooltip"></div>
+      <div class="legend">
+        <h4>Legend</h4>
+        <div class="row"><span class="swatch normal"></span> claim (color = paper, size = credibility)</div>
+        <div class="row"><span class="swatch rewritten"></span> <b>rewritten by MAP</b> (dashed border)</div>
+        <div class="row" id="legend-synthesis" style="display:none"><span class="star">★</span> <b>synthesis paper</b> claim</div>
+        <div class="row"><span class="line" style="border-color: var(--pos)"></span> agreement (positive)</div>
+        <div class="row"><span class="line" style="border-color: var(--neu)"></span> boundary / qualification</div>
+        <div class="row"><span class="line" style="border-color: var(--neg)"></span> contradiction</div>
+        <div class="row"><span class="line" style="border-color: var(--residual)"></span> residual H¹ (unresolvable)</div>
+      </div>
     </div>
     <aside id="panel">
       <div class="placeholder">Click a node, edge, or Idea hull to see details.</div>
@@ -155,6 +195,16 @@
     .range(d3.schemeSet3);
 
   const rhoColor = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, 0.5]);
+
+  // Data-driven credibility scale: actual [min, max] in this corpus mapped to
+  // a visually-distinguishable [5, 18]px radius range. scaleSqrt because
+  // perceived size is area, so r ∝ √value gives proportional visual weight.
+  // Falls back to a midpoint if all credibilities are equal.
+  const credExtent = d3.extent(DATA.claims, d => d.credibility);
+  const credScale = (credExtent[0] === credExtent[1])
+    ? () => 11
+    : d3.scaleSqrt().domain(credExtent).range([5, 18]);
+  function nodeRadius(d) { return credScale(d.credibility); }
 
   function edgeColor(e) {
     if (e.is_residual) return 'var(--residual)';
@@ -206,7 +256,7 @@
       .strength(d => 0.3 + 0.4 * Math.max(0, d.selected_score)))
     .force('charge', d3.forceManyBody().strength(-180))
     .force('center', d3.forceCenter(w / 2, h / 2))
-    .force('collide', d3.forceCollide().radius(d => 6 + 6 * d.credibility))
+    .force('collide', d3.forceCollide().radius(d => nodeRadius(d) + 2))
     .force('idea', ideaCohesion(0.05));
 
   // Light intra-Idea attraction so hulls form coherent clumps.
@@ -245,11 +295,16 @@
     .on('mouseout', hideTip);
 
   // ===== Render: nodes =====
-  const node = nodesG.selectAll('circle')
-    .data(DATA.claims)
+  // Split into circle (normal) + star (synthesis paper). Same fill/size/drag/
+  // click/hover machinery on both — the shape is just an additional channel.
+  const circleClaims = DATA.claims.filter(c => !c.is_synthesis_paper);
+  const starClaims = DATA.claims.filter(c => c.is_synthesis_paper);
+
+  const circleNode = nodesG.selectAll('circle.node')
+    .data(circleClaims)
     .enter().append('circle')
-    .attr('class', 'node')
-    .attr('r', d => 5 + 7 * d.credibility)
+    .attr('class', d => 'node' + (d.is_rewritten ? ' rewritten' : ''))
+    .attr('r', d => nodeRadius(d))
     .attr('fill', d => paperColor(d.paper_id))
     .call(drag(sim))
     .on('click', (ev, d) => { ev.stopPropagation(); showClaim(d); })
@@ -257,12 +312,34 @@
     .on('mousemove', moveTip)
     .on('mouseout', hideTip);
 
+  const starGen = d3.symbol().type(d3.symbolStar);
+  const starNode = nodesG.selectAll('path.node-synth')
+    .data(starClaims)
+    .enter().append('path')
+    .attr('class', d => 'node-synth' + (d.is_rewritten ? ' rewritten' : ''))
+    // d3.symbol size is area; scale ~1.6× so a star's visual weight matches a
+    // circle of the same nominal radius (stars look smaller at equal area).
+    .attr('d', d => starGen.size(Math.PI * nodeRadius(d) ** 2 * 1.8)())
+    .attr('fill', d => paperColor(d.paper_id))
+    .call(drag(sim))
+    .on('click', (ev, d) => { ev.stopPropagation(); showClaim(d); })
+    .on('mouseover', (ev, d) => showTip(ev, claimTip(d)))
+    .on('mousemove', moveTip)
+    .on('mouseout', hideTip);
+
+  // Combined selection for things that touch all nodes (highlight, mode change)
+  const node = d3.selectAll('.node, .node-synth');
+
+  if (DATA.synthesis_paper_id) {
+    document.getElementById('legend-synthesis').style.display = 'flex';
+  }
+
   // ===== Render: labels (only abbreviated id) =====
   const label = labelsG.selectAll('text')
     .data(DATA.claims)
     .enter().append('text')
-    .attr('class', 'node-label')
-    .text(d => d.claim_id.split(':').pop());
+    .attr('class', d => 'node-label' + (d.is_rewritten ? ' rewritten' : ''))
+    .text(d => d.claim_id.split(':').pop() + (d.is_rewritten ? ' ✎' : ''));
 
   // ===== Hulls (one per Idea) =====
   function hullPath(points) {
@@ -306,8 +383,9 @@
     link
       .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
-    node.attr('cx', d => d.x).attr('cy', d => d.y);
-    label.attr('x', d => d.x).attr('y', d => d.y - (5 + 7 * d.credibility) - 2);
+    circleNode.attr('cx', d => d.x).attr('cy', d => d.y);
+    starNode.attr('transform', d => `translate(${d.x}, ${d.y})`);
+    label.attr('x', d => d.x).attr('y', d => d.y - (nodeRadius(d)) - 2);
     hulls.attr('d', d => {
       const pts = d.claim_ids.map(id => claimMap.get(id))
         .filter(c => c && c.x != null).map(c => [c.x, c.y]);
@@ -361,6 +439,40 @@
     selectedNode = c.claim_id;
     highlight();
     const idea = c.idea;
+    const r = c.rewrite_info;   // only present for rewritten claims
+
+    // Original cause/effect block — shown for every claim
+    const originalBlock = `
+      <h3>Cause</h3>
+      <div>${escapeHtml(c.cause)}</div>
+      <h3>Effect</h3>
+      <div>${escapeHtml(c.effect)}</div>
+    `;
+
+    // Rewrite block — only shown when the MAP picked a non-#original variant.
+    // Surfaces the variant text plus the metadata that justifies the rewrite
+    // (rewrite_distance, targets, weaknesses invoked, faithfulness note).
+    const rewriteBlock = r ? `
+      <h3 style="color:#991b1b">Rewritten by MAP →</h3>
+      <div class="quote" style="border-color:#991b1b">${escapeHtml(r.text)}</div>
+      <div class="kv"><span class="k">Distance:</span><span class="v">${r.rewrite_distance.toFixed(2)}</span></div>
+      ${r.targets && r.targets.length ? `
+        <div class="kv"><span class="k">Targets:</span><span class="v">${r.targets.map(t => `<code>${escapeHtml(t)}</code>`).join(', ')}</span></div>
+      ` : ''}
+      ${r.evidence_weaknesses_invoked && r.evidence_weaknesses_invoked.length ? `
+        <h3>Weaknesses invoked (paper's own)</h3>
+        <ul>${r.evidence_weaknesses_invoked.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul>
+      ` : ''}
+      ${r.evidence_strengths_invoked && r.evidence_strengths_invoked.length ? `
+        <h3>Strengths preserved</h3>
+        <ul>${r.evidence_strengths_invoked.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
+      ` : ''}
+      ${r.faithfulness_note ? `
+        <h3>Faithfulness note</h3>
+        <div class="quote">${escapeHtml(r.faithfulness_note)}</div>
+      ` : ''}
+    ` : '';
+
     panel.innerHTML = `
       <h2>${escapeHtml(c.claim_id)}</h2>
       <div class="kv"><span class="k">Paper:</span><span class="v">${escapeHtml(c.paper_id)}</span></div>
@@ -368,10 +480,9 @@
       <div class="kv"><span class="k">Credibility:</span><span class="v">${c.credibility.toFixed(2)}</span></div>
       <div class="kv"><span class="k">Variant:</span><span class="v">${escapeHtml(c.selected_variant_id.split('#')[1] || 'original')}${c.is_rewritten ? ' <span class="pill">rewritten</span>' : ''}</span></div>
       ${c.in_residual_edge ? '<div class="pill" style="background:#fee2e2;color:#991b1b">on residual edge</div>' : ''}
-      <h3>Cause</h3>
-      <div>${escapeHtml(c.cause)}</div>
-      <h3>Effect</h3>
-      <div>${escapeHtml(c.effect)}</div>
+      ${c.is_rewritten ? '<h3 style="color:#374151">Original</h3>' : ''}
+      ${originalBlock}
+      ${rewriteBlock}
       ${idea ? `<h3>Belongs to Idea</h3><div><b>${escapeHtml(idea.label)}</b></div>` : ''}
     `;
   }
@@ -438,7 +549,16 @@
     link.classed('dim', d => d.source.claim_id !== selectedNode && d.target.claim_id !== selectedNode);
   }
 
-  svg.on('click', () => { selectedNode = null; highlight(); });
+  svg.on('click', () => {
+    selectedNode = null;
+    highlight();
+    // Restore default panel (coverage if synthesis is set; else leave alone)
+    if (mode === 'structural' && DATA.synthesis_paper_id) {
+      renderSynthesisCoveragePanel();
+    } else if (mode === 'priority') {
+      renderPriorityPanel();
+    }
+  });
 
   // ===== Mode toggling =====
   document.querySelectorAll('.modes button').forEach(btn => {
@@ -455,7 +575,7 @@
       node.attr('fill', d => paperColor(d.paper_id));
       hulls.attr('fill', structuralHullFill).attr('stroke', structuralHullStroke);
       link.attr('stroke', edgeColor).style('stroke-opacity', null);
-      showPriorityPanelDefault(false);
+      showStructuralPanelDefault();
     } else {
       // priority mode
       node.attr('fill', d => d.in_residual_edge ? 'var(--residual)' : '#cbd5e1');
@@ -464,6 +584,14 @@
         .style('stroke-opacity', d => d.selected_score < 0 ? 0.7 : 0.2);
       showPriorityPanelDefault(true);
     }
+  }
+
+  // When mode flips to structural and nothing is selected, show the synthesis
+  // coverage panel by default (if synthesis paper is set), otherwise the
+  // generic placeholder.
+  function showStructuralPanelDefault() {
+    if (panel.innerHTML.includes('<h2>')) return;   // user has something open
+    if (DATA.synthesis_paper_id) renderSynthesisCoveragePanel();
   }
 
   // Aggregated next-steps panel for priority mode
@@ -501,6 +629,40 @@
     return rows;
   }
 
+  function renderSynthesisCoveragePanel() {
+    const synthId = DATA.synthesis_paper_id;
+    const synthPaper = (DATA.papers.find(p => p.paper_id === synthId) || {});
+    const synthClaimIds = new Set(
+      DATA.claims.filter(c => c.is_synthesis_paper).map(c => c.claim_id)
+    );
+    // Per-Idea coverage
+    const rows = DATA.ideas.map(idea => {
+      const total = idea.claim_ids.length;
+      const synth = idea.claim_ids.filter(id => synthClaimIds.has(id)).length;
+      return { idea, total, synth, frac: total ? synth / total : 0 };
+    }).sort((a, b) => b.frac - a.frac);
+
+    const totalSynth = synthClaimIds.size;
+    const ideasTouched = rows.filter(r => r.synth > 0).length;
+    const rowHtml = rows.map(r => `
+      <div class="coverage-row">
+        <div>
+          <div class="label">${escapeHtml(r.idea.label.slice(0, 90))}</div>
+          <div class="coverage-bar"><div class="fill" style="width:${(r.frac * 100).toFixed(0)}%"></div></div>
+        </div>
+        <div class="num">${r.synth}/${r.total}<br><span class="small">${(r.frac * 100).toFixed(0)}%</span></div>
+      </div>
+    `).join('');
+    panel.innerHTML = `
+      <h2>Synthesis paper coverage</h2>
+      <div class="kv"><span class="k">Paper:</span><span class="v"><b>${escapeHtml(synthId)}</b>${synthPaper.year ? ' (' + synthPaper.year + ')' : ''}</span></div>
+      <div class="kv"><span class="k">Synthesis claims:</span><span class="v">${totalSynth}</span></div>
+      <div class="kv"><span class="k">Ideas touched:</span><span class="v">${ideasTouched} / ${DATA.ideas.length}</span></div>
+      <p class="small">Per Idea: how many of its contributing claims come from the synthesis paper. High % = the synthesis paper carries this Idea; 0% = the Idea exists in the corpus but the synthesis missed it.</p>
+      ${rowHtml}
+    `;
+  }
+
   function renderPriorityPanel() {
     let rows = aggregatedSteps();
     const allKinds = [...new Set(rows.map(r => r.kind))];
@@ -536,6 +698,13 @@
         renderPriorityPanel();
       });
     });
+  }
+
+  // ===== Initial side-panel content =====
+  // If synthesis paper is set, default to the coverage panel; otherwise keep
+  // the placeholder.
+  if (DATA.synthesis_paper_id) {
+    renderSynthesisCoveragePanel();
   }
 
   // ===== Resize =====

@@ -10,7 +10,7 @@ A small number (typically 4–8) of fixed dimensions. Each dimension is one axis
 
 - `name` — short snake_case identifier, e.g. `"mode"`, `"physics_framework"`.
 - `description` — one sentence explaining what this dimension captures.
-- `values` — array of allowed string values (snake_case, lowercase, terse). 5–15 per dimension is typical.
+- `values` — array of allowed string values (snake_case, lowercase, terse). 5–15 per dimension is typical. **Always include this field**, even for hierarchical dimensions where the values also appear as `hierarchy` keys.
 - `ordering` — one of:
     - `"discrete"` — values are unrelated labels; meet exists only if both claims have the EXACT same value.
     - `"hierarchical"` — values form a partial order (chain or tree); meet is the more general (lower) value when one is an ancestor of the other. If you choose this, also include a `hierarchy` field — see below.

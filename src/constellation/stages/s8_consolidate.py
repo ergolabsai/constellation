@@ -120,7 +120,9 @@ def _propose_partition(llm: LLM, payload: dict) -> list[dict]:
     last_error: Exception | None = None
     for attempt in range(MAX_RETRIES + 1):
         try:
-            text = llm.chat(system=system, messages=messages, max_tokens=16384)
+            # Big payload — corpora with hundreds of claims need substantial
+            # output room. Sonnet supports up to 64K output tokens.
+            text = llm.chat(system=system, messages=messages, max_tokens=32768)
             parsed = parse_json_response(text)
             if not isinstance(parsed, dict) or "ideas" not in parsed:
                 raise ValueError("response must be {'ideas': [...]}")
@@ -310,12 +312,15 @@ def _build_idea_record(
     transitions_out = []
     for t in proposed.get("transitions_out", []) or []:
         target_label = t.get("to_idea_label")
-        if not target_label or target_label not in label_to_id:
-            continue   # silently drop dangling references
+        kind = t.get("kind")
+        # Drop transitions missing required schema fields; downstream
+        # validation rejects the whole Idea otherwise.
+        if not target_label or target_label not in label_to_id or not kind:
+            continue
         transitions_out.append(
             {
                 "to_idea_id": label_to_id[target_label],
-                "kind": t["kind"],
+                "kind": kind,
                 "note": t.get("note", ""),
                 "supporting_edges": t.get("supporting_edges", []) or [],
             }
@@ -323,17 +328,24 @@ def _build_idea_record(
 
     open_questions = []
     for q in proposed.get("open_questions", []) or []:
+        if not isinstance(q, dict) or not q.get("question"):
+            continue
         feeds_from = dict(q.get("feeds_from", {}) or {})
         if "transition_pointers" in feeds_from:
             feeds_from["transition_pointers"] = [
                 label_to_id.get(label, label)
                 for label in feeds_from["transition_pointers"]
             ]
+        # Filter out malformed steps — schema requires `kind` and `description`.
+        clean_steps = [
+            s for s in (q.get("suggested_next_steps", []) or [])
+            if isinstance(s, dict) and s.get("kind") and s.get("description")
+        ]
         open_questions.append(
             {
                 "question": q["question"],
                 "feeds_from": feeds_from,
-                "suggested_next_steps": q.get("suggested_next_steps", []) or [],
+                "suggested_next_steps": clean_steps,
                 "priority": q.get("priority", "medium"),
             }
         )

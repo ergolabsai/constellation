@@ -72,6 +72,16 @@ def visualize(
             help="Output HTML path (default: <run_dir>/constellation.html)",
         ),
     ] = None,
+    synthesis_paper: Annotated[
+        str | None,
+        typer.Option(
+            "--synthesis-paper",
+            help=(
+                "paper_id of a synthesis/review paper to highlight (★ markers + "
+                "Idea-coverage panel)"
+            ),
+        ),
+    ] = None,
 ) -> None:
     """Render an interactive HTML view of a completed pipeline run."""
     run_obj = Run.existing(run_dir.resolve())
@@ -81,13 +91,23 @@ def visualize(
     if not list(run_obj.ideas_dir.glob("*.json")):
         console.print(f"[red]no ideas under {run_obj.ideas_dir}[/red]")
         raise typer.Exit(1)
-    out_path = render_viz(run_obj, out_path=out.resolve() if out else None)
+    try:
+        out_path = render_viz(
+            run_obj,
+            out_path=out.resolve() if out else None,
+            synthesis_paper_id=synthesis_paper,
+        )
+    except ValueError as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(1) from e
     try:
         rel = out_path.relative_to(Path.cwd())
     except ValueError:
         rel = out_path
     console.print(f"[green]→[/green] wrote {rel}")
     console.print(f"  open: file://{out_path}")
+    if synthesis_paper:
+        console.print(f"  synthesis paper: [yellow]{synthesis_paper}[/yellow] (rendered as ★)")
 
 
 if __name__ == "__main__":

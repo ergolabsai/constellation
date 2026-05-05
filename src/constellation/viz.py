@@ -20,11 +20,12 @@ from .paths import Run
 TEMPLATE_PATH = Path(__file__).parent / "templates" / "viz.html"
 
 
-def _build_payload(run: Run) -> dict:
+def _build_payload(run: Run, synthesis_paper_id: str | None = None) -> dict:
     sheaf = json.loads(run.sheaf_path.read_text())
 
     # papers
     papers = []
+    available_paper_ids = set()
     for f in sorted(run.papers_dir.glob("*.json")):
         p = json.loads(f.read_text())
         papers.append(
@@ -32,7 +33,15 @@ def _build_payload(run: Run) -> dict:
                 "paper_id": p["paper_id"],
                 "title": p.get("bibliographic", {}).get("title", p["paper_id"]),
                 "year": p.get("bibliographic", {}).get("year"),
+                "is_synthesis": p["paper_id"] == synthesis_paper_id,
             }
+        )
+        available_paper_ids.add(p["paper_id"])
+
+    if synthesis_paper_id and synthesis_paper_id not in available_paper_ids:
+        raise ValueError(
+            f"--synthesis-paper {synthesis_paper_id!r} not found in run; "
+            f"available paper_ids: {sorted(available_paper_ids)}"
         )
 
     # claims (full records, indexed by id)
@@ -90,18 +99,41 @@ def _build_payload(run: Run) -> dict:
     viz_claims = []
     for cid, vid in selected.items():
         c = claim_by_id.get(cid, {})
+        is_rewritten = not vid.endswith("#original")
+        # For rewritten claims, pull the full variant record from the stalk so
+        # the side panel can show original AND rewritten side-by-side.
+        rewrite_info: dict | None = None
+        if is_rewritten:
+            stalk = sheaf["stalks"].get(cid, {})
+            for v in stalk.get("variants", []):
+                if v["variant_id"] == vid:
+                    rewrite_info = {
+                        "text": v.get("text", ""),
+                        "rewrite_distance": v.get("rewrite_distance", 0.0),
+                        "targets": v.get("targets", []),
+                        "evidence_strengths_invoked": v.get(
+                            "evidence_strengths_invoked", []
+                        ),
+                        "evidence_weaknesses_invoked": v.get(
+                            "evidence_weaknesses_invoked", []
+                        ),
+                        "faithfulness_note": v.get("faithfulness_note", ""),
+                    }
+                    break
         viz_claims.append(
             {
                 "claim_id": cid,
                 "paper_id": c.get("paper_id"),
                 "credibility": c.get("credibility_score", 0.5),
-                "cause": (c.get("cause") or "")[:300],
-                "effect": (c.get("effect") or "")[:300],
+                "cause": (c.get("cause") or "")[:600],
+                "effect": (c.get("effect") or "")[:600],
                 "direction": c.get("direction"),
                 "selected_variant_id": vid,
-                "is_rewritten": not vid.endswith("#original"),
+                "is_rewritten": is_rewritten,
+                "rewrite_info": rewrite_info,
                 "in_residual_edge": cid in residual_claim_ids,
                 "idea_id": claim_to_idea.get(cid),
+                "is_synthesis_paper": c.get("paper_id") == synthesis_paper_id,
             }
         )
 
@@ -128,6 +160,7 @@ def _build_payload(run: Run) -> dict:
     return {
         "corpus": sheaf.get("corpus", run.root.name),
         "run_id": sheaf.get("sheaf_id", run.root.name),
+        "synthesis_paper_id": synthesis_paper_id,
         "lambda_rewrite_penalty": ms.get("lambda_rewrite_penalty"),
         "stats": {
             "n_papers": len(papers),
@@ -148,9 +181,18 @@ def _build_payload(run: Run) -> dict:
     }
 
 
-def render(run: Run, out_path: Path | None = None) -> Path:
-    """Render the viz HTML for `run`. Returns the path written."""
-    payload = _build_payload(run)
+def render(
+    run: Run,
+    out_path: Path | None = None,
+    synthesis_paper_id: str | None = None,
+) -> Path:
+    """Render the viz HTML for `run`. Returns the path written.
+
+    If `synthesis_paper_id` is given, that paper is flagged as a synthesis /
+    review paper — its claim nodes are rendered as ★ instead of ○ and an
+    "Idea coverage" panel is shown by default in the side panel.
+    """
+    payload = _build_payload(run, synthesis_paper_id=synthesis_paper_id)
     template = TEMPLATE_PATH.read_text()
     html = template.replace("__PAYLOAD_JSON__", json.dumps(payload))
     if out_path is None:
