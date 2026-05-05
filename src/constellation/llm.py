@@ -17,15 +17,11 @@ from typing import Any
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
+from .config import DEFAULT_MODEL
+
 # override=True so a .env value beats an empty/stale ANTHROPIC_API_KEY inherited
 # from the shell environment.
 load_dotenv(override=True)
-
-# Override via CONSTELLATION_MODEL env var. Per-stage overrides will land in
-# stage modules as they're implemented. Sonnet by default to keep MVP costs
-# down; bump to Opus for stages where quality matters more than throughput.
-DEFAULT_MODEL = os.environ.get("CONSTELLATION_MODEL", "claude-sonnet-4-6")
-
 
 @dataclass
 class LLM:

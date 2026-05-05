@@ -11,6 +11,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from .llm import LLM, parse_json_response
+from .llm_cache import lookup as cache_lookup
+from .llm_cache import write_success as cache_write_success
+from .paths import Run
 from .prompt_loader import load_prompt
 
 VALID_KINDS = (
@@ -129,6 +132,8 @@ def score_pair(
     semilattice_meet: dict,
     snag_overlap: list[str],
     llm: LLM,
+    run: Run | None = None,
+    cache_stage: str = "score_compatibility",
     max_retries: int = 1,
 ) -> dict:
     """Score one variant pair. Returns a dict matching sheaf_schema's
@@ -142,10 +147,32 @@ def score_pair(
 
     last_error: Exception | None = None
     for attempt in range(max_retries + 1):
+        cache_handle = (
+            cache_lookup(
+                run=run,
+                stage=cache_stage,
+                llm=llm,
+                system=system,
+                messages=messages,
+                max_tokens=1024,
+            )
+            if run is not None
+            else None
+        )
         try:
-            text = llm.chat(system=system, messages=messages, max_tokens=1024)
-            parsed = parse_json_response(text)
+            if cache_handle and cache_handle.hit:
+                text = cache_handle.raw_response
+                parsed = cache_handle.parsed_response
+            else:
+                text = llm.chat(system=system, messages=messages, max_tokens=1024)
+                parsed = parse_json_response(text)
             valid = _validate_score(parsed)
+            if cache_handle:
+                cache_write_success(
+                    cache_handle,
+                    raw_response=text,
+                    parsed_response=parsed,
+                )
             return {
                 "variant_a_id": a.variant_id,
                 "variant_b_id": b.variant_id,

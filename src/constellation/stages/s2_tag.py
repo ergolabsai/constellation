@@ -23,15 +23,16 @@ from typing import Any
 
 from rich.console import Console
 
+from ..config import model_name, stage_config
+from ..failures import append_stage_failures, clear_stage_failures
 from ..llm import LLM, parse_json_response
+from ..llm_cache import lookup as cache_lookup
+from ..llm_cache import write_success as cache_write_success
 from ..paths import Corpus, Run
 from ..prompt_loader import load_prompt
 
 console = Console()
-
-MAX_RETRIES = 1  # per-batch retry; batches keep individual call output bounded
-TAG_BATCH_SIZE = 30  # claims per LLM call — bounds output size + isolates failures
-
+STAGE_NAME = "stage2_tag"
 
 # ---------- shared loaders ---------------------------------------------------
 
@@ -70,7 +71,9 @@ def _paper_summary(paper: dict) -> dict:
 # ---------- 2a: vocabulary proposal ------------------------------------------
 
 
-def _propose_vocabulary(llm: LLM, papers: list[dict], claims: list[dict]) -> dict:
+def _propose_vocabulary(
+    llm: LLM, run: Run, papers: list[dict], claims: list[dict]
+) -> dict:
     """One LLM call. Returns the parsed tag_vocabulary dict."""
     system = load_prompt("s2a_propose_vocabulary")
 
@@ -85,9 +88,23 @@ def _propose_vocabulary(llm: LLM, papers: list[dict], claims: list[dict]) -> dic
         + "\n```"
     )
 
-    text = llm.complete(system=system, user=user_text, max_tokens=8192)
-    vocab = parse_json_response(text)
+    messages = [{"role": "user", "content": [{"type": "text", "text": user_text}]}]
+    cache_handle = cache_lookup(
+        run=run,
+        stage="stage2_propose_vocabulary",
+        llm=llm,
+        system=system,
+        messages=messages,
+        max_tokens=8192,
+    )
+    if cache_handle.hit:
+        text = cache_handle.raw_response
+        vocab = cache_handle.parsed_response
+    else:
+        text = llm.chat(system=system, messages=messages, max_tokens=8192)
+        vocab = parse_json_response(text)
     _validate_vocabulary(vocab)
+    cache_write_success(cache_handle, raw_response=text, parsed_response=vocab)
     return vocab
 
 
@@ -153,7 +170,7 @@ def _load_or_propose_vocabulary(
         return vocab, False
 
     console.print("  proposing tag vocabulary…")
-    vocab = _propose_vocabulary(llm, papers, claims)
+    vocab = _propose_vocabulary(llm, run, papers, claims)
     run.tag_vocabulary_path.write_text(json.dumps(vocab, indent=2))
     return vocab, True
 
@@ -162,7 +179,13 @@ def _load_or_propose_vocabulary(
 
 
 def _tag_one_batch(
-    llm: LLM, vocab: dict, batch: list[dict], system: str
+    llm: LLM,
+    run: Run,
+    vocab: dict,
+    batch: list[dict],
+    system: str,
+    *,
+    max_retries: int,
 ) -> dict[str, Any]:
     """Tag one batch of claims. Per-batch retry on JSON/validation failure."""
     payload = [_claim_summary(c) for c in batch]
@@ -174,15 +197,28 @@ def _tag_one_batch(
     )
     messages = [{"role": "user", "content": [{"type": "text", "text": user_text}]}]
     last_error: Exception | None = None
-    for attempt in range(MAX_RETRIES + 1):
+    for attempt in range(max_retries + 1):
+        cache_handle = cache_lookup(
+            run=run,
+            stage="stage2_tag_claims",
+            llm=llm,
+            system=system,
+            messages=messages,
+            max_tokens=16384,
+        )
         try:
-            text = llm.chat(system=system, messages=messages, max_tokens=16384)
-            tags = parse_json_response(text)
+            if cache_handle.hit:
+                text = cache_handle.raw_response
+                tags = cache_handle.parsed_response
+            else:
+                text = llm.chat(system=system, messages=messages, max_tokens=16384)
+                tags = parse_json_response(text)
             _validate_tags(tags, vocab, batch)
+            cache_write_success(cache_handle, raw_response=text, parsed_response=tags)
             return tags
         except (ValueError, json.JSONDecodeError) as e:
             last_error = e
-            if attempt == MAX_RETRIES:
+            if attempt == max_retries:
                 break
             console.print(f"    [yellow]tag attempt {attempt + 1} failed[/yellow]: {e}")
             messages = [
@@ -202,42 +238,72 @@ def _tag_one_batch(
                 },
             ]
     raise RuntimeError(
-        f"batch tagging failed after {MAX_RETRIES + 1} attempts: {last_error}"
+        f"batch tagging failed after {max_retries + 1} attempts: {last_error}"
     )
 
 
-def _tag_claims(llm: LLM, vocab: dict, claims: list[dict]) -> dict[str, Any]:
+def _tag_claims(
+    llm: LLM,
+    run: Run,
+    vocab: dict,
+    claims: list[dict],
+    *,
+    max_retries: int,
+    tag_batch_size: int,
+    allow_partial: bool,
+) -> dict[str, Any]:
     """Tag all claims by chunking into batches.
 
     A single call for hundreds of claims hits two failure modes: (1) max_tokens
     truncation, (2) the model losing structural fidelity over very long outputs.
     Chunking bounds both. Per-batch failures don't kill the run — we log and
-    continue, so a partial tagging is better than nothing.
+    continue only when allow_partial is enabled; strict mode records failures and
+    raises before writing tags.json.
     """
     system_template = load_prompt("s2b_tag_claims")
     system = system_template.replace("{vocabulary_json}", json.dumps(vocab, indent=2))
 
-    n_batches = (len(claims) + TAG_BATCH_SIZE - 1) // TAG_BATCH_SIZE
+    n_batches = (len(claims) + tag_batch_size - 1) // tag_batch_size
     all_tags: dict[str, Any] = {}
-    failures: list[tuple[int, str]] = []
+    failures: list[dict[str, Any]] = []
 
     for i in range(n_batches):
-        batch = claims[i * TAG_BATCH_SIZE : (i + 1) * TAG_BATCH_SIZE]
+        batch = claims[i * tag_batch_size : (i + 1) * tag_batch_size]
         console.print(
             f"    batch {i + 1}/{n_batches}: tagging {len(batch)} claims…"
         )
         try:
-            batch_tags = _tag_one_batch(llm, vocab, batch, system)
+            batch_tags = _tag_one_batch(
+                llm,
+                run,
+                vocab,
+                batch,
+                system,
+                max_retries=max_retries,
+            )
             all_tags.update(batch_tags)
         except Exception as e:
-            failures.append((i + 1, str(e)))
+            failures.append(
+                {
+                    "kind": "tag_batch_failed",
+                    "batch": i + 1,
+                    "claim_ids": [c["claim_id"] for c in batch],
+                    "error": str(e),
+                }
+            )
             console.print(f"      [red]batch {i + 1} failed[/red]: {e}")
 
     if failures:
+        append_stage_failures(run, STAGE_NAME, failures)
         console.print(
             f"  [yellow]warning[/yellow]: {len(failures)}/{n_batches} tag batches "
             f"failed; {len(all_tags)}/{len(claims)} claims tagged"
         )
+        if not allow_partial:
+            raise RuntimeError(
+                f"stage 2 failed for {len(failures)} tag batch(es); "
+                f"see {run.failures_path}"
+            )
     if not all_tags:
         raise RuntimeError("tagging produced no successful batches")
     return all_tags
@@ -291,7 +357,12 @@ def _validate_tags(tags: Any, vocab: dict, claims: list[dict]) -> None:
 
 
 def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow of builtin)
-    llm = LLM()
+    clear_stage_failures(run, STAGE_NAME)
+    cfg = stage_config(run, corpus, STAGE_NAME)
+    allow_partial = bool(cfg["allow_partial"])
+    max_retries = int(cfg["max_retries"])
+    tag_batch_size = int(cfg["tag_batch_size"])
+    llm = LLM(model=model_name(run, corpus))
     papers, claims = _load_corpus(run)
     if not claims:
         raise RuntimeError(
@@ -310,7 +381,15 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow of 
     )
 
     console.print(f"  tagging {len(claims)} claims…")
-    tags = _tag_claims(llm, vocab, claims)
+    tags = _tag_claims(
+        llm,
+        run,
+        vocab,
+        claims,
+        max_retries=max_retries,
+        tag_batch_size=tag_batch_size,
+        allow_partial=allow_partial,
+    )
     run.tags_path.write_text(json.dumps(tags, indent=2))
 
     # Quick stats for the operator

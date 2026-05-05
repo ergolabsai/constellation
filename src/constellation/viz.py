@@ -15,6 +15,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from .epsilon_machine import compute_epsilon_machine_metrics
+from .idea_partition import validate_idea_partition
 from .paths import Run
 
 TEMPLATE_PATH = Path(__file__).parent / "templates" / "viz.html"
@@ -52,20 +54,32 @@ def _build_payload(run: Run, synthesis_paper_id: str | None = None) -> dict:
 
     # ideas (full records) + claim → idea mapping
     ideas_full = []
-    claim_to_idea = {}
     for f in sorted(run.ideas_dir.glob("*.json")):
         idea = json.loads(f.read_text())
         ideas_full.append(idea)
-        for cc in idea["contributing_claims"]:
-            # if a claim appears in multiple ideas (the duplicate-claim wart),
-            # last one wins for graph rendering purposes
-            claim_to_idea[cc["claim_id"]] = idea["idea_id"]
+    epsilon_machine = (
+        json.loads(run.epsilon_machine_path.read_text())
+        if run.epsilon_machine_path.exists()
+        else compute_epsilon_machine_metrics(ideas_full)
+    )
 
     # MAP section
     selected = sheaf["map_section"]["selected"]
+    validate_idea_partition(ideas_full, selected.keys())
+
+    claim_to_idea = {}
+    for idea in ideas_full:
+        for cc in idea["contributing_claims"]:
+            claim_to_idea[cc["claim_id"]] = idea["idea_id"]
+
     residual_pairs = {
         (r["claim_a"], r["claim_b"])
         for r in sheaf["map_section"].get("residual_h1", [])
+    }
+    sensitivity = sheaf.get("lambda_sensitivity", {}) or {}
+    sensitivity_by_claim = {
+        row["claim_id"]: row
+        for row in sensitivity.get("sensitive_claims", []) or []
     }
 
     # build edges (one per restriction_map, using the MAP-selected pair score)
@@ -132,6 +146,10 @@ def _build_payload(run: Run, synthesis_paper_id: str | None = None) -> dict:
                 "is_rewritten": is_rewritten,
                 "rewrite_info": rewrite_info,
                 "in_residual_edge": cid in residual_claim_ids,
+                "is_lambda_sensitive": cid in sensitivity_by_claim,
+                "lambda_selections": sensitivity_by_claim.get(cid, {}).get(
+                    "selections_by_lambda", []
+                ),
                 "idea_id": claim_to_idea.get(cid),
                 "is_synthesis_paper": c.get("paper_id") == synthesis_paper_id,
             }
@@ -139,19 +157,55 @@ def _build_payload(run: Run, synthesis_paper_id: str | None = None) -> dict:
 
     # viz-side ideas
     viz_ideas = []
+    state_by_idea = {
+        state["idea_id"]: state
+        for state in epsilon_machine.get("state_distribution", []) or []
+    }
     for idea in ideas_full:
+        claim_ids = [cc["claim_id"] for cc in idea["contributing_claims"]]
+        open_questions = idea.get("open_questions", []) or []
+        priority_counts: dict[str, int] = {}
+        next_step_counts: dict[str, int] = {}
+        n_next_steps = 0
+        for question in open_questions:
+            priority = question.get("priority", "medium")
+            priority_counts[priority] = priority_counts.get(priority, 0) + 1
+            for step in question.get("suggested_next_steps", []) or []:
+                kind = step.get("kind", "unknown")
+                next_step_counts[kind] = next_step_counts.get(kind, 0) + 1
+                n_next_steps += 1
+        state = state_by_idea.get(idea["idea_id"], {})
         viz_ideas.append(
             {
                 "idea_id": idea["idea_id"],
                 "label": idea["label"],
                 "description": idea["description"],
                 "scope": idea.get("scope", {}),
-                "claim_ids": [cc["claim_id"] for cc in idea["contributing_claims"]],
+                "claim_ids": claim_ids,
                 "rho": idea["frustration"]["rho"],
+                "n_penrose": idea["frustration"].get("n_penrose", 0),
+                "n_residual_edges": len(
+                    idea["frustration"].get("residual_negative_edges", []) or []
+                ),
                 "agreement_score": idea["consensus"]["agreement_score"],
                 "n_papers": idea["consensus"]["n_papers_represented"],
-                "n_open_questions": len(idea.get("open_questions", [])),
-                "open_questions": idea.get("open_questions", []),
+                "n_rewritten": idea["consensus"].get("n_rewritten", 0),
+                "n_sensitive_claims": sum(
+                    1 for cid in claim_ids if cid in sensitivity_by_claim
+                ),
+                "n_residual_claims": sum(1 for cid in claim_ids if cid in residual_claim_ids),
+                "n_open_questions": len(open_questions),
+                "n_next_steps": n_next_steps,
+                "open_question_priorities": priority_counts,
+                "next_step_kinds": next_step_counts,
+                "open_questions": open_questions,
+                "state_probability": state.get("probability", 0),
+                "transitions_out_count": state.get(
+                    "transitions_out", len(idea.get("transitions_out", []) or [])
+                ),
+                "transitions_in_count": state.get(
+                    "transitions_in", len(idea.get("transitions_in", []) or [])
+                ),
             }
         )
 
@@ -171,13 +225,21 @@ def _build_payload(run: Run, synthesis_paper_id: str | None = None) -> dict:
             "n_penrose": fr.get("n_penrose", 0),
             "n_residual_h1": len(ms.get("residual_h1", [])),
             "n_rewrites": sum(1 for c in viz_claims if c["is_rewritten"]),
+            "n_lambda_sensitive": len(sensitivity_by_claim),
             "coherence": ms.get("coherence", 0),
             "rewrite_cost": ms.get("rewrite_cost", 0),
+            "c_mu_bits": epsilon_machine.get("statistical_complexity_bits", 0),
+            "effective_states": epsilon_machine.get("effective_states", 0),
+            "transition_density": epsilon_machine.get("transition_graph", {}).get(
+                "transition_density", 0
+            ),
         },
         "papers": papers,
         "claims": viz_claims,
         "edges": edges,
         "ideas": viz_ideas,
+        "epsilon_machine": epsilon_machine,
+        "lambda_sensitivity": sensitivity,
     }
 
 

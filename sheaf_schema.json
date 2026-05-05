@@ -251,7 +251,75 @@
               "description": "'enumerate' is feasible when Π |stalk| is small (say < 10⁴). 'loopy_bp' scales to corpora with hundreds of claims. 'ilp' for exact solutions with moderate scale. 'simulated_annealing' for stochastic approximation at large scale."
             },
             "runtime_ms": { "type": "number" },
-            "n_sections_evaluated": { "type": "integer" }
+            "n_sections_evaluated": { "type": "integer" },
+            "section_space_size": { "type": "integer" }
+          }
+        }
+      }
+    },
+
+    "lambda_sensitivity": {
+      "type": "object",
+      "description": "A replay of the MAP solver across configured λ rewrite penalties. This identifies claim selections that are stable across the rewrite-prior sweep versus selections that depend on λ.",
+      "required": ["primary_lambda", "lambdas", "sections", "n_stable_claims", "n_sensitive_claims", "stable_claims", "sensitive_claims"],
+      "properties": {
+        "primary_lambda": {
+          "type": "number",
+          "description": "The λ value used for the canonical `map_section`."
+        },
+        "lambdas": {
+          "type": "array",
+          "items": { "type": "number" },
+          "description": "λ values evaluated in sweep order."
+        },
+        "sections": {
+          "type": "array",
+          "description": "The winning section for each λ value.",
+          "items": {
+            "type": "object",
+            "required": ["lambda_rewrite_penalty", "selected", "total_score", "coherence", "rewrite_cost", "n_rewritten", "solver"],
+            "properties": {
+              "lambda_rewrite_penalty": { "type": "number" },
+              "selected": { "type": "object", "additionalProperties": { "type": "string" } },
+              "total_score": { "type": "number" },
+              "coherence": { "type": "number" },
+              "rewrite_cost": { "type": "number" },
+              "n_rewritten": { "type": "integer" },
+              "solver": { "type": "object" }
+            }
+          }
+        },
+        "n_stable_claims": { "type": "integer" },
+        "n_sensitive_claims": { "type": "integer" },
+        "stable_claims": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Claims whose selected variant did not change across the λ sweep."
+        },
+        "sensitive_claims": {
+          "type": "array",
+          "description": "Claims whose selected variant changed for at least one λ.",
+          "items": {
+            "type": "object",
+            "required": ["claim_id", "selected_variants", "selections_by_lambda"],
+            "properties": {
+              "claim_id": { "type": "string" },
+              "selected_variants": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "selections_by_lambda": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["lambda_rewrite_penalty", "variant_id"],
+                  "properties": {
+                    "lambda_rewrite_penalty": { "type": "number" },
+                    "variant_id": { "type": "string" }
+                  }
+                }
+              }
+            }
           }
         }
       }

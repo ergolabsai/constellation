@@ -24,6 +24,7 @@ PAPER = "paper_schema.json"
 CLAIM = "claim_schema.json"
 SHEAF = "sheaf_schema.json"
 IDEA = "idea_schema.json"
+EPSILON_MACHINE = "epsilon_machine_schema.json"
 
 
 @cache
@@ -52,3 +53,7 @@ def validate_sheaf(d: dict[str, Any]) -> None:
 
 def validate_idea(d: dict[str, Any]) -> None:
     _validator(IDEA).validate(d)
+
+
+def validate_epsilon_machine(d: dict[str, Any]) -> None:
+    _validator(EPSILON_MACHINE).validate(d)

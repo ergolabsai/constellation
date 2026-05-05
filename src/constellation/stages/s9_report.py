@@ -8,6 +8,7 @@ PURE CODE — no LLM. The report renders:
   - Each Idea (label, description, scope, contributing claims, transitions, open Qs)
   - Research priorities (open questions aggregated across all Ideas, sorted by
     priority + effort — the "what to work on next" panel from the architecture)
+  - Epsilon-machine complexity (C_mu + state distribution)
   - Pipeline diagnostics (MAP rewrites, residual H¹, Penrose triangles)
   - Pointers to the underlying JSON artifacts
 """
@@ -19,6 +20,8 @@ from pathlib import Path
 
 from rich.console import Console
 
+from ..epsilon_machine import compute_epsilon_machine_metrics
+from ..idea_partition import validate_idea_partition
 from ..paths import Corpus, Run
 
 console = Console()
@@ -31,6 +34,14 @@ EFFORT_ORDER = {"low": 0, "medium": 1, "high": 2, "programmatic": 3}
 
 
 def _load_artifacts(run: Run) -> dict:
+    ideas = [
+        json.loads(p.read_text()) for p in sorted(run.ideas_dir.glob("*.json"))
+    ]
+    epsilon_machine = (
+        json.loads(run.epsilon_machine_path.read_text())
+        if run.epsilon_machine_path.exists()
+        else compute_epsilon_machine_metrics(ideas)
+    )
     return {
         "sheaf": json.loads(run.sheaf_path.read_text()),
         "papers": [
@@ -40,10 +51,15 @@ def _load_artifacts(run: Run) -> dict:
             json.loads(p.read_text())["claim_id"]: json.loads(p.read_text())
             for p in sorted(run.claims_dir.glob("*.json"))
         },
-        "ideas": [
-            json.loads(p.read_text()) for p in sorted(run.ideas_dir.glob("*.json"))
-        ],
+        "ideas": ideas,
+        "epsilon_machine": epsilon_machine,
     }
+
+
+def _validate_artifacts(art: dict) -> None:
+    """Preflight run artifacts before rendering a report."""
+    selected_ids = set(art["sheaf"]["map_section"]["selected"].keys())
+    validate_idea_partition(art["ideas"], selected_ids)
 
 
 def _gather_priorities(ideas: list[dict]) -> list[dict]:
@@ -74,6 +90,26 @@ def _gather_priorities(ideas: list[dict]) -> list[dict]:
     return rows
 
 
+def _format_lambda(value: float) -> str:
+    return f"{float(value):g}"
+
+
+def _format_lambda_variant_groups(selections: list[dict]) -> str:
+    groups: list[dict] = []
+    for selection in selections:
+        variant_id = selection["variant_id"]
+        label = _format_lambda(selection["lambda_rewrite_penalty"])
+        group = next((g for g in groups if g["variant_id"] == variant_id), None)
+        if group is None:
+            group = {"variant_id": variant_id, "lambdas": []}
+            groups.append(group)
+        group["lambdas"].append(label)
+
+    return "; ".join(
+        f"`{g['variant_id']}` at λ={', '.join(g['lambdas'])}" for g in groups
+    )
+
+
 # ---------- section writers --------------------------------------------------
 
 
@@ -93,11 +129,15 @@ def _write_summary(buf: StringIO, art: dict) -> None:
     sheaf = art["sheaf"]
     ms = sheaf["map_section"]
     f = sheaf.get("frustration", {})
+    sensitivity = sheaf.get("lambda_sensitivity", {})
+    machine = art.get("epsilon_machine", {})
     n_rewritten = ms.get("rewrite_cost", 0.0)  # treat any > 0 as nonzero
     n_rewrites = sum(
         1 for vid in ms["selected"].values() if not vid.endswith("#original")
     )
     n_residual = len(ms.get("residual_h1", []))
+    n_sensitive = int(sensitivity.get("n_sensitive_claims", 0))
+    n_stable = int(sensitivity.get("n_stable_claims", 0))
 
     buf.write("## Summary\n\n")
     buf.write(
@@ -115,6 +155,18 @@ def _write_summary(buf: StringIO, art: dict) -> None:
         f"- Residual H¹: **{n_residual} edge"
         f"{'s' if n_residual != 1 else ''}** unresolved\n"
     )
+    if sensitivity:
+        n_sweep_claims = n_sensitive + n_stable
+        buf.write(
+            f"- Lambda sensitivity: **{n_sensitive}/{n_sweep_claims} claims** "
+            f"changed across {len(sensitivity.get('lambdas', []))} λ values\n"
+        )
+    if machine:
+        buf.write(
+            f"- ε-machine complexity: Cμ = "
+            f"**{machine['statistical_complexity_bits']:.3f} bits**, "
+            f"effective states = **{machine['effective_states']:.2f}**\n"
+        )
     buf.write(
         f"- Frustration: ρ = **{f.get('rho', 0):.3f}** "
         f"({f.get('n_penrose', 0)} Penrose triangle"
@@ -260,8 +312,82 @@ def _write_priorities(buf: StringIO, ideas: list[dict]) -> None:
         buf.write("\n")
 
 
+def _write_lambda_sensitivity(buf: StringIO, sheaf: dict) -> None:
+    sensitivity = sheaf.get("lambda_sensitivity")
+    if not sensitivity:
+        return
+
+    lambdas = sensitivity.get("lambdas", [])
+    sensitive_claims = sensitivity.get("sensitive_claims", [])
+    n_sensitive = int(sensitivity.get("n_sensitive_claims", 0))
+    n_stable = int(sensitivity.get("n_stable_claims", 0))
+    n_total = n_sensitive + n_stable
+
+    buf.write("### Lambda sensitivity\n\n")
+    if lambdas:
+        sweep = ", ".join(f"λ={_format_lambda(lam)}" for lam in lambdas)
+        buf.write(f"Sweep: {sweep}\n\n")
+    buf.write(f"- Sensitive claims: **{n_sensitive}/{n_total}**\n")
+
+    sections = sensitivity.get("sections", [])
+    if sections:
+        buf.write("- Winning sections:\n")
+        for section in sections:
+            buf.write(
+                f"  - λ={_format_lambda(section['lambda_rewrite_penalty'])}: "
+                f"total {section['total_score']:+.2f}, "
+                f"coherence {section['coherence']:+.2f}, "
+                f"rewrite cost {section['rewrite_cost']:.2f}, "
+                f"{section.get('n_rewritten', 0)} rewritten\n"
+            )
+    buf.write("\n")
+
+    if sensitive_claims:
+        buf.write("Claims whose selected variant changes across λ:\n\n")
+        for row in sensitive_claims[:10]:
+            groups = _format_lambda_variant_groups(row["selections_by_lambda"])
+            buf.write(f"- `{row['claim_id']}`: {groups}\n")
+        if len(sensitive_claims) > 10:
+            buf.write(f"- … {len(sensitive_claims) - 10} more\n")
+        buf.write("\n")
+    else:
+        buf.write("All claim selections are stable across the sweep.\n\n")
+
+
+def _write_epsilon_machine(buf: StringIO, machine: dict) -> None:
+    if not machine:
+        return
+
+    buf.write("## ε-machine complexity\n\n")
+    buf.write(
+        f"Cμ = **{machine['statistical_complexity_bits']:.3f} bits** "
+        f"({machine['normalized_statistical_complexity']:.0%} of maximum); "
+        f"effective states = **{machine['effective_states']:.2f}** "
+        f"across {machine['n_states']} Ideas and {machine['n_claims']} claims.\n\n"
+    )
+    graph = machine["transition_graph"]
+    buf.write(
+        f"Transitions: **{graph['n_unique_transition_pairs']}** directed Idea pairs "
+        f"({graph['transition_density']:.0%} density), "
+        f"{graph['n_transitions']} labeled transition"
+        f"{'s' if graph['n_transitions'] != 1 else ''}.\n\n"
+    )
+
+    buf.write("State distribution:\n\n")
+    for state in machine["state_distribution"]:
+        buf.write(
+            f"- `{state['idea_id']}`: p={state['probability']:.3f}, "
+            f"{state['n_claims']} claim"
+            f"{'s' if state['n_claims'] != 1 else ''}, "
+            f"{state['transitions_out']} out / {state['transitions_in']} in\n"
+        )
+    buf.write("\n")
+
+
 def _write_diagnostics(buf: StringIO, sheaf: dict) -> None:
     buf.write("## Pipeline diagnostics\n\n")
+
+    _write_lambda_sensitivity(buf, sheaf)
 
     # MAP rewrites
     selected = sheaf["map_section"]["selected"]
@@ -327,15 +453,24 @@ def _write_artifacts_pointer(buf: StringIO, run: Run, art: dict) -> None:
     n_c = len(art["claims"])
     n_i = len(art["ideas"])
     buf.write(f"All in `{run.root.name}/`:\n\n")
+    buf.write(
+        "- `run_config.json` — model, schema, prompt hash, and parameter snapshot\n"
+    )
+    if run.failures_path.exists():
+        buf.write("- `failures.json` — structured stage failures, if any\n")
+    if run.epsilon_machine_path.exists():
+        buf.write("- `epsilon_machine.json` — ε-machine Cμ and transition metrics\n")
     buf.write(f"- `papers/` — {n_p} paper records\n")
     buf.write(f"- `claims/` — {n_c} claim records\n")
     buf.write("- `tag_vocabulary.json` — semilattice + SNAG vocabulary\n")
     buf.write("- `tags.json` — per-claim tags\n")
     buf.write("- `comparability_complex.json` — stage-3 edge list\n")
     buf.write(
-        "- `sheaf.json` — full sheaf (stalks + restriction maps + MAP + frustration)\n"
+        "- `sheaf.json` — full sheaf (stalks, restriction maps, MAP, "
+        "lambda sensitivity, frustration)\n"
     )
     buf.write(f"- `ideas/` — {n_i} consolidated knowledge units\n")
+    buf.write("- `llm_cache/` — successful validated LLM JSON responses\n")
 
 
 # ---------- orchestration ----------------------------------------------------
@@ -352,6 +487,8 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
         )
 
     art = _load_artifacts(run)
+    _validate_artifacts(art)
+
     buf = StringIO()
     _write_header(buf, corpus, run, art["sheaf"])
     _write_summary(buf, art)
@@ -359,6 +496,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
     for idea in art["ideas"]:
         _write_idea(buf, idea, art["claims"])
     _write_priorities(buf, art["ideas"])
+    _write_epsilon_machine(buf, art["epsilon_machine"])
     _write_diagnostics(buf, art["sheaf"])
     _write_artifacts_pointer(buf, run, art)
 

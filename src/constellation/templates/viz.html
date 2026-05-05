@@ -90,6 +90,34 @@
     cursor: pointer;
   }
   aside button.filter.active { background: var(--accent); color: white; border-color: var(--accent); }
+  aside .filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 10px; }
+  aside .filter-row label { display: grid; gap: 2px; font-size: 11px; color: var(--text-dim); }
+  aside select.filter-select {
+    width: 100%; border: 1px solid var(--border); border-radius: 4px;
+    padding: 3px 6px; background: white; color: var(--text); font-size: 12px;
+  }
+  aside .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 10px; }
+  aside .metric {
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
+    background: #f9fafb; min-width: 0;
+  }
+  aside .metric .value { display: block; font-size: 16px; font-weight: 650; color: var(--text); }
+  aside .metric .label { display: block; font-size: 11px; color: var(--text-dim); }
+  aside button.idea-card {
+    width: 100%; text-align: left; border: 1px solid var(--border);
+    background: white; border-radius: 6px; padding: 8px; margin: 6px 0;
+    color: var(--text); cursor: pointer;
+  }
+  aside button.idea-card:hover { border-color: #94a3b8; background: #f9fafb; }
+  aside .idea-title { font-weight: 650; margin-bottom: 3px; }
+  aside .flag-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  aside .flag {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    background: #f3f4f6; color: var(--text); font-size: 10px; font-weight: 600;
+  }
+  aside .flag.warning { background: #fef3c7; color: #92400e; }
+  aside .flag.danger { background: #fee2e2; color: #991b1b; }
+  aside .flag.sensitive { background: #cffafe; color: #155e75; }
   aside ul { padding-left: 16px; margin: 4px 0; }
   aside li { margin: 2px 0; }
   aside .small { font-size: 11px; color: var(--text-dim); }
@@ -109,6 +137,8 @@
   /* Rewritten by MAP — dashed dark border, orthogonal to color/size channels. */
   .node.rewritten { stroke: #111827; stroke-width: 2; stroke-dasharray: 3,2; }
   .node.rewritten.selected { stroke: #000; stroke-width: 3; stroke-dasharray: 3,2; }
+  .sensitivity-ring { fill: none; stroke: #0891b2; stroke-width: 2; stroke-dasharray: 3,2; pointer-events: none; }
+  .sensitivity-ring.dim { stroke-opacity: 0.18; }
   /* Synthesis-paper claims: star shape (a path) instead of circle. Same fill +
      stroke conventions; the shape itself carries the synthesis signal. */
   .node-synth { stroke: white; stroke-width: 1.5; cursor: pointer; }
@@ -144,7 +174,8 @@
     <h1 id="title"></h1>
     <div class="meta" id="meta"></div>
     <div class="modes">
-      <button data-mode="structural" class="active">Structural map</button>
+      <button data-mode="ideas" class="active">Ideas</button>
+      <button data-mode="structural">Structural map</button>
       <button data-mode="priority">Research priorities</button>
     </div>
   </header>
@@ -156,6 +187,7 @@
         <h4>Legend</h4>
         <div class="row"><span class="swatch normal"></span> claim (color = paper, size = credibility)</div>
         <div class="row"><span class="swatch rewritten"></span> <b>rewritten by MAP</b> (dashed border)</div>
+        <div class="row"><span class="swatch normal" style="box-shadow:0 0 0 2px #0891b2"></span> λ-sensitive claim</div>
         <div class="row" id="legend-synthesis" style="display:none"><span class="star">★</span> <b>synthesis paper</b> claim</div>
         <div class="row"><span class="line" style="border-color: var(--pos)"></span> agreement (positive)</div>
         <div class="row"><span class="line" style="border-color: var(--neu)"></span> boundary / qualification</div>
@@ -163,9 +195,7 @@
         <div class="row"><span class="line" style="border-color: var(--residual)"></span> residual H¹ (unresolvable)</div>
       </div>
     </div>
-    <aside id="panel">
-      <div class="placeholder">Click a node, edge, or Idea hull to see details.</div>
-    </aside>
+    <aside id="panel"></aside>
   </main>
 
   <script type="application/json" id="data">__PAYLOAD_JSON__</script>
@@ -173,17 +203,21 @@
   <script>
   // ===== DATA =====
   const DATA = JSON.parse(document.getElementById('data').textContent);
-  let mode = 'structural';
+  let mode = 'ideas';
   let selectedNode = null;
 
   // Header
   document.getElementById('title').textContent = `Constellation: ${DATA.corpus}`;
   const s = DATA.stats;
+  const cMu = Number.isFinite(s.c_mu_bits)
+    ? ` · Cμ <b>${s.c_mu_bits.toFixed(2)}</b>`
+    : '';
   document.getElementById('meta').innerHTML =
     `<b>${s.n_papers}</b> papers · <b>${s.n_claims}</b> claims · ` +
     `<b>${s.n_edges}</b> edges · <b>${s.n_ideas}</b> ideas · ` +
     `coh <b>${s.coherence.toFixed(2)}</b> · ρ <b>${s.rho.toFixed(3)}</b> · ` +
-    `<b>${s.n_residual_h1}</b> residual H¹ · <b>${s.n_rewrites}</b> rewrites`;
+    `<b>${s.n_residual_h1}</b> residual H¹ · <b>${s.n_rewrites}</b> rewrites` +
+    cMu;
 
   // ===== Color scales =====
   const paperColor = d3.scaleOrdinal()
@@ -327,6 +361,12 @@
     .on('mousemove', moveTip)
     .on('mouseout', hideTip);
 
+  const sensitivityRing = nodesG.selectAll('circle.sensitivity-ring')
+    .data(DATA.claims.filter(c => c.is_lambda_sensitive))
+    .enter().append('circle')
+    .attr('class', 'sensitivity-ring')
+    .attr('r', d => nodeRadius(d) + 5);
+
   // Combined selection for things that touch all nodes (highlight, mode change)
   const node = d3.selectAll('.node, .node-synth');
 
@@ -339,7 +379,11 @@
     .data(DATA.claims)
     .enter().append('text')
     .attr('class', d => 'node-label' + (d.is_rewritten ? ' rewritten' : ''))
-    .text(d => d.claim_id.split(':').pop() + (d.is_rewritten ? ' ✎' : ''));
+    .text(d =>
+      d.claim_id.split(':').pop() +
+      (d.is_rewritten ? ' ✎' : '') +
+      (d.is_lambda_sensitive ? ' λ' : '')
+    );
 
   // ===== Hulls (one per Idea) =====
   function hullPath(points) {
@@ -385,6 +429,7 @@
       .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
     circleNode.attr('cx', d => d.x).attr('cy', d => d.y);
     starNode.attr('transform', d => `translate(${d.x}, ${d.y})`);
+    sensitivityRing.attr('cx', d => d.x).attr('cy', d => d.y);
     label.attr('x', d => d.x).attr('y', d => d.y - (nodeRadius(d)) - 2);
     hulls.attr('d', d => {
       const pts = d.claim_ids.map(id => claimMap.get(id))
@@ -418,9 +463,14 @@
 
   function claimTip(c) {
     const ideaLabel = c.idea ? c.idea.label : '(no idea)';
+    const flags = [
+      c.is_rewritten ? 'rewritten' : '',
+      c.is_lambda_sensitive ? 'λ-sensitive' : '',
+      c.in_residual_edge ? 'residual edge' : '',
+    ].filter(Boolean).join(' · ');
     return `<b>${escapeHtml(c.claim_id)}</b><br>` +
       `${escapeHtml(c.cause)} <em>${escapeHtml(c.direction || '')}</em> ${escapeHtml(c.effect)}<br>` +
-      `<span class="small">${escapeHtml(ideaLabel.slice(0, 70))}${c.is_rewritten ? ' · rewritten' : ''}</span>`;
+      `<span class="small">${escapeHtml(ideaLabel.slice(0, 70))}${flags ? ' · ' + escapeHtml(flags) : ''}</span>`;
   }
   function edgeTip(e) {
     return `<b>${escapeHtml(e.kind)}</b> (${e.selected_score >= 0 ? '+' : ''}${e.selected_score.toFixed(2)})<br>` +
@@ -429,7 +479,7 @@
   }
   function ideaTip(i) {
     return `<b>${escapeHtml(i.label.slice(0, 100))}</b><br>` +
-      `<span class="small">${i.claim_ids.length} claims · ρ ${i.rho.toFixed(2)} · ${i.n_open_questions} open Qs</span>`;
+      `<span class="small">${i.claim_ids.length} claims · ρ ${i.rho.toFixed(2)} · ${i.n_open_questions} open Qs · ${i.n_sensitive_claims} λ-sensitive</span>`;
   }
 
   // ===== Side panel =====
@@ -472,6 +522,12 @@
         <div class="quote">${escapeHtml(r.faithfulness_note)}</div>
       ` : ''}
     ` : '';
+    const lambdaBlock = c.is_lambda_sensitive ? `
+      <h3>Lambda sensitivity</h3>
+      <div class="quote">${c.lambda_selections.map(s =>
+        `λ=${formatNumber(s.lambda_rewrite_penalty)} → ${escapeHtml(s.variant_id)}`
+      ).join('<br>')}</div>
+    ` : '';
 
     panel.innerHTML = `
       <h2>${escapeHtml(c.claim_id)}</h2>
@@ -479,10 +535,12 @@
       <div class="kv"><span class="k">Direction:</span><span class="v">${escapeHtml(c.direction || '?')}</span></div>
       <div class="kv"><span class="k">Credibility:</span><span class="v">${c.credibility.toFixed(2)}</span></div>
       <div class="kv"><span class="k">Variant:</span><span class="v">${escapeHtml(c.selected_variant_id.split('#')[1] || 'original')}${c.is_rewritten ? ' <span class="pill">rewritten</span>' : ''}</span></div>
+      ${c.is_lambda_sensitive ? '<div class="pill" style="background:#cffafe;color:#155e75">λ-sensitive</div>' : ''}
       ${c.in_residual_edge ? '<div class="pill" style="background:#fee2e2;color:#991b1b">on residual edge</div>' : ''}
       ${c.is_rewritten ? '<h3 style="color:#374151">Original</h3>' : ''}
       ${originalBlock}
       ${rewriteBlock}
+      ${lambdaBlock}
       ${idea ? `<h3>Belongs to Idea</h3><div><b>${escapeHtml(idea.label)}</b></div>` : ''}
     `;
   }
@@ -506,6 +564,11 @@
     const scope = i.scope || {};
     const conds = (scope.conditions || []).map(c => `<li>${escapeHtml(c)}</li>`).join('');
     const claims = i.claim_ids.map(id => `<li><code>${escapeHtml(id)}</code> — ${escapeHtml((claimMap.get(id) || {}).cause || '').slice(0, 80)}</li>`).join('');
+    const flags = ideaFlags(i).map(flag => `<span class="flag ${flag.className}">${escapeHtml(flag.label)}</span>`).join('');
+    const kinds = Object.entries(i.next_step_kinds || {})
+      .sort((a, b) => b[1] - a[1])
+      .map(([kind, count]) => `<span class="pill">${escapeHtml(kind)} ${count}</span>`)
+      .join('');
     const qs = i.open_questions.map(q => `
       <div class="step">
         <div><b>${escapeHtml(q.question)}</b> <span class="badge ${q.priority || 'medium'}">${q.priority || 'medium'}</span></div>
@@ -516,7 +579,14 @@
     `).join('');
     panel.innerHTML = `
       <h2>${escapeHtml(i.label)}</h2>
+      ${flags ? `<div class="flag-row">${flags}</div>` : ''}
       <div>${escapeHtml(i.description)}</div>
+      <div class="metric-grid">
+        <div class="metric"><span class="value">${i.claim_ids.length}</span><span class="label">claims</span></div>
+        <div class="metric"><span class="value">${formatNumber(i.state_probability * 100)}%</span><span class="label">state share</span></div>
+        <div class="metric"><span class="value">${i.n_open_questions}</span><span class="label">open questions</span></div>
+        <div class="metric"><span class="value">${i.transitions_out_count}/${i.transitions_in_count}</span><span class="label">out / in transitions</span></div>
+      </div>
       <h3>Scope</h3>
       <div class="kv"><span class="k">Generality:</span><span class="v">${escapeHtml(scope.generality || '?')}</span></div>
       <div class="kv"><span class="k">Framework:</span><span class="v">${escapeHtml(scope.framework || '?')}</span></div>
@@ -525,16 +595,76 @@
       <div class="kv"><span class="k">Claims:</span><span class="v">${i.claim_ids.length} (${i.n_papers} papers)</span></div>
       <div class="kv"><span class="k">Agreement:</span><span class="v">${i.agreement_score >= 0 ? '+' : ''}${i.agreement_score.toFixed(2)}</span></div>
       <div class="kv"><span class="k">ρ (frustration):</span><span class="v">${i.rho.toFixed(2)}</span></div>
+      <div class="kv"><span class="k">Uncertainty:</span><span class="v">${i.n_rewritten} rewritten · ${i.n_sensitive_claims} λ-sensitive · ${i.n_residual_claims} residual claims</span></div>
+      ${kinds ? `<h3>Next-step mix</h3><div>${kinds}</div>` : ''}
       <h3>Contributing claims</h3>
       <ul>${claims}</ul>
       ${i.open_questions.length ? `<h3>Open questions (${i.open_questions.length})</h3>${qs}` : ''}
     `;
   }
 
+  function ideaFlags(i) {
+    const flags = [];
+    if (i.rho >= 0.2) flags.push({ label: `ρ ${i.rho.toFixed(2)}`, className: 'danger' });
+    else if (i.rho > 0) flags.push({ label: `ρ ${i.rho.toFixed(2)}`, className: 'warning' });
+    if (i.n_residual_edges) flags.push({ label: `${i.n_residual_edges} residual`, className: 'danger' });
+    if (i.n_sensitive_claims) flags.push({ label: `${i.n_sensitive_claims} λ-sensitive`, className: 'sensitive' });
+    if (i.n_rewritten) flags.push({ label: `${i.n_rewritten} rewritten`, className: 'warning' });
+    if (i.n_open_questions) flags.push({ label: `${i.n_open_questions} open Qs`, className: '' });
+    return flags;
+  }
+
+  function ideaRiskScore(i) {
+    return i.n_residual_edges * 5 + i.rho * 4 + i.n_sensitive_claims * 2 +
+      i.n_rewritten + i.n_open_questions * 0.5;
+  }
+
+  function renderIdeaDashboardPanel() {
+    const machine = DATA.epsilon_machine || {};
+    const rows = [...DATA.ideas].sort((a, b) =>
+      ideaRiskScore(b) - ideaRiskScore(a) || b.claim_ids.length - a.claim_ids.length
+    );
+    const cards = rows.map(i => {
+      const flags = ideaFlags(i)
+        .map(flag => `<span class="flag ${flag.className}">${escapeHtml(flag.label)}</span>`)
+        .join('');
+      return `
+        <button class="idea-card" data-idea-id="${escapeHtml(i.idea_id)}">
+          <div class="idea-title">${escapeHtml(i.label)}</div>
+          <div class="small">
+            ${i.claim_ids.length} claims · ${i.n_papers} papers ·
+            p=${i.state_probability.toFixed(3)} ·
+            agreement ${i.agreement_score >= 0 ? '+' : ''}${i.agreement_score.toFixed(2)}
+          </div>
+          ${flags ? `<div class="flag-row">${flags}</div>` : ''}
+        </button>
+      `;
+    }).join('');
+    panel.innerHTML = `
+      <h2>Idea dashboard</h2>
+      <div class="metric-grid">
+        <div class="metric"><span class="value">${DATA.stats.n_ideas}</span><span class="label">Ideas</span></div>
+        <div class="metric"><span class="value">${formatNumber(DATA.stats.c_mu_bits)}</span><span class="label">Cμ bits</span></div>
+        <div class="metric"><span class="value">${formatNumber(DATA.stats.effective_states)}</span><span class="label">effective states</span></div>
+        <div class="metric"><span class="value">${formatNumber(((machine.transition_graph || {}).transition_density || 0) * 100)}%</span><span class="label">transition density</span></div>
+        <div class="metric"><span class="value">${DATA.stats.n_residual_h1}</span><span class="label">residual H¹</span></div>
+        <div class="metric"><span class="value">${DATA.stats.n_lambda_sensitive}</span><span class="label">λ-sensitive claims</span></div>
+      </div>
+      ${cards}
+    `;
+    panel.querySelectorAll('.idea-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const idea = ideaById.get(card.dataset.ideaId);
+        if (idea) showIdea(idea);
+      });
+    });
+  }
+
   // Highlight neighbors of selected node
   function highlight() {
     if (!selectedNode) {
       node.classed('dim', false).classed('selected', false);
+      sensitivityRing.classed('dim', false);
       link.classed('dim', false);
       hulls.classed('dim', false);
       return;
@@ -546,17 +676,21 @@
     });
     node.classed('dim', d => !neighbors.has(d.claim_id))
       .classed('selected', d => d.claim_id === selectedNode);
+    sensitivityRing.classed('dim', d => !neighbors.has(d.claim_id));
     link.classed('dim', d => d.source.claim_id !== selectedNode && d.target.claim_id !== selectedNode);
   }
 
   svg.on('click', () => {
     selectedNode = null;
     highlight();
-    // Restore default panel (coverage if synthesis is set; else leave alone)
-    if (mode === 'structural' && DATA.synthesis_paper_id) {
+    if (mode === 'ideas') {
+      renderIdeaDashboardPanel();
+    } else if (mode === 'structural' && DATA.synthesis_paper_id) {
       renderSynthesisCoveragePanel();
     } else if (mode === 'priority') {
       renderPriorityPanel();
+    } else {
+      renderIdeaDashboardPanel();
     }
   });
 
@@ -571,14 +705,24 @@
   });
 
   function applyMode() {
-    if (mode === 'structural') {
+    if (mode === 'ideas') {
+      node.attr('fill', d => paperColor(d.paper_id));
+      hulls.attr('fill', structuralHullFill).attr('stroke', structuralHullStroke);
+      link.attr('stroke', edgeColor).style('stroke-opacity', null);
+      renderIdeaDashboardPanel();
+    } else if (mode === 'structural') {
       node.attr('fill', d => paperColor(d.paper_id));
       hulls.attr('fill', structuralHullFill).attr('stroke', structuralHullStroke);
       link.attr('stroke', edgeColor).style('stroke-opacity', null);
       showStructuralPanelDefault();
     } else {
       // priority mode
-      node.attr('fill', d => d.in_residual_edge ? 'var(--residual)' : '#cbd5e1');
+      node.attr('fill', d =>
+        d.in_residual_edge ? 'var(--residual)' :
+        d.is_lambda_sensitive ? '#0891b2' :
+        d.is_rewritten ? '#f59e0b' :
+        '#cbd5e1'
+      );
       hulls.attr('fill', d => rhoColor(d.rho)).attr('stroke', d => rhoColor(d.rho));
       link.attr('stroke', d => d.selected_score < 0 ? edgeColor(d) : '#d1d5db')
         .style('stroke-opacity', d => d.selected_score < 0 ? 0.7 : 0.2);
@@ -586,16 +730,16 @@
     }
   }
 
-  // When mode flips to structural and nothing is selected, show the synthesis
-  // coverage panel by default (if synthesis paper is set), otherwise the
-  // generic placeholder.
+  // When mode flips to structural and nothing is selected, keep the dashboard
+  // available unless a synthesis-paper coverage panel is more specific.
   function showStructuralPanelDefault() {
     if (panel.innerHTML.includes('<h2>')) return;   // user has something open
     if (DATA.synthesis_paper_id) renderSynthesisCoveragePanel();
+    else renderIdeaDashboardPanel();
   }
 
   // Aggregated next-steps panel for priority mode
-  let priorityFilter = null;   // {kind?, priority?}
+  let priorityFilter = { kind: 'all', priority: 'all', effort: 'all', maturity: 'all' };
 
   function showPriorityPanelDefault(force) {
     if (!force && panel.innerHTML.includes('<h2>')) return;   // user has something open
@@ -665,14 +809,20 @@
 
   function renderPriorityPanel() {
     let rows = aggregatedSteps();
-    const allKinds = [...new Set(rows.map(r => r.kind))];
-    if (priorityFilter && priorityFilter.kind) {
-      rows = rows.filter(r => r.kind === priorityFilter.kind);
-    }
-    const filterButtons = ['all', ...allKinds].map(k => {
-      const active = (k === 'all' && !priorityFilter?.kind) || priorityFilter?.kind === k;
-      return `<button class="filter${active ? ' active' : ''}" data-kind="${escapeHtml(k)}">${escapeHtml(k)}</button>`;
-    }).join('');
+    const allRows = rows;
+    ['kind', 'priority', 'effort', 'maturity'].forEach(key => {
+      if (priorityFilter[key] !== 'all') rows = rows.filter(r => r[key] === priorityFilter[key]);
+    });
+    const select = (key, label) => {
+      const values = ['all', ...new Set(allRows.map(r => r[key]))].filter(Boolean);
+      return `
+        <label>${escapeHtml(label)}
+          <select class="filter-select" data-filter="${escapeHtml(key)}">
+            ${values.map(v => `<option value="${escapeHtml(v)}"${priorityFilter[key] === v ? ' selected' : ''}>${escapeHtml(v)}</option>`).join('')}
+          </select>
+        </label>
+      `;
+    };
     const stepsHtml = rows.map(r => `
       <div class="step">
         <div>
@@ -687,25 +837,28 @@
     `).join('');
     panel.innerHTML = `
       <h2>Research priorities</h2>
-      <p class="small">${rows.length} suggested next-steps across ${DATA.ideas.length} Ideas, sorted by priority then effort.</p>
-      <div>${filterButtons}</div>
-      <div>${stepsHtml}</div>
+      <div class="metric-grid">
+        <div class="metric"><span class="value">${rows.length}</span><span class="label">visible next steps</span></div>
+        <div class="metric"><span class="value">${allRows.length}</span><span class="label">total next steps</span></div>
+      </div>
+      <div class="filter-row">
+        ${select('kind', 'Kind')}
+        ${select('priority', 'Priority')}
+        ${select('effort', 'Effort')}
+        ${select('maturity', 'Maturity')}
+      </div>
+      <div>${stepsHtml || '<div class="small">No matching next steps.</div>'}</div>
     `;
-    panel.querySelectorAll('.filter').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const kind = btn.dataset.kind;
-        priorityFilter = (kind === 'all') ? null : { kind };
+    panel.querySelectorAll('.filter-select').forEach(selectEl => {
+      selectEl.addEventListener('change', () => {
+        priorityFilter[selectEl.dataset.filter] = selectEl.value;
         renderPriorityPanel();
       });
     });
   }
 
   // ===== Initial side-panel content =====
-  // If synthesis paper is set, default to the coverage panel; otherwise keep
-  // the placeholder.
-  if (DATA.synthesis_paper_id) {
-    renderSynthesisCoveragePanel();
-  }
+  renderIdeaDashboardPanel();
 
   // ===== Resize =====
   window.addEventListener('resize', () => {
@@ -714,6 +867,13 @@
   });
 
   // ===== Util =====
+  function formatNumber(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return '0';
+    if (Math.abs(n) >= 10) return n.toFixed(0);
+    return n.toFixed(2).replace(/\.?0+$/, '');
+  }
+
   function escapeHtml(s) {
     if (s == null) return '';
     return String(s).replace(/[&<>"']/g, c => ({

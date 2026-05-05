@@ -6,7 +6,7 @@ Per the architecture and our design choice D + "both sides":
       (one LLM call per edge). The score is stored in the restriction_map's
       compatibility_scores so stage 5 doesn't need to rescore it.
 
-  4b. Identify contested edges: those with score < CONTEST_THRESHOLD.
+  4b. Identify contested edges: those below the configured contest threshold.
       For each contested edge, BOTH endpoint claims are flagged for
       alternative generation, with the other endpoint as a "failing neighbor".
 
@@ -27,19 +27,17 @@ from typing import Any
 
 from rich.console import Console
 
+from ..config import model_name, stage_config
+from ..failures import append_stage_failures, clear_stage_failures
 from ..llm import LLM, parse_json_response
+from ..llm_cache import lookup as cache_lookup
+from ..llm_cache import write_success as cache_write_success
 from ..paths import Corpus, Run
 from ..prompt_loader import load_prompt
 from ..scoring import VariantHandle, canonical_text, score_pair
 
 console = Console()
-
-# Pairs with original-original score < this trigger alternative generation
-# for both endpoints. 0.0 = "anything negative is contested"; tighten or loosen
-# as we observe behavior.
-CONTEST_THRESHOLD = 0.0
-MAX_RETRIES = 1
-
+STAGE_NAME = "stage4_alternatives"
 
 # ---------- helpers ----------------------------------------------------------
 
@@ -155,6 +153,8 @@ def _generate_alternatives_for_claim(
     contested_neighbors: list[dict],
     llm: LLM,
     system: str,
+    run: Run,
+    max_retries: int,
 ) -> list[dict]:
     """One LLM call. Returns the validated alternatives list (may be empty)."""
     payload = {
@@ -198,10 +198,22 @@ def _generate_alternatives_for_claim(
     messages = [{"role": "user", "content": [{"type": "text", "text": user_text}]}]
 
     last_error: Exception | None = None
-    for attempt in range(MAX_RETRIES + 1):
+    for attempt in range(max_retries + 1):
+        cache_handle = cache_lookup(
+            run=run,
+            stage="stage4_alternatives",
+            llm=llm,
+            system=system,
+            messages=messages,
+            max_tokens=4096,
+        )
         try:
-            text = llm.chat(system=system, messages=messages, max_tokens=4096)
-            parsed = parse_json_response(text)
+            if cache_handle.hit:
+                text = cache_handle.raw_response
+                parsed = cache_handle.parsed_response
+            else:
+                text = llm.chat(system=system, messages=messages, max_tokens=4096)
+                parsed = parse_json_response(text)
             if not isinstance(parsed, dict) or "alternatives" not in parsed:
                 raise ValueError("response must be {'alternatives': [...]}")
             alts_raw = parsed["alternatives"]
@@ -221,10 +233,15 @@ def _generate_alternatives_for_claim(
                 # stamp model
                 v["extraction"]["model"] = llm.model
                 validated.append(v)
+            cache_write_success(
+                cache_handle,
+                raw_response=text,
+                parsed_response=parsed,
+            )
             return validated
         except (ValueError, json.JSONDecodeError) as e:
             last_error = e
-            if attempt == MAX_RETRIES:
+            if attempt == max_retries:
                 break
             messages = [
                 *messages,
@@ -251,14 +268,19 @@ def _generate_alternatives_for_claim(
 
 
 def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
-    llm = LLM()
+    clear_stage_failures(run, STAGE_NAME)
+    cfg = stage_config(run, corpus, STAGE_NAME)
+    allow_partial = bool(cfg["allow_partial"])
+    contest_threshold = float(cfg["contest_threshold"])
+    max_retries = int(cfg["max_retries"])
+    llm = LLM(model=model_name(run, corpus))
     altgen_system = load_prompt("s4_generate_alternatives")
 
     complex_doc, claim_by_id = _load_inputs(run)
     edges = complex_doc["edges"]
     console.print(
         f"stage 4: scoring {len(edges)} edges and generating alternatives "
-        f"for contested ones (threshold: score < {CONTEST_THRESHOLD})"
+        f"for contested ones (threshold: score < {contest_threshold})"
     )
 
     # ---- 4a: score every original-original pair ----
@@ -273,9 +295,15 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
             semilattice_meet=edge["semilattice_meet"],
             snag_overlap=edge["snag_overlap"],
             llm=llm,
+            run=run,
+            cache_stage="stage4_original_scoring",
         )
         edge_scores[edge["edge_id"]] = result
-        marker = "[red]✗[/red]" if result["score"] < CONTEST_THRESHOLD else "[green]✓[/green]"
+        marker = (
+            "[red]✗[/red]"
+            if result["score"] < contest_threshold
+            else "[green]✓[/green]"
+        )
         console.print(
             f"    {marker} {edge['edge_id']}: {result['kind']} ({result['score']:+.2f})"
             + (f"  · {i}/{len(edges)}" if i % 5 == 0 else "")
@@ -285,7 +313,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
     contested_per_claim: dict[str, list[dict]] = {}
     for edge in edges:
         s = edge_scores[edge["edge_id"]]
-        if s["score"] >= CONTEST_THRESHOLD:
+        if s["score"] >= contest_threshold:
             continue
         for self_id, other_id in (
             (edge["claim_a"], edge["claim_b"]),
@@ -304,7 +332,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
 
     n_contested_claims = len(contested_per_claim)
     n_contested_edges = sum(
-        1 for s in edge_scores.values() if s["score"] < CONTEST_THRESHOLD
+        1 for s in edge_scores.values() if s["score"] < contest_threshold
     )
     console.print(
         f"  [bold]4b[/bold]: {n_contested_edges} contested edges → "
@@ -313,6 +341,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
 
     # ---- 4c: generate alternatives ----
     stalks: dict[str, dict] = {}
+    failures: list[dict] = []
     n_alts_total = 0
     for cid in complex_doc["claim_ids"]:
         original_record = _build_original_variant_record(claim_by_id[cid])
@@ -325,9 +354,21 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
                     contested_neighbors=contested_per_claim[cid],
                     llm=llm,
                     system=altgen_system,
+                    run=run,
+                    max_retries=max_retries,
                 )
             except Exception as e:
                 console.print(f"      [red]failed[/red]: {e}")
+                failures.append(
+                    {
+                        "kind": "alternative_generation_failed",
+                        "claim_id": cid,
+                        "neighbor_claim_ids": [
+                            n["neighbor_id"] for n in contested_per_claim[cid]
+                        ],
+                        "error": str(e),
+                    }
+                )
                 alts = []
             for a in alts:
                 variants.append(a)
@@ -339,6 +380,13 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
                 else "      [dim]no alternatives generated[/dim]"
             )
         stalks[cid] = {"claim_id": cid, "variants": variants}
+
+    append_stage_failures(run, STAGE_NAME, failures)
+    if failures and not allow_partial:
+        raise RuntimeError(
+            f"stage 4 failed to generate alternatives for {len(failures)} "
+            f"claim(s); see {run.failures_path}"
+        )
 
     # ---- assemble partial sheaf and write ----
     restriction_maps = []

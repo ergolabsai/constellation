@@ -19,6 +19,7 @@ import json
 
 from rich.console import Console
 
+from ..config import model_name
 from ..llm import LLM
 from ..paths import Corpus, Run
 from ..scoring import VariantHandle, score_pair
@@ -105,7 +106,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
         run.sheaf_path.write_text(json.dumps(sheaf, indent=2))
         return
 
-    llm = LLM()
+    llm = LLM(model=model_name(run, corpus))
     n_done = 0
     for rm, missing in plan:
         if not missing:
@@ -117,6 +118,8 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
                 semilattice_meet=rm["semilattice_meet"],
                 snag_overlap=rm.get("snag_overlap_nodes", []),
                 llm=llm,
+                run=run,
+                cache_stage="stage5_compatibility",
             )
             rm["compatibility_scores"].append(result)
             n_done += 1

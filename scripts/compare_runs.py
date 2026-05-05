@@ -10,6 +10,7 @@ Reports stable-vs-drifted on the metrics that matter:
   - residual H¹ edge_ids
   - Penrose triangle vertex sets
   - per-Idea claim sets (paper-aligned vs cross-paper)
+  - epsilon-machine statistical complexity, when present
 
 Pure read-only — never mutates the run directories.
 """
@@ -25,7 +26,18 @@ def load_run(root: Path) -> dict:
     ideas = [json.loads(p.read_text()) for p in sorted((root / "ideas").glob("*.json"))]
     claims = sorted((root / "claims").glob("*.json"))
     papers = sorted((root / "papers").glob("*.json"))
-    return {"sheaf": sheaf, "ideas": ideas, "n_claims": len(claims), "n_papers": len(papers)}
+    epsilon_machine_path = root / "epsilon_machine.json"
+    return {
+        "sheaf": sheaf,
+        "ideas": ideas,
+        "epsilon_machine": (
+            json.loads(epsilon_machine_path.read_text())
+            if epsilon_machine_path.exists()
+            else None
+        ),
+        "n_claims": len(claims),
+        "n_papers": len(papers),
+    }
 
 
 def contested_edges(sheaf: dict) -> set[tuple[str, str]]:
@@ -57,7 +69,10 @@ def residual_pairs(sheaf: dict) -> set[tuple[str, str]]:
 
 
 def penrose_sets(sheaf: dict) -> set[frozenset]:
-    return {frozenset(t) for t in sheaf.get("frustration", {}).get("penrose_triangles", [])}
+    return {
+        frozenset(t)
+        for t in sheaf.get("frustration", {}).get("penrose_triangles", [])
+    }
 
 
 def idea_partition(ideas: list[dict]) -> list[set[str]]:
@@ -112,7 +127,11 @@ def main() -> None:
     print("== Counts ==")
     report("n papers", old["n_papers"], new["n_papers"])
     report("n claims", old["n_claims"], new["n_claims"])
-    report("n edges", len(old["sheaf"]["restriction_maps"]), len(new["sheaf"]["restriction_maps"]))
+    report(
+        "n edges",
+        len(old["sheaf"]["restriction_maps"]),
+        len(new["sheaf"]["restriction_maps"]),
+    )
     report("n Ideas", len(old["ideas"]), len(new["ideas"]))
 
     print("\n== Sheaf structure ==")
@@ -121,7 +140,11 @@ def main() -> None:
     print(f"  contested edges: OLD={len(o_contested)}  NEW={len(n_contested)}")
     if o_contested or n_contested:
         common = o_contested & n_contested
-        print(f"    common: {len(common)}; OLD only: {len(o_contested - n_contested)}; NEW only: {len(n_contested - o_contested)}")
+        print(
+            f"    common: {len(common)}; "
+            f"OLD only: {len(o_contested - n_contested)}; "
+            f"NEW only: {len(n_contested - o_contested)}"
+        )
 
     o_rewrites = map_rewrites(old["sheaf"])
     n_rewrites = map_rewrites(new["sheaf"])
@@ -145,7 +168,10 @@ def main() -> None:
     print(f"  coherence:    OLD={om['coherence']:+.2f}   NEW={nm['coherence']:+.2f}")
     print(f"  rewrite_cost: OLD={om['rewrite_cost']:.2f}    NEW={nm['rewrite_cost']:.2f}")
     print(f"  total_score:  OLD={om['total_score']:+.2f}   NEW={nm['total_score']:+.2f}")
-    print(f"  ρ (Penrose): OLD={old['sheaf']['frustration']['rho']:.3f}  NEW={new['sheaf']['frustration']['rho']:.3f}")
+    print(
+        f"  ρ (Penrose): OLD={old['sheaf']['frustration']['rho']:.3f}  "
+        f"NEW={new['sheaf']['frustration']['rho']:.3f}"
+    )
 
     print("\n== Idea partition ==")
     op = idea_partition(old["ideas"])
@@ -154,8 +180,24 @@ def main() -> None:
     print(f"  best-pairing Jaccard similarity: {sim:.3f}")
     print(f"  OLD partition sizes: {sorted(len(p) for p in op)}")
     print(f"  NEW partition sizes: {sorted(len(p) for p in np_)}")
-    print(f"  OLD cross-paper Ideas: {sum(1 for p in op if len({c.split(':')[0] for c in p}) > 1)}/{len(op)}")
-    print(f"  NEW cross-paper Ideas: {sum(1 for p in np_ if len({c.split(':')[0] for c in p}) > 1)}/{len(np_)}")
+    old_cross_paper = sum(1 for p in op if len({c.split(":")[0] for c in p}) > 1)
+    new_cross_paper = sum(1 for p in np_ if len({c.split(":")[0] for c in p}) > 1)
+    print(f"  OLD cross-paper Ideas: {old_cross_paper}/{len(op)}")
+    print(f"  NEW cross-paper Ideas: {new_cross_paper}/{len(np_)}")
+    if old["epsilon_machine"] or new["epsilon_machine"]:
+        old_c = (
+            old["epsilon_machine"]["statistical_complexity_bits"]
+            if old["epsilon_machine"]
+            else None
+        )
+        new_c = (
+            new["epsilon_machine"]["statistical_complexity_bits"]
+            if new["epsilon_machine"]
+            else None
+        )
+        old_label = f"{old_c:.3f}" if old_c is not None else "n/a"
+        new_label = f"{new_c:.3f}" if new_c is not None else "n/a"
+        print(f"  C_mu bits: OLD={old_label}  NEW={new_label}")
 
 
 if __name__ == "__main__":

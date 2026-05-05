@@ -1,11 +1,16 @@
 """Tests for stage 2 helpers (no LLM calls)."""
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
+from constellation.paths import Run
 from constellation.stages.s2_tag import (
     _claim_summary,
     _paper_summary,
+    _tag_claims,
     _validate_tags,
     _validate_vocabulary,
 )
@@ -197,3 +202,73 @@ def test_validate_tags_rejects_unknown_snag_node():
     tags = {"p:01": {"semilattice": {"mode": "a"}, "snag_nodes": ["made_up_node"]}}
     with pytest.raises(ValueError, match="unknown SNAG node"):
         _validate_tags(tags, vocab, claims)
+
+
+# ---------- _tag_claims partial policy ---------------------------------------
+
+
+class _FakeLLM:
+    model = "test-model"
+
+
+def _run(tmp_path: Path) -> Run:
+    root = tmp_path / "runs" / "toy"
+    root.mkdir(parents=True)
+    return Run(root)
+
+
+def test_tag_claims_strict_mode_records_and_raises_on_batch_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    run = _run(tmp_path)
+    claims = [{"claim_id": "p:01"}, {"claim_id": "p:02"}]
+
+    def fake_tag_one_batch(*args, **kwargs):
+        raise RuntimeError("nope")
+
+    monkeypatch.setattr("constellation.stages.s2_tag._tag_one_batch", fake_tag_one_batch)
+
+    with pytest.raises(RuntimeError, match="stage 2 failed"):
+        _tag_claims(
+            _FakeLLM(),  # type: ignore[arg-type]
+            run,
+            _ok_vocab(),
+            claims,
+            max_retries=0,
+            tag_batch_size=1,
+            allow_partial=False,
+        )
+
+    failures = json.loads(run.failures_path.read_text())
+    assert failures["failures"]["stage2_tag"][0]["kind"] == "tag_batch_failed"
+
+
+def test_tag_claims_partial_mode_returns_successes_after_batch_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    run = _run(tmp_path)
+    claims = [{"claim_id": "p:01"}, {"claim_id": "p:02"}]
+    calls = 0
+
+    def fake_tag_one_batch(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise RuntimeError("nope")
+        return {"p:02": {"semilattice": {"mode": "a"}, "snag_nodes": ["shear"]}}
+
+    monkeypatch.setattr("constellation.stages.s2_tag._tag_one_batch", fake_tag_one_batch)
+
+    tags = _tag_claims(
+        _FakeLLM(),  # type: ignore[arg-type]
+        run,
+        _ok_vocab(),
+        claims,
+        max_retries=0,
+        tag_batch_size=1,
+        allow_partial=True,
+    )
+
+    assert tags == {"p:02": {"semilattice": {"mode": "a"}, "snag_nodes": ["shear"]}}
+    failures = json.loads(run.failures_path.read_text())
+    assert failures["failures"]["stage2_tag"][0]["claim_ids"] == ["p:01"]

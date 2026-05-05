@@ -5,7 +5,7 @@ Output: run.complex_path  (edge list with semilattice meet + SNAG overlap)
 
 PURE CODE — no LLM. Two claims form an edge iff:
   1. Their semilattice coordinates meet on every dimension (regime-compatible)
-  2. Their SNAG node lists overlap by at least SNAG_OVERLAP_THRESHOLD entries
+  2. Their SNAG node lists overlap by at least the configured threshold
 
 Per-dimension meet rules:
   - discrete:        meet exists iff values are equal
@@ -26,11 +26,10 @@ from typing import Any
 
 from rich.console import Console
 
+from ..config import stage_config
 from ..paths import Corpus, Run
 
 console = Console()
-
-SNAG_OVERLAP_THRESHOLD = 2  # architecture default
 
 
 def _hierarchical_meet(
@@ -148,6 +147,9 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
             f"missing tag artifacts under {run.root}; run stage 2 first"
         )
 
+    cfg = stage_config(run, corpus, "stage3_complex")
+    snag_overlap_threshold = int(cfg["snag_overlap_threshold"])
+
     vocab = json.loads(run.tag_vocabulary_path.read_text())
     tags = json.loads(run.tags_path.read_text())
     claim_ids = sorted(tags.keys())
@@ -157,7 +159,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
     )
     console.print(
         f"  semilattice: {len(vocab['semilattice_dimensions'])} dims, "
-        f"snag overlap threshold: ≥{SNAG_OVERLAP_THRESHOLD}"
+        f"snag overlap threshold: ≥{snag_overlap_threshold}"
     )
 
     edges: list[dict] = []
@@ -187,7 +189,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
             snag_overlap_dist_all.get(len(overlap), 0) + 1
         )
 
-        if len(overlap) < SNAG_OVERLAP_THRESHOLD:
+        if len(overlap) < snag_overlap_threshold:
             continue
 
         n_snag_compat += 1
@@ -212,7 +214,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
     output = {
         "n_claims": len(claim_ids),
         "n_edges": len(edges),
-        "config": {"snag_overlap_threshold": SNAG_OVERLAP_THRESHOLD},
+        "config": {"snag_overlap_threshold": snag_overlap_threshold},
         "claim_ids": claim_ids,
         "edges": edges,
         "stats": {
@@ -235,7 +237,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
     console.print(f"  pairs total: {n_pairs_total}")
     console.print(f"  pairs semilattice-compatible: {n_semi_compat}")
     console.print(
-        f"  edges (also ≥{SNAG_OVERLAP_THRESHOLD} SNAG overlap): "
+        f"  edges (also ≥{snag_overlap_threshold} SNAG overlap): "
         f"[bold green]{len(edges)}[/bold green]"
     )
     nonzero_filters = [(k, v) for k, v in semi_filter_counts.items() if v > 0]

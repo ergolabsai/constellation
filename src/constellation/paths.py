@@ -3,6 +3,7 @@
 Convention:
   corpora/<name>/pdfs/*.pdf       — input
   runs/<name>_<utc-timestamp>/    — output of one pipeline run
+    run_config.json               — config snapshot for reproducibility
     papers/<paper_id>.json
     claims/<paper_id>:<n>.json
     tags.json                     — sidecar for stage 2 (_tags by claim_id)
@@ -10,6 +11,9 @@ Convention:
     sheaf.json                    — stages 4–7 collapsed into the sheaf artifact
     ideas/<idea_id>.json          — stage 8
     report.md                     — stage 9
+    epsilon_machine.json          — Idea state distribution + C_mu metrics
+    failures.json                 — structured stage failures, when present
+    llm_cache/                    — successful LLM JSON responses
 """
 from __future__ import annotations
 
@@ -64,6 +68,18 @@ class Run:
         return self.root / "claims"
 
     @property
+    def run_config_path(self) -> Path:
+        return self.root / "run_config.json"
+
+    @property
+    def failures_path(self) -> Path:
+        return self.root / "failures.json"
+
+    @property
+    def llm_cache_dir(self) -> Path:
+        return self.root / "llm_cache"
+
+    @property
     def tag_vocabulary_path(self) -> Path:
         """Stage 2a output: the corpus's proposed semilattice + SNAG vocabulary."""
         return self.root / "tag_vocabulary.json"
@@ -88,6 +104,10 @@ class Run:
     @property
     def report_path(self) -> Path:
         return self.root / "report.md"
+
+    @property
+    def epsilon_machine_path(self) -> Path:
+        return self.root / "epsilon_machine.json"
 
     def ensure_dirs(self) -> None:
         for d in (self.papers_dir, self.claims_dir, self.ideas_dir):

@@ -10,6 +10,7 @@ from dataclasses import dataclass
 
 from rich.console import Console
 
+from .config import ensure_run_config
 from .paths import Corpus, Run
 from .stages import (
     s1_extract,
@@ -54,6 +55,7 @@ def run_pipeline(
     to_stage: int = 9,
 ) -> None:
     run_obj.ensure_dirs()
+    ensure_run_config(run_obj, corpus)
     for stage in STAGES:
         if not (from_stage <= stage.n <= to_stage):
             continue

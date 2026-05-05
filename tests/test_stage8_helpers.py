@@ -1,12 +1,18 @@
 """Tests for stage 8 helpers (no LLM calls)."""
 from __future__ import annotations
 
+import pytest
+from jsonschema.exceptions import ValidationError
+
+from constellation.paths import Run
 from constellation.stages.s8_consolidate import (
     _compute_consensus,
     _compute_intra_frustration,
     _fill_transitions_in,
     _idea_filename,
     _slugify,
+    _validate_and_write_ideas,
+    _validate_idea_partition,
 )
 
 # ---------- _slugify ---------------------------------------------------------
@@ -150,3 +156,123 @@ def test_fill_transitions_in_inverts_outs():
     in_b = next(i for i in ideas if i["idea_id"] == "c/idea_02_b")["transitions_in"]
     assert len(in_b) == 2
     assert {t["from_idea_id"] for t in in_b} == {"c/idea_01_a", "c/idea_03_c"}
+
+
+# ---------- _validate_idea_partition ----------------------------------------
+
+
+def _idea(idea_id: str, claim_ids: list[str]) -> dict:
+    return {
+        "idea_id": idea_id,
+        "contributing_claims": [{"claim_id": cid} for cid in claim_ids],
+    }
+
+
+def test_validate_idea_partition_accepts_exact_partition():
+    ideas = [
+        _idea("c/idea_01_a", ["p:01", "p:02"]),
+        _idea("c/idea_02_b", ["q:01"]),
+    ]
+    _validate_idea_partition(ideas, {"p:01", "p:02", "q:01"})
+
+
+def test_validate_idea_partition_rejects_empty_idea():
+    ideas = [
+        _idea("c/idea_01_a", ["p:01"]),
+        _idea("c/idea_02_empty", []),
+    ]
+    with pytest.raises(ValueError, match="empty Ideas"):
+        _validate_idea_partition(ideas, {"p:01"})
+
+
+def test_validate_idea_partition_rejects_missing_map_claim():
+    ideas = [_idea("c/idea_01_a", ["p:01"])]
+    with pytest.raises(ValueError, match="missing MAP claims"):
+        _validate_idea_partition(ideas, {"p:01", "p:02"})
+
+
+def test_validate_idea_partition_rejects_duplicate_map_claim():
+    ideas = [
+        _idea("c/idea_01_a", ["p:01"]),
+        _idea("c/idea_02_b", ["p:01"]),
+    ]
+    with pytest.raises(ValueError, match="duplicated MAP claims"):
+        _validate_idea_partition(ideas, {"p:01"})
+
+
+def test_validate_idea_partition_rejects_unknown_claim():
+    ideas = [_idea("c/idea_01_a", ["p:01", "ghost:01"])]
+    with pytest.raises(ValueError, match="non-MAP claims referenced"):
+        _validate_idea_partition(ideas, {"p:01"})
+
+
+# ---------- _validate_and_write_ideas ---------------------------------------
+
+
+def _minimal_schema_idea(idea_id: str, claim_ids: list[str]) -> dict:
+    return {
+        "$schema": "landscape-map/idea/v0.2",
+        "idea_id": idea_id,
+        "label": "A valid idea",
+        "description": "A minimal valid idea for writer tests.",
+        "sheaf_ref": {"sheaf_id": "c/run"},
+        "contributing_claims": [
+            {
+                "claim_id": cid,
+                "selected_variant_id": f"{cid}#original",
+                "paper_id": cid.split(":", 1)[0],
+            }
+            for cid in claim_ids
+        ],
+        "scope": {
+            "generality": "domain_specific",
+            "derived_from_claims": claim_ids,
+        },
+        "extraction": {"method": "manual"},
+    }
+
+
+def _writer_run(tmp_path) -> Run:
+    root = tmp_path / "run"
+    (root / "ideas").mkdir(parents=True)
+    return Run(root=root)
+
+
+def test_validate_and_write_ideas_replaces_stale_files_after_validation(tmp_path):
+    run = _writer_run(tmp_path)
+    stale = run.ideas_dir / "stale.json"
+    stale.write_text("{}")
+
+    ideas = [_minimal_schema_idea("c/idea_01_a", ["p:01"])]
+    _validate_and_write_ideas(run, ideas, {"p:01"})
+
+    assert not stale.exists()
+    written = run.ideas_dir / "c_idea_01_a.json"
+    assert written.exists()
+    assert run.epsilon_machine_path.exists()
+
+
+def test_validate_and_write_ideas_keeps_stale_files_when_validation_fails(tmp_path):
+    run = _writer_run(tmp_path)
+    stale = run.ideas_dir / "stale.json"
+    stale.write_text("{}")
+
+    ideas = [_minimal_schema_idea("c/idea_01_a", [])]
+    with pytest.raises(ValueError, match="empty Ideas"):
+        _validate_and_write_ideas(run, ideas, {"p:01"})
+
+    assert stale.exists()
+
+
+def test_validate_and_write_ideas_keeps_stale_files_when_schema_fails(tmp_path):
+    run = _writer_run(tmp_path)
+    stale = run.ideas_dir / "stale.json"
+    stale.write_text("{}")
+
+    bad_idea = _minimal_schema_idea("c/idea_01_a", ["p:01"])
+    del bad_idea["description"]
+
+    with pytest.raises(ValidationError):
+        _validate_and_write_ideas(run, [bad_idea], {"p:01"})
+
+    assert stale.exists()

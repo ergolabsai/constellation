@@ -5,7 +5,9 @@ from constellation.stages.s6_map import (
     _build_indexes,
     _enumerate_sections,
     _evaluate_section,
+    _lambda_sweep_values,
     _residual_h1,
+    _summarize_lambda_sensitivity,
 )
 
 
@@ -107,6 +109,65 @@ def test_enumerate_sections_respects_lambda():
     # With huge lambda, original wins (rewrite cost dominates)
     sections = _enumerate_sections(vpc, sheaf["restriction_maps"], rd, sbp, lam=100.0)
     assert sections[0]["selected"]["p:01"] == "p:01#original"
+
+
+# ---------- lambda sensitivity ----------------------------------------------
+
+
+def test_lambda_sweep_values_dedupes_and_includes_primary():
+    values = _lambda_sweep_values(0.4, [0.1, "0.4", 0.1, 0.8])
+    assert values == [0.1, 0.4, 0.8]
+    assert _lambda_sweep_values(0.4, []) == [0.4]
+
+
+def test_summarize_lambda_sensitivity_marks_stable_and_sensitive_claims():
+    summaries = [
+        {
+            "lambda_rewrite_penalty": 0.1,
+            "selected": {
+                "p:01": "p:01#alt",
+                "p:02": "p:02#original",
+            },
+            "total_score": 1.0,
+            "coherence": 1.0,
+            "rewrite_cost": 0.3,
+            "n_rewritten": 1,
+        },
+        {
+            "lambda_rewrite_penalty": 0.4,
+            "selected": {
+                "p:01": "p:01#alt",
+                "p:02": "p:02#original",
+            },
+            "total_score": 0.88,
+            "coherence": 1.0,
+            "rewrite_cost": 0.3,
+            "n_rewritten": 1,
+        },
+        {
+            "lambda_rewrite_penalty": 0.8,
+            "selected": {
+                "p:01": "p:01#original",
+                "p:02": "p:02#original",
+            },
+            "total_score": 0.6,
+            "coherence": 0.6,
+            "rewrite_cost": 0.0,
+            "n_rewritten": 0,
+        },
+    ]
+
+    sensitivity = _summarize_lambda_sensitivity(0.4, summaries)
+
+    assert sensitivity["lambdas"] == [0.1, 0.4, 0.8]
+    assert sensitivity["n_stable_claims"] == 1
+    assert sensitivity["stable_claims"] == ["p:02"]
+    assert sensitivity["n_sensitive_claims"] == 1
+    assert sensitivity["sensitive_claims"][0]["claim_id"] == "p:01"
+    assert sensitivity["sensitive_claims"][0]["selected_variants"] == [
+        "p:01#alt",
+        "p:01#original",
+    ]
 
 
 # ---------- _residual_h1 -----------------------------------------------------

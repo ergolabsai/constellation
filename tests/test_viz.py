@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from constellation.paths import Run
 from constellation.viz import _build_payload, render
 
@@ -180,6 +182,12 @@ def test_build_payload_packs_expected_keys(tmp_path: Path):
     assert payload["stats"]["n_edges"] == 1
     assert payload["stats"]["n_ideas"] == 1
     assert payload["stats"]["n_rewrites"] == 0
+    assert payload["stats"]["n_lambda_sensitive"] == 0
+    assert payload["stats"]["c_mu_bits"] == 0.0
+    assert payload["epsilon_machine"]["n_states"] == 1
+    assert payload["ideas"][0]["n_sensitive_claims"] == 0
+    assert payload["ideas"][0]["n_residual_claims"] == 0
+    assert payload["ideas"][0]["state_probability"] == 1.0
 
 
 def test_build_payload_attaches_idea_to_claims(tmp_path: Path):
@@ -188,6 +196,17 @@ def test_build_payload_attaches_idea_to_claims(tmp_path: Path):
     by_id = {c["claim_id"]: c for c in payload["claims"]}
     assert by_id["p:01"]["idea_id"] == "toy/idea_01_x_causes_y"
     assert by_id["p:02"]["idea_id"] == "toy/idea_01_x_causes_y"
+
+
+def test_build_payload_rejects_duplicate_idea_membership(tmp_path: Path):
+    run = _toy_run(tmp_path)
+    duplicate = json.loads((run.ideas_dir / "toy_idea_01_x_causes_y.json").read_text())
+    duplicate["idea_id"] = "toy/idea_02_duplicate"
+    duplicate["contributing_claims"] = duplicate["contributing_claims"][:1]
+    (run.ideas_dir / "toy_idea_02_duplicate.json").write_text(json.dumps(duplicate))
+
+    with pytest.raises(ValueError, match="duplicated MAP claims"):
+        _build_payload(run)
 
 
 def test_build_payload_marks_residual_participation(tmp_path: Path):
@@ -207,6 +226,40 @@ def test_build_payload_marks_residual_participation(tmp_path: Path):
     assert by_id["p:01"]["in_residual_edge"] is True
     assert by_id["p:02"]["in_residual_edge"] is True
     assert payload["edges"][0]["is_residual"] is True
+    assert payload["ideas"][0]["n_residual_claims"] == 2
+
+
+def test_build_payload_marks_lambda_sensitive_claims_and_ideas(tmp_path: Path):
+    run = _toy_run(tmp_path)
+    sheaf = json.loads(run.sheaf_path.read_text())
+    sheaf["lambda_sensitivity"] = {
+        "primary_lambda": 0.4,
+        "lambdas": [0.1, 0.4, 0.8],
+        "sections": [],
+        "n_stable_claims": 1,
+        "n_sensitive_claims": 1,
+        "stable_claims": ["p:02"],
+        "sensitive_claims": [
+            {
+                "claim_id": "p:01",
+                "selected_variants": ["p:01#original", "p:01#alt"],
+                "selections_by_lambda": [
+                    {"lambda_rewrite_penalty": 0.1, "variant_id": "p:01#alt"},
+                    {"lambda_rewrite_penalty": 0.8, "variant_id": "p:01#original"},
+                ],
+            }
+        ],
+    }
+    run.sheaf_path.write_text(json.dumps(sheaf))
+
+    payload = _build_payload(run)
+
+    by_id = {c["claim_id"]: c for c in payload["claims"]}
+    assert by_id["p:01"]["is_lambda_sensitive"] is True
+    assert by_id["p:01"]["lambda_selections"][0]["variant_id"] == "p:01#alt"
+    assert by_id["p:02"]["is_lambda_sensitive"] is False
+    assert payload["stats"]["n_lambda_sensitive"] == 1
+    assert payload["ideas"][0]["n_sensitive_claims"] == 1
 
 
 def test_render_writes_html_with_inlined_payload(tmp_path: Path):
@@ -221,6 +274,8 @@ def test_render_writes_html_with_inlined_payload(tmp_path: Path):
     assert '"corpus": "toy"' in text
     # D3 script tag is present
     assert "d3.v7.min.js" in text
+    assert "Idea dashboard" in text
+    assert "λ-sensitive claim" in text
 
 
 def test_render_to_custom_path(tmp_path: Path):
@@ -252,7 +307,6 @@ def test_synthesis_paper_default_none(tmp_path: Path):
 
 
 def test_synthesis_paper_unknown_raises(tmp_path: Path):
-    import pytest
     run = _toy_run(tmp_path)
     with pytest.raises(ValueError, match="not found in run"):
         _build_payload(run, synthesis_paper_id="ghost")

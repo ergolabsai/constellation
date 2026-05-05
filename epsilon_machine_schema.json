@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "landscape-map/epsilon_machine/v0.1",
+  "title": "Epsilon Machine Metrics Schema",
+  "description": "Corpus-level metrics over the Idea partition treated as an epsilon-machine: state occupancy distribution, statistical complexity C_mu, effective state count, and the directed transition graph between Ideas.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "n_states",
+    "n_claims",
+    "statistical_complexity_bits",
+    "normalized_statistical_complexity",
+    "effective_states",
+    "state_distribution",
+    "transition_graph"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "n_states": { "type": "integer", "minimum": 0 },
+    "n_claims": { "type": "integer", "minimum": 0 },
+    "statistical_complexity_bits": {
+      "type": "number",
+      "minimum": 0,
+      "description": "C_mu = H[state], the Shannon entropy in bits of the Idea occupancy distribution."
+    },
+    "normalized_statistical_complexity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "C_mu / log2(n_states), or 0 when n_states <= 1."
+    },
+    "effective_states": {
+      "type": "number",
+      "minimum": 0,
+      "description": "2^C_mu: the effective number of equally likely Ideas represented by the observed distribution."
+    },
+    "state_distribution": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "idea_id",
+          "label",
+          "n_claims",
+          "probability",
+          "transitions_out",
+          "transitions_in"
+        ],
+        "properties": {
+          "idea_id": { "type": "string" },
+          "label": { "type": "string" },
+          "n_claims": { "type": "integer", "minimum": 0 },
+          "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+          "transitions_out": { "type": "integer", "minimum": 0 },
+          "transitions_in": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "transition_graph": {
+      "type": "object",
+      "required": [
+        "n_transitions",
+        "n_unique_transition_pairs",
+        "transition_density",
+        "transitions"
+      ],
+      "properties": {
+        "n_transitions": { "type": "integer", "minimum": 0 },
+        "n_unique_transition_pairs": { "type": "integer", "minimum": 0 },
+        "transition_density": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Unique directed Idea pairs divided by n_states * (n_states - 1)."
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from_idea_id", "to_idea_id", "kind"],
+            "properties": {
+              "from_idea_id": { "type": "string" },
+              "to_idea_id": { "type": "string" },
+              "kind": { "type": "string" },
+              "note": { "type": "string" },
+              "supporting_edges": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

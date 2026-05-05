@@ -43,6 +43,7 @@
     "contributing_claims": {
       "type": "array",
       "description": "The claims whose MAP-selected variants together constitute this idea. Each entry carries the full reference chain: claim_id → selected variant → paper → credibility → rewrite distance. Order SHOULD be by descending credibility so the most load-bearing claim appears first.",
+      "minItems": 1,
       "items": {
         "type": "object",
         "required": ["claim_id", "selected_variant_id", "paper_id"],

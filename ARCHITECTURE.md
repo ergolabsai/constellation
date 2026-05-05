@@ -22,7 +22,7 @@ Four object types carry the architecture.
 
 **Sheaf.** The corpus-level structural object. Records, for each claim, its hypothesis-space stalk (the original plus any evidence-faithful alternative readings); for each comparable pair of claims, the restriction map with a full variant-pair compatibility matrix; for the whole corpus, the MAP global section, residual H¹ (unresolved edges), and Penrose-frustration diagnostics. One sheaf per corpus run. See `sheaf_schema.json` (v0.1).
 
-**Idea.** A consolidated knowledge unit extracted from a sheaf's MAP section — an ε-state in the corpus's ε-machine. Records the contributing claims (with their MAP-selected variants), the idea's own first-class scope (meet of contributing claims' evidenced scopes), consensus and frustration metrics, ε-transitions to other Ideas, and open questions tied to residual frustration. Each open question carries a `suggested_next_steps` array with typed entries (experiment / simulation / theoretical_development / further_extraction / literature_review / code_capability / instrumentation) so research-priority dashboards can group and rank work-to-do. One Idea per ε-state; typically 3–10 Ideas per corpus. See `idea_schema.json` (v0.2).
+**Idea.** A consolidated knowledge unit extracted from a sheaf's MAP section — an ε-state in the corpus's ε-machine. Records the contributing claims (with their MAP-selected variants), the idea's own first-class scope (meet of contributing claims' evidenced scopes), consensus and frustration metrics, ε-transitions to other Ideas, and open questions tied to residual frustration. Each open question carries a `suggested_next_steps` array with typed entries (experiment / simulation / theoretical_development / further_extraction / literature_review / code_capability / instrumentation) so research-priority dashboards can group and rank work-to-do. One Idea per ε-state; typically 3–10 Ideas per corpus. See `idea_schema.json` (v0.2). The corpus-level ε-machine metrics are stored separately in `epsilon_machine_schema.json` (v0.1).
 
 The Sheaf is where the structural work happens; the Idea is what a reader browses. The old v1 `Stalk` object has no direct successor — its three conflated roles (hypothesis space, pre-clustering, within-cluster coherence) now live in Sheaf.stalks, in the absence of pre-clustering, and in Idea.frustration respectively.
 
@@ -88,7 +88,7 @@ At MVP scale (~15 claims, ~10 edges, ~1–3 variants per contested claim), the c
 
 Maximize coherence(σ) − λ × rewrite_cost(σ) over the product space Π F(c). At MVP scale the product space is small enough for exhaustive enumeration; at larger scale use loopy belief propagation on the factor graph, ILP for exact solutions, or simulated annealing for stochastic approximation. The solver identity and runtime are recorded in `map_section.solver`.
 
-λ is a modeling knob — how aggressively to preserve originals vs rewrite for coherence. MVP reports one λ; a sensitivity-analysis pass reporting MAP at λ ∈ {0.1, 0.2, 0.4, 0.8} identifies λ-stable selections (high confidence) and λ-sensitive ones (where MAP depends on the prior).
+λ is a modeling knob — how aggressively to preserve originals vs rewrite for coherence. Stage 6 reports the canonical MAP section at the configured primary λ and also replays the solver across the configured sensitivity sweep (default λ ∈ {0.1, 0.2, 0.4, 0.8}). This identifies λ-stable selections (high confidence) and λ-sensitive ones (where MAP depends on the prior).
 
 Residual H¹ is the set of edges whose compatibility score on the selected variant pair is ≤ 0 — obstructions to a global section that no rewrite could resolve.
 
@@ -110,6 +110,8 @@ Partition the surviving claims (in their MAP-selected variants) into ε-states. 
 
 For each ε-state, populate an Idea document: `label`, `description`, `contributing_claims` with their MAP variants, `scope` (meet of contributing claims' evidenced scopes — the Idea's first-class scope, with a `derivation_timestamp` so staleness can be detected), `consensus` block (papers represented, mean credibility, agreement_score, count of rewrites), `frustration` block (intra-Idea ρ), `transitions_out` and `transitions_in` to other Ideas (with kinds: tool_supply, empirical_phenomenon, tool_under_critique, trust_scaffolding, critique_of_framework, extension, specialization), and `open_questions` tied to residual edges or under-developed transition targets. Each open question decomposes into typed `suggested_next_steps` — experiments, simulations, theoretical developments, further extractions, literature reviews, or code-capability / instrumentation needs — with per-step descriptions, required capabilities, expected outcomes, effort estimates, and maturity flags (immediate vs tool-development-required vs depends-on-other-step).
 
+After the Idea partition validates, compute `epsilon_machine.json`: the Idea state distribution, statistical complexity Cμ = H[state] in bits, normalized Cμ, effective state count 2^Cμ, and transition graph density. The MVP state distribution is claim occupancy per Idea; future versions can add weighted distributions without changing the core artifact.
+
 Ideas are the corpus's deliverable outputs. A typical corpus of 10–20 papers produces 3–10 Ideas.
 
 ### 9. Write artifacts
@@ -118,12 +120,16 @@ Ideas are the corpus's deliverable outputs. A typical corpus of 10–20 papers p
 
 ```
 corpus_root/
+  run_config.json         (model, schema, prompt hash, and parameter snapshot)
   papers/*.json            (paper_schema v0.5)
   claims/*.json            (claim_schema v0.5)
-  sheaf.json               (sheaf_schema v0.1)
+  sheaf.json               (sheaf_schema v0.1, including λ sensitivity)
   ideas/*.json             (idea_schema v0.1)
+  epsilon_machine.json     (epsilon_machine_schema v0.1)
   report.md                (human-readable synthesis)
   constellation.html       (interactive D3 view — optional)
+  failures.json            (structured stage failures, when present)
+  llm_cache/               (successful validated LLM JSON responses)
 ```
 
 JSON files remain the source of truth during development; a graph-DB derived artifact is produced downstream if the visualizer needs one.
@@ -140,6 +146,7 @@ JSON files on disk, one per paper / per claim plus one sheaf and N Ideas per cor
 | `SEMILATTICE_TAG_DIMENSIONS` | domain-authored | Ontology for stage 2 tagging (6 dimensions typical) |
 | `SNAG_OVERLAP_THRESHOLD` | 2 literal + 1 soft keyword | Minimum overlap to form a comparability edge |
 | `LAMBDA_REWRITE` | 0.4 | MAP objective's rewrite-distance penalty coefficient |
+| `LAMBDA_SENSITIVITY_VALUES` | [0.1, 0.2, 0.4, 0.8] | λ sweep values replayed after the primary MAP section |
 | `MAP_SOLVER` | `enumerate` | Exhaustive at MVP scale; loopy_bp at larger |
 | `MIN_CLAIMS_PER_IDEA` | 2 | Below this, an Idea is suspect — usually indicates mis-partition |
 | `FRUSTRATION_WARNING_RHO` | 0.2 | ρ above this flags the Idea or sheaf for manual review |
@@ -149,14 +156,12 @@ All values are provisional and expected to shift once the pipeline has run again
 ## Deferred (Phase 2 and Beyond)
 
 - **Automated tag ontology generation.** Derive the per-domain semilattice tag vocabulary from an LLM given few-shot examples, rather than hand-authoring it per corpus.
-- **λ sensitivity sweep as first-class output.** Run MAP at several λ values; report λ-stable vs λ-sensitive selections explicitly.
 - **Causal-state partition from predictive structure.** Replace the hand-curated ε-state partition with a computed causal-state partition over a trained predictive model of claim-claim transitions. Requires enough corpus structure to estimate conditional distributions reliably — probably n > 50 claims.
 - **Incremental sheaves.** Add a paper to an existing corpus without re-running the whole pipeline. Requires restricting recomputation to the affected part of the comparability complex.
 - **Cross-corpus loop closure.** Detect when two independently-built Ideas (in different corpora) are really the same ε-state. The SLAM analogy is direct.
-- **Statistical complexity C_μ as a first-class metric.** Beyond Penrose-frustration ρ, report the corpus's C_μ over its ε-machine as a measure of theoretical richness.
 - **Formal verification.** Lean / AxiomProver for mathematically precise claims.
 - **Active paper discovery.** An agent that selects candidate papers based on what the current Ideas collectively leave underdetermined. Feeds the pipeline's credibility_score and populates stalks with new alternatives.
-- **Visualization dashboard over Ideas.** A UI that surfaces Ideas, their ε-transitions, and their open questions. Renderer over the sheaf + ideas JSON. Key viewing modes: (a) the structural map — hulls per Idea, claims colored by paper, edges colored by MAP-section sign; (b) the research-priority map — hulls colored by intra-Idea ρ and open-question density, claims colored by participation in residual-negative edges, with a filterable next-steps panel grouping suggested work by kind (experiment / simulation / theoretical / further extraction). The priority map is how a researcher decides what to work on next; the structural map is how they understand why.
+- **Full interactive dashboard.** The current D3 artifact now surfaces Ideas, λ sensitivity, ε-machine metrics, and research-priority filters. A fuller UI could add persisted layouts, cross-run comparison, saved reviewer notes, and richer Idea-transition browsing.
 
 Each item is additive; none requires rewriting the v2 pipeline.
 
@@ -168,7 +173,7 @@ Three sources inspired the architecture; the v2 pipeline makes each more load-be
 
 **Coherence-driven inference (Huntsman 2025).** The local/global split: LLMs score pairwise consistency (local), a global optimization selects a partition or section (global). v2's MAP step is exactly a coherence-driven inference — log-posterior maximization with a rewrite-distance prior. The paper-as-stalk refinement sharpens CDI by introducing the hypothesis-space stalk as the quantified unit: instead of voting over claims, MAP votes over variants of claims, with the rewrite-distance prior preventing free-for-all rewriting.
 
-**Computational mechanics / ε-machines (Crutchfield-Shalizi).** The consolidation step. Once the MAP section is fixed, partition the surviving claims into causal states — equivalence classes of "same predictive structure over the claim DAG." Each ε-state becomes an Idea. The partition is the minimal sufficient statistic of the corpus's theoretical content, and statistical complexity C_μ measures its richness. At MVP scale the partition is hand-curated; computing it programmatically is a Phase 2 objective.
+**Computational mechanics / ε-machines (Crutchfield-Shalizi).** The consolidation step. Once the MAP section is fixed, partition the surviving claims into causal states — equivalence classes of "same predictive structure over the claim DAG." Each ε-state becomes an Idea. The partition is the minimal sufficient statistic of the corpus's theoretical content, and statistical complexity Cμ measures its richness. At MVP scale the partition is hand-curated; computing it programmatically is a Phase 2 objective.
 
 ## Open Questions
 
@@ -178,6 +183,6 @@ Three sources inspired the architecture; the v2 pipeline makes each more load-be
 
 3. **How is the ε-state partition verified?** At MVP it's hand-curated and human-reviewed. Whether the partition is the unique or optimal one under any criterion is an open methodological question.
 
-4. **λ-reporting discipline.** Is reporting one λ defensible, or should every corpus run come with a λ-sensitivity sweep? Argues for making the sweep the MVP behavior rather than a Phase 2 feature.
+4. **λ-reporting discipline.** How wide should the default λ sweep be, and should reports flag a run as underdetermined when too many selections are λ-sensitive?
 
 5. **What counts as a contested claim?** In stage 4, alternative generation is triggered by restriction failure. An edge case: a claim that has no failing neighbor under its original but would have one under a narrower scope — should speculative alternatives be generated? MVP says no; larger corpora may need to.

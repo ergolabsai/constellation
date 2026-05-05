@@ -22,15 +22,11 @@ from itertools import product
 
 from rich.console import Console
 
+from ..config import stage_config
 from ..paths import Corpus, Run
 from ..schemas import validate_sheaf
 
 console = Console()
-
-LAMBDA_REWRITE_PENALTY = 0.4   # architecture default
-N_ALTERNATIVE_SECTIONS = 4     # how many runners-up to keep
-ENUMERATE_LIMIT = 100_000      # use coord-ascent when |Π F(c)| exceeds this
-COORD_ASCENT_RESTARTS = 5      # restarts to escape local optima
 
 
 def _build_indexes(sheaf: dict) -> tuple[dict, dict, dict]:
@@ -52,6 +48,14 @@ def _build_indexes(sheaf: dict) -> tuple[dict, dict, dict]:
                 "claim_b": rm["claim_b"],
             }
     return variants_per_claim, rewrite_distance, score_by_pair
+
+
+def _section_space_size(variants_per_claim: dict[str, list[str]]) -> int:
+    """Return |Π F(c)| for the current stalk product space."""
+    n_sections = 1
+    for variants in variants_per_claim.values():
+        n_sections *= len(variants)
+    return n_sections
 
 
 def _evaluate_section(
@@ -199,6 +203,155 @@ def _coord_ascent_multistart(
     return sections
 
 
+def _solve_sections(
+    variants_per_claim: dict[str, list[str]],
+    rms: list[dict],
+    rewrite_distance: dict[str, float],
+    score_by_pair: dict[tuple[str, str], dict],
+    lam: float,
+    *,
+    enumerate_limit: int,
+    coord_ascent_restarts: int,
+    announce: bool = False,
+) -> tuple[list[dict], dict]:
+    """Solve MAP for one λ and return (ranked_sections, solver_metadata)."""
+    n_sections = _section_space_size(variants_per_claim)
+    use_enumerate = n_sections <= enumerate_limit
+    method = "enumerate" if use_enumerate else "coord_ascent"
+
+    if announce:
+        if use_enumerate:
+            console.print(
+                f"stage 6: enumerating MAP section over {n_sections:,} candidates "
+                f"(λ = {lam})"
+            )
+        else:
+            console.print(
+                f"stage 6: section space is {n_sections:,} "
+                f"(> {enumerate_limit:,} limit) — using coord ascent with "
+                f"{coord_ascent_restarts} restarts (λ = {lam})"
+            )
+
+    t0 = time.perf_counter()
+    if use_enumerate:
+        sections = _enumerate_sections(
+            variants_per_claim,
+            rms,
+            rewrite_distance,
+            score_by_pair,
+            lam,
+        )
+    else:
+        sections = _coord_ascent_multistart(
+            variants_per_claim,
+            rms,
+            rewrite_distance,
+            score_by_pair,
+            lam,
+            n_restarts=coord_ascent_restarts,
+        )
+    runtime_ms = (time.perf_counter() - t0) * 1000.0
+
+    return sections, {
+        "method": method,
+        "runtime_ms": runtime_ms,
+        "n_sections_evaluated": len(sections),
+        "section_space_size": n_sections,
+    }
+
+
+def _lambda_sweep_values(primary: float, configured: object) -> list[float]:
+    """Return configured λ values, de-duplicated and always including primary."""
+    raw_values = configured if isinstance(configured, (list, tuple)) else []
+    values: list[float] = []
+    seen: set[float] = set()
+
+    def add(value: object) -> None:
+        lam = float(value)
+        if lam < 0:
+            raise ValueError(f"lambda values must be non-negative; got {lam}")
+        key = round(lam, 12)
+        if key not in seen:
+            values.append(lam)
+            seen.add(key)
+
+    for value in raw_values:
+        add(value)
+    add(primary)
+    return values
+
+
+def _lambda_section_summary(lam: float, winner: dict, solver: dict) -> dict:
+    """Compact one λ winner for persistence in lambda_sensitivity."""
+    return {
+        "lambda_rewrite_penalty": lam,
+        "selected": winner["selected"],
+        "total_score": winner["total_score"],
+        "coherence": winner["coherence"],
+        "rewrite_cost": winner["rewrite_cost"],
+        "n_rewritten": sum(
+            1 for vid in winner["selected"].values() if not vid.endswith("#original")
+        ),
+        "solver": solver,
+    }
+
+
+def _summarize_lambda_sensitivity(
+    primary_lambda: float,
+    section_summaries: list[dict],
+) -> dict:
+    """Summarize which claim selections are stable vs λ-sensitive."""
+    if not section_summaries:
+        return {
+            "primary_lambda": primary_lambda,
+            "lambdas": [],
+            "sections": [],
+            "n_stable_claims": 0,
+            "n_sensitive_claims": 0,
+            "stable_claims": [],
+            "sensitive_claims": [],
+        }
+
+    claim_ids = sorted(section_summaries[0]["selected"].keys())
+    stable_claims: list[str] = []
+    sensitive_claims: list[dict] = []
+
+    for cid in claim_ids:
+        selections_by_lambda = []
+        selected_variants = []
+        for summary in section_summaries:
+            vid = summary["selected"][cid]
+            selections_by_lambda.append(
+                {
+                    "lambda_rewrite_penalty": summary["lambda_rewrite_penalty"],
+                    "variant_id": vid,
+                }
+            )
+            if vid not in selected_variants:
+                selected_variants.append(vid)
+
+        if len(selected_variants) == 1:
+            stable_claims.append(cid)
+        else:
+            sensitive_claims.append(
+                {
+                    "claim_id": cid,
+                    "selected_variants": selected_variants,
+                    "selections_by_lambda": selections_by_lambda,
+                }
+            )
+
+    return {
+        "primary_lambda": primary_lambda,
+        "lambdas": [s["lambda_rewrite_penalty"] for s in section_summaries],
+        "sections": section_summaries,
+        "n_stable_claims": len(stable_claims),
+        "n_sensitive_claims": len(sensitive_claims),
+        "stable_claims": stable_claims,
+        "sensitive_claims": sensitive_claims,
+    }
+
+
 def _residual_h1(
     selected: dict[str, str],
     rms: list[dict],
@@ -246,49 +399,31 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
             f"missing sheaf.json under {run.root}; run stages 4 + 5 first"
         )
     sheaf = json.loads(run.sheaf_path.read_text())
+    cfg = stage_config(run, corpus, "stage6_map")
+    lambda_rewrite_penalty = float(cfg["lambda_rewrite_penalty"])
+    lambda_values = _lambda_sweep_values(
+        lambda_rewrite_penalty,
+        cfg.get("lambda_sensitivity_values", []),
+    )
+    n_alternative_sections = int(cfg["n_alternative_sections"])
+    enumerate_limit = int(cfg["enumerate_limit"])
+    coord_ascent_restarts = int(cfg["coord_ascent_restarts"])
 
     variants_per_claim, rewrite_distance, score_by_pair = _build_indexes(sheaf)
 
-    n_sections = 1
-    for v in variants_per_claim.values():
-        n_sections *= len(v)
-
-    use_enumerate = n_sections <= ENUMERATE_LIMIT
-    method = "enumerate" if use_enumerate else "coord_ascent"
-    if use_enumerate:
-        console.print(
-            f"stage 6: enumerating MAP section over {n_sections:,} candidates "
-            f"(λ = {LAMBDA_REWRITE_PENALTY})"
-        )
-    else:
-        console.print(
-            f"stage 6: section space is {n_sections:,} "
-            f"(> {ENUMERATE_LIMIT:,} limit) — using coord ascent with "
-            f"{COORD_ASCENT_RESTARTS} restarts (λ = {LAMBDA_REWRITE_PENALTY})"
-        )
-
-    t0 = time.perf_counter()
-    if use_enumerate:
-        sections = _enumerate_sections(
-            variants_per_claim,
-            sheaf["restriction_maps"],
-            rewrite_distance,
-            score_by_pair,
-            LAMBDA_REWRITE_PENALTY,
-        )
-    else:
-        sections = _coord_ascent_multistart(
-            variants_per_claim,
-            sheaf["restriction_maps"],
-            rewrite_distance,
-            score_by_pair,
-            LAMBDA_REWRITE_PENALTY,
-            n_restarts=COORD_ASCENT_RESTARTS,
-        )
-    runtime_ms = (time.perf_counter() - t0) * 1000.0
+    sections, solver = _solve_sections(
+        variants_per_claim,
+        sheaf["restriction_maps"],
+        rewrite_distance,
+        score_by_pair,
+        lambda_rewrite_penalty,
+        enumerate_limit=enumerate_limit,
+        coord_ascent_restarts=coord_ascent_restarts,
+        announce=True,
+    )
 
     winner = sections[0]
-    alts_kept = sections[1 : 1 + N_ALTERNATIVE_SECTIONS]
+    alts_kept = sections[1 : 1 + n_alternative_sections]
 
     residual = _residual_h1(
         winner["selected"], sheaf["restriction_maps"], score_by_pair
@@ -299,7 +434,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
         "total_score": winner["total_score"],
         "coherence": winner["coherence"],
         "rewrite_cost": winner["rewrite_cost"],
-        "lambda_rewrite_penalty": LAMBDA_REWRITE_PENALTY,
+        "lambda_rewrite_penalty": lambda_rewrite_penalty,
         "alternative_sections": [
             {
                 "selected": a["selected"],
@@ -311,17 +446,34 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
             for i, a in enumerate(alts_kept)
         ],
         "residual_h1": residual,
-        "solver": {
-            "method": method,
-            "runtime_ms": runtime_ms,
-            "n_sections_evaluated": len(sections),
-            "section_space_size": n_sections,
-        },
+        "solver": solver,
     }
+    sensitivity_sections = []
+    primary_key = round(lambda_rewrite_penalty, 12)
+    for lam in lambda_values:
+        if round(lam, 12) == primary_key:
+            sweep_sections, sweep_solver = sections, solver
+        else:
+            sweep_sections, sweep_solver = _solve_sections(
+                variants_per_claim,
+                sheaf["restriction_maps"],
+                rewrite_distance,
+                score_by_pair,
+                lam,
+                enumerate_limit=enumerate_limit,
+                coord_ascent_restarts=coord_ascent_restarts,
+            )
+        sensitivity_sections.append(
+            _lambda_section_summary(lam, sweep_sections[0], sweep_solver)
+        )
+    sheaf["lambda_sensitivity"] = _summarize_lambda_sensitivity(
+        lambda_rewrite_penalty,
+        sensitivity_sections,
+    )
     sheaf["extraction"]["notes"] = (
         sheaf["extraction"].get("notes", "")
-        + f" Stage 6 selected MAP section by exhaustive enumeration "
-        f"(λ={LAMBDA_REWRITE_PENALTY})."
+        + f" Stage 6 selected MAP section by {solver['method']} "
+        f"(λ={lambda_rewrite_penalty})."
     )
     run.sheaf_path.write_text(json.dumps(sheaf, indent=2))
 
@@ -337,11 +489,12 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
     )
     n_residual_tradeoff = len(residual) - n_residual_structural
     console.print(
-        f"  enumerated {len(sections)} sections in {runtime_ms:.1f} ms"
+        f"  evaluated {len(sections)} section candidate(s) "
+        f"in {solver['runtime_ms']:.1f} ms"
     )
     console.print(
         f"  [bold green]winner[/bold green]: total {winner['total_score']:+.2f} "
-        f"(coherence {winner['coherence']:+.2f} − {LAMBDA_REWRITE_PENALTY}×rewrite "
+        f"(coherence {winner['coherence']:+.2f} − {lambda_rewrite_penalty}×rewrite "
         f"{winner['rewrite_cost']:.2f})"
     )
     console.print(
@@ -354,6 +507,12 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
     console.print(
         f"  residual H¹: [bold]{len(residual)}[/bold] edges "
         f"({n_residual_structural} structural, {n_residual_tradeoff} tradeoff)"
+    )
+    sensitivity = sheaf["lambda_sensitivity"]
+    console.print(
+        f"  lambda sensitivity: {sensitivity['n_sensitive_claims']}/"
+        f"{len(winner['selected'])} claims changed across "
+        f"{len(sensitivity['lambdas'])} λ values"
     )
     if alts_kept:
         gap = winner["total_score"] - alts_kept[0]["total_score"]

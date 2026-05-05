@@ -4,6 +4,7 @@ Input:  run.sheaf_path  (with map_section + frustration; full pipeline through s
         run.claims_dir
         run.tags_path
 Output: run.ideas_dir/<idea_id>.json   (one per ε-state, validates against idea_schema)
+        run.epsilon_machine_path       (C_mu + transition metrics)
 
 LLM proposes the partition + transitions + open questions. Code fills in the
 deterministic pieces:
@@ -12,6 +13,7 @@ deterministic pieces:
   - intra-Idea frustration (Penrose triangles + residual negative edges within the Idea)
   - transitions_in (inverted from transitions_out)
   - sheaf_ref (back-pointer)
+  - epsilon_machine.json (state distribution + statistical complexity)
 """
 from __future__ import annotations
 
@@ -22,14 +24,19 @@ from datetime import UTC, datetime
 
 from rich.console import Console
 
+from ..config import model_name, stage_config
+from ..epsilon_machine import write_epsilon_machine_metrics
+from ..idea_partition import validate_idea_partition as _validate_idea_partition
 from ..llm import LLM, parse_json_response
+from ..llm_cache import LLMCacheHandle
+from ..llm_cache import lookup as cache_lookup
+from ..llm_cache import write_success as cache_write_success
 from ..paths import Corpus, Run
 from ..prompt_loader import load_prompt
 from ..schemas import validate_idea
 
 console = Console()
 
-MAX_RETRIES = 1
 SLUG_MAX_LEN = 40
 
 
@@ -105,7 +112,9 @@ def _build_payload(sheaf: dict, claim_by_id: dict, tags: dict) -> dict:
 # ---------- LLM call --------------------------------------------------------
 
 
-def _propose_partition(llm: LLM, payload: dict) -> list[dict]:
+def _propose_partition(
+    llm: LLM, run: Run, payload: dict, *, max_retries: int
+) -> tuple[list[dict], LLMCacheHandle, str, dict]:
     """One LLM call (with retry) returning the list of proposed Ideas."""
     system = load_prompt("s8_consolidate")
     user_text = (
@@ -118,21 +127,33 @@ def _propose_partition(llm: LLM, payload: dict) -> list[dict]:
     messages = [{"role": "user", "content": [{"type": "text", "text": user_text}]}]
 
     last_error: Exception | None = None
-    for attempt in range(MAX_RETRIES + 1):
+    for attempt in range(max_retries + 1):
+        cache_handle = cache_lookup(
+            run=run,
+            stage="stage8_consolidate",
+            llm=llm,
+            system=system,
+            messages=messages,
+            max_tokens=32768,
+        )
         try:
             # Big payload — corpora with hundreds of claims need substantial
             # output room. Sonnet supports up to 64K output tokens.
-            text = llm.chat(system=system, messages=messages, max_tokens=32768)
-            parsed = parse_json_response(text)
+            if cache_handle.hit:
+                text = cache_handle.raw_response
+                parsed = cache_handle.parsed_response
+            else:
+                text = llm.chat(system=system, messages=messages, max_tokens=32768)
+                parsed = parse_json_response(text)
             if not isinstance(parsed, dict) or "ideas" not in parsed:
                 raise ValueError("response must be {'ideas': [...]}")
             ideas = parsed["ideas"]
             if not isinstance(ideas, list) or not ideas:
                 raise ValueError("'ideas' must be a non-empty list")
-            return ideas
+            return ideas, cache_handle, text, parsed
         except (ValueError, json.JSONDecodeError) as e:
             last_error = e
-            if attempt == MAX_RETRIES:
+            if attempt == max_retries:
                 break
             messages = [
                 *messages,
@@ -395,6 +416,24 @@ def _fill_transitions_in(ideas: list[dict]) -> None:
         idea["transitions_in"] = in_map.get(idea["idea_id"], [])
 
 
+def _validate_and_write_ideas(
+    run: Run,
+    ideas: list[dict],
+    selected_claim_ids: set[str],
+) -> None:
+    """Validate a new Idea set, then replace the run's Idea JSON files."""
+    _validate_idea_partition(ideas, selected_claim_ids)
+    for idea in ideas:
+        validate_idea(idea)
+
+    for old_path in sorted(run.ideas_dir.glob("*.json")):
+        old_path.unlink()
+    for idea in ideas:
+        out_path = run.ideas_dir / _idea_filename(idea["idea_id"])
+        out_path.write_text(json.dumps(idea, indent=2))
+    write_epsilon_machine_metrics(run, ideas)
+
+
 # ---------- orchestration ----------------------------------------------------
 
 
@@ -422,8 +461,11 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
 
     console.print(f"stage 8: consolidating {n_claims} claims into Ideas")
 
-    llm = LLM()
-    proposed = _propose_partition(llm, payload)
+    cfg = stage_config(run, corpus, "stage8_consolidate")
+    llm = LLM(model=model_name(run, corpus))
+    proposed, cache_handle, cache_text, cache_parsed = _propose_partition(
+        llm, run, payload, max_retries=int(cfg["max_retries"])
+    )
     console.print(f"  LLM proposed [bold]{len(proposed)}[/bold] Ideas")
 
     # First pass: compute idea_ids so we can resolve transition labels
@@ -448,21 +490,13 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
         ideas.append(idea)
 
     _fill_transitions_in(ideas)
-
-    # Validate + write
-    for idea in ideas:
-        validate_idea(idea)
-        out_path = run.ideas_dir / _idea_filename(idea["idea_id"])
-        out_path.write_text(json.dumps(idea, indent=2))
-
-    # Coverage check
-    covered: dict[str, list[str]] = defaultdict(list)
-    for idea in ideas:
-        for c in idea["contributing_claims"]:
-            covered[c["claim_id"]].append(idea["idea_id"])
     selected_ids = set(sheaf["map_section"]["selected"].keys())
-    missing = sorted(selected_ids - covered.keys())
-    duplicated = {cid: ids for cid, ids in covered.items() if len(ids) > 1}
+    _validate_and_write_ideas(run, ideas, selected_ids)
+    cache_write_success(
+        cache_handle,
+        raw_response=cache_text,
+        parsed_response=cache_parsed,
+    )
 
     console.print()
     console.print(f"[bold]stage 8 summary[/bold]: {len(ideas)} Ideas written")
@@ -481,14 +515,4 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
             f"agreement {idea['consensus']['agreement_score']:+.2f}, "
             f"{rho_marker}, "
             f"{len(idea['open_questions'])} open Qs"
-        )
-
-    if missing:
-        console.print(
-            f"  [yellow]warning[/yellow]: {len(missing)} MAP claims not in any Idea: "
-            f"{missing[:5]}{'...' if len(missing) > 5 else ''}"
-        )
-    if duplicated:
-        console.print(
-            f"  [yellow]warning[/yellow]: {len(duplicated)} claims appear in multiple Ideas"
         )
