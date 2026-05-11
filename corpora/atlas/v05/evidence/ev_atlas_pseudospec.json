@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_atlas_pseudospec",
+  "paper": "atlas2026",
+  "label": "\u03b5-pseudospectrum boundary < 4.1e-7 \u03c4_A^-1 in upper half-plane (no transient growth)",
+  "core_value": 1.0,
+  "context_init": 0.0,
+  "context_label": "400\u00d7400 grid over [-2,2]+i[0,1]"
+}

@@ -1,0 +1,1978 @@
+{
+  "version": "v0.5_bipartite_atlas",
+  "n_claims": 30,
+  "n_evidence": 25,
+  "n_edges": 63,
+  "D": 110,
+  "claims": {
+    "A_01": {
+      "paper": "atlas2026",
+      "label": "5 constraints H1-H5 are necessary and sufficient for m=1 stability in rotating helical Z-pinch",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "only cylindrical geometry",
+        "ideal MHD only",
+        "specific scope of profile family"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "A_02": {
+      "paper": "atlas2026",
+      "label": "H3 quartic Alfv\u00e9n minimum is the structural ingredient absent from shear-flow-only treatments",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "singular feature regularized by Hall at finite d_i/R"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "A_03": {
+      "paper": "atlas2026",
+      "label": "Discrete spectrum near quartic continuum minimum accumulates as n^-4 (exponent sharp)",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "requires exact quartic \u2014 higher-order vanishing changes exponent"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "A_04": {
+      "paper": "atlas2026",
+      "label": "Bi-orthogonal Picone identity generalizes Newcomb node-counting to non-self-adjoint operators",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "bounded by O(M_A^2) residual; requires symmetrizable operator"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "A_05": {
+      "paper": "atlas2026",
+      "label": "Below SARI bound M_A<1, ideal-MHD m=1 growth rate is exactly zero in asymptotic d_i/R\u21920 regime",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "asymptotic limit only; Hall corrections regularize at finite d_i"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "A_06": {
+      "paper": "atlas2026",
+      "label": "Framework simultaneously closes five prior conjectures (Bondeson-Iacono helical, Hameiri Sturmian, n^-4 sharpness, SARI exclusion, kink obstruction)",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "each conjecture verified analytically in supplemental but not all by independent groups"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "A_07": {
+      "paper": "atlas2026",
+      "label": "RIGID-BELTRAMI-A double-Beltrami equilibrium achieves <\u03b2>=12.3% with all H1-H5 satisfied",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "one specific profile; experimental realization not yet demonstrated"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "N_01": {
+      "paper": "newcomb1960",
+      "label": "Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "static assumption \u2014 no flow; cylindrical only"
+      ],
+      "x_final": [
+        1.0,
+        0.2
+      ]
+    },
+    "N_02": {
+      "paper": "newcomb1960",
+      "label": "Number of unstable eigenvalues equals number of interior nodes of marginal mode (Newcomb counting)",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "self-adjoint operator assumed (static, no flow)"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "FR_01": {
+      "paper": "frieman1960",
+      "label": "Linear MHD stability with stationary flow is governed by a non-Hermitian operator (overstability possible)",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "operator non-self-adjoint \u2014 Sturmian methods don't apply directly"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "H_01": {
+      "paper": "hameiri1981",
+      "label": "Sufficient stability conditions for rotating screw-pinch via circle theorems and spectral bounds",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "bounds not sharp; circle theorems give region not eigenvalue"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "H_02": {
+      "paper": "hameiri1985",
+      "label": "Essential spectrum of ideal MHD with flow consists of forward/backward Doppler-shifted Alfv\u00e9n + slow continua",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "continuous spectrum analysis only \u2014 doesn't address discrete modes"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "B_01": {
+      "paper": "bondeson1989",
+      "label": "In toroidal/cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "no helical sheared flow + non-monotonic Bz tested"
+      ],
+      "x_final": [
+        1.0,
+        0.3
+      ]
+    },
+    "S_01": {
+      "paper": "shumlak1995",
+      "label": "Sheared axial flow v'/(kV_A) > ~0.1 stabilizes m=0 sausage mode in static Z-pinch",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "m=0 only; specific marginal-stable equilibrium"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "S_02": {
+      "paper": "shumlak2001",
+      "label": "ZaP experiment observes long stable period (>700\u00d7 growth time) coincident with sheared sub-Alfv\u00e9nic flow",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "correlation not causation; doesn't separate m=0 vs m=1"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "AN_01": {
+      "paper": "angus2020",
+      "label": "Linear shear flow alone does NOT stabilize m=1 kink across realistic Z-pinch profile classes",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "linear ideal MHD; doesn't include rotation or helical Bz"
+      ],
+      "x_final": [
+        1.0,
+        0.2
+      ]
+    },
+    "AN_02": {
+      "paper": "angus2020",
+      "label": "Required shear for m=0 stabilization scales as ~c_0(ka)/(ka)\u00b7\u03b1 with \u03b1\u226a1; m=1 needs different mechanism",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "specific profile dependence"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "CK_01": {
+      "paper": "chandrasekhar1957",
+      "label": "Force-free field eq curl H = \u03b1H admits poloidal+toroidal eigenfunction solutions (Chandrasekhar-Kendall basis)",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "force-free (zero pressure) only"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "MY_01": {
+      "paper": "mahajan1998",
+      "label": "Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "specific equilibrium family; existence not always stable"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "SH_01": {
+      "paper": "shiraishi2005",
+      "label": "Hall effect regularizes the Alfv\u00e9n singularity over a layer of thickness ~d_i",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "singular-layer analysis; doesn't address global stability"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "ML_01": {
+      "paper": "mahajan2024",
+      "label": "Hall MHD waves are fundamentally distinct from MHD waves at d_i scales",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "wave-mode analysis only"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "SE_01": {
+      "paper": "sainterme2026",
+      "label": "In Hall regime, global whistler instabilities grow significantly faster than ideal-MHD modes",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "incompressible; differential rotation specific"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "GK_01": {
+      "paper": "goedbloed2022",
+      "label": "Super-Alfv\u00e9nic Rotational Instability (SARI) emerges from overlap of forward/backward Doppler-shifted Alfv\u00e9n continua",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "small-inhomogeneity asymptotic analysis primary"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "GK_02": {
+      "paper": "goedbloed2022",
+      "label": "At M_A \u2265 1 continuum overlap opens uncontrolled SARI spectrum",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "conjectured exclusion at M_A<1 \u2014 needs proof"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "BR_01": {
+      "paper": "brughmans2024",
+      "label": "Non-axisymmetric SARI modes confirmed numerically by Legolas spectral code with growth rates comparable to MRI",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "disk equilibrium specific; large-inhomogeneity"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "W_01": {
+      "paper": "wang2022",
+      "label": "Axisymmetric SMRI directly observed in liquid-metal Taylor-Couette experiment",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "axisymmetric only; not non-axisymmetric SARI"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "CL_01": {
+      "paper": "claes2020",
+      "label": "Legolas finite-element MHD spectroscopy code computes full eigenspectrum for 1D equilibria with flow",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "1D only; non-Hermitian eigenvalue problem"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "DJ_01": {
+      "paper": "dejonghe2022",
+      "label": "Legolas extension with viscosity and Hall current benchmarked against historic results",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "non-ideal but still 1D"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "CR_01": {
+      "paper": "crews2024",
+      "label": "Kadomtsev's interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "interchange-focused; doesn't address kink"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    },
+    "Z_01": {
+      "paper": "zhang2019",
+      "label": "FuZE experimentally demonstrates sustained ~5\u03bcs neutron production during ~16\u03bcs quiescent period",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "weaknesses": [
+        "operational characterization; not stability mechanism"
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "evidence": {
+    "ev_atlas_kink_zero": {
+      "paper": "atlas2026",
+      "label": "|\u03b3_m=1| < 8e-12 \u03c4_A^-1 on RIGID-BELTRAMI-A at <\u03b2>=12.3%",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "rotating helical Z-pinch + H1-H5",
+      "context_final": 0.0
+    },
+    "ev_atlas_pseudospec": {
+      "paper": "atlas2026",
+      "label": "\u03b5-pseudospectrum boundary < 4.1e-7 \u03c4_A^-1 in upper half-plane (no transient growth)",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "400\u00d7400 grid over [-2,2]+i[0,1]",
+      "context_final": 0.0
+    },
+    "ev_atlas_newcomb_bench": {
+      "paper": "atlas2026",
+      "label": "ARPACK recovers Newcomb 1960 m=1 eigenvalues to 1e-5 relative accuracy",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "static parabolic-current benchmark",
+      "context_final": 0.0
+    },
+    "ev_atlas_h3_value": {
+      "paper": "atlas2026",
+      "label": "|F''(r*)|/F_max = 0.41/R^2 on RIGID-BELTRAMI-A confirms H3 quartic",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "double-Beltrami profile structure",
+      "context_final": 0.0
+    },
+    "ev_atlas_120pts": {
+      "paper": "atlas2026",
+      "label": "All 120 (m,k) points satisfy |\u03b3|<1e-11 \u03c4_A^-1; worst case (2,0.69): 5.8e-12",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "m\u2208{1..4}, k\u2208[0.1,5]",
+      "context_final": 0.0
+    },
+    "ev_atlas_h1_violate": {
+      "paper": "atlas2026",
+      "label": "Violating H1 (q_min=0.92) produces unstable kink \u03b3 \u2248 0.18 \u03c4_A^-1",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "counterexample for necessity",
+      "context_final": 0.0
+    },
+    "ev_atlas_h3_violate": {
+      "paper": "atlas2026",
+      "label": "Violating H3 (monotonic F) gives only n^-2 Suydam accumulation; \u03b3 \u2248 4.2e-3 \u03c4_A^-1",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "counterexample for necessity",
+      "context_final": 0.0
+    },
+    "ev_newcomb_static": {
+      "paper": "newcomb1960",
+      "label": "Static finite-\u03b2 Z-pinch has unstable m=1 spectrum (Suydam-style)",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "static (no flow), finite pressure",
+      "context_final": 0.0
+    },
+    "ev_shumlak_threshold": {
+      "paper": "shumlak1995",
+      "label": "m=0 stabilization at v'/(kV_A) \u2248 0.1 demonstrated numerically",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "marginal-stable static equilibrium, m=0 only",
+      "context_final": 0.0
+    },
+    "ev_shumlak_zap": {
+      "paper": "shumlak2001",
+      "label": "ZaP stable period 15-20\u03bcs (>700\u00d7 growth time) coincident with shear",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "ZaP experimental window",
+      "context_final": 0.0
+    },
+    "ev_angus_m1_persists": {
+      "paper": "angus2020",
+      "label": "m=1 kink remains unstable \u03b3 ~ O(v_i/a) at all tested shear levels on realistic profiles",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "linear ideal MHD, axial-only shear, non-helical Bz",
+      "context_final": 0.0
+    },
+    "ev_angus_m0_scaling": {
+      "paper": "angus2020",
+      "label": "m=0 shear-stabilization scaling du_z/dr ~ c_0/(ka)\u00b7\u03b1 with \u03b1<<1",
+      "core_value": 0.85,
+      "context_init": 0.0,
+      "context_label": "profile-specific scaling",
+      "context_final": 0.0
+    },
+    "ev_bondeson_toroidal": {
+      "paper": "bondeson1989",
+      "label": "Toroidal rotation mitigates but doesn't eliminate kink (cylindrical analog)",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "toroidal flow, no helical Bz",
+      "context_final": 0.0
+    },
+    "ev_goedbloed_sari": {
+      "paper": "goedbloed2022",
+      "label": "SARI modes fill 2D continua in eigenfrequency plane for |k|>>|m| at M_A>1",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "accretion-disk equilibrium, super-Alfv\u00e9nic",
+      "context_final": 0.0
+    },
+    "ev_brughmans_growth": {
+      "paper": "brughmans2024",
+      "label": "Non-axisymmetric SARI growth rates comparable to MRI at high mode numbers",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "weakly magnetized disk",
+      "context_final": 0.0
+    },
+    "ev_shiraishi_dilayer": {
+      "paper": "shiraishi2005",
+      "label": "Hall-MHD solutions converge to ideal MHD outside d_i-scale neighborhood of singularity",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "single Alfv\u00e9n singularity layer",
+      "context_final": 0.0
+    },
+    "ev_sainterme_whistler": {
+      "paper": "sainterme2026",
+      "label": "Global whistler instabilities grow significantly faster than ideal-MHD modes at d_i/L ~ few%",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "rotating cylinder, incompressible Hall-MHD",
+      "context_final": 0.0
+    },
+    "ev_wang_smri": {
+      "paper": "wang2022",
+      "label": "Axisymmetric SMRI onset observed at critical Rm in Taylor-Couette liquid metal",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_label": "axisymmetric, liquid-metal, supercritical Rm",
+      "context_final": 0.0
+    },
+    "ev_zhang_neutrons": {
+      "paper": "zhang2019",
+      "label": "FuZE: ~5\u03bcs sustained neutron emission, (1.25\u00b10.45)\u00d710^5 n/pulse, scaling with n_D^2",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "FuZE operational regime",
+      "context_final": 0.0
+    },
+    "ev_crews_entropy": {
+      "paper": "crews2024",
+      "label": "Kadomtsev marginal-stable profile has entropy-gradient interpretation analogous to Schwarzschild-Ledoux",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "interchange-stable marginal profile",
+      "context_final": 0.0
+    },
+    "ev_hameiri_continuum": {
+      "paper": "hameiri1985",
+      "label": "Ideal MHD with flow has forward/backward Doppler-shifted Alfv\u00e9n continua governing essential spectrum",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "Lagrangian-displacement formalism",
+      "context_final": 0.0
+    },
+    "ev_friman_overstable": {
+      "paper": "frieman1960",
+      "label": "Stationary-flow MHD operator is non-Hermitian \u2192 overstability possible",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "displacement vector formalism",
+      "context_final": 0.0
+    },
+    "ev_chandra_ck": {
+      "paper": "chandrasekhar1957",
+      "label": "Force-free field eq curl H=\u03b1H solvable in poloidal+toroidal basis with equipartition",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "force-free, zero pressure",
+      "context_final": 0.0
+    },
+    "ev_mahajan_db": {
+      "paper": "mahajan1998",
+      "label": "Double-curl Beltrami equilibrium admits non-trivial pressure confining minimum-|B| configuration",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "ideal coupled magnetofluid",
+      "context_final": 0.0
+    },
+    "ev_legolas_bench": {
+      "paper": "claes2020",
+      "label": "Legolas reproduces canonical MHD spectra: Parker, interchange, KH, tearing, magneto-thermal",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_label": "broad eigenmode validation",
+      "context_final": 0.0
+    }
+  },
+  "edges": [
+    {
+      "claim": "A_01",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_01 predicts kink stable under H1-H5"
+    },
+    {
+      "claim": "A_01",
+      "evidence": "ev_atlas_120pts",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_01 predicts stability across (m,k) grid"
+    },
+    {
+      "claim": "A_01",
+      "evidence": "ev_atlas_h1_violate",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "A_01 necessity: violating H1 destabilizes; matches"
+    },
+    {
+      "claim": "A_01",
+      "evidence": "ev_atlas_h3_violate",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "A_01 necessity: violating H3 destabilizes; matches"
+    },
+    {
+      "claim": "A_02",
+      "evidence": "ev_atlas_h3_value",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_02 predicts H3 quartic structure; verified on RIGID-BELTRAMI-A"
+    },
+    {
+      "claim": "A_02",
+      "evidence": "ev_atlas_h3_violate",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "A_02 necessity of H3; matches"
+    },
+    {
+      "claim": "A_03",
+      "evidence": "ev_atlas_h3_value",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_03's n^-4 derives from H3 quartic"
+    },
+    {
+      "claim": "A_04",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_04 Picone identity underwrites the proof; matches"
+    },
+    {
+      "claim": "A_04",
+      "evidence": "ev_atlas_newcomb_bench",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_04 reduces to classical Newcomb in static limit"
+    },
+    {
+      "claim": "A_05",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_05's headline claim; perfect match"
+    },
+    {
+      "claim": "A_05",
+      "evidence": "ev_atlas_pseudospec",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_05 also implies no transient growth; matches"
+    },
+    {
+      "claim": "A_05",
+      "evidence": "ev_atlas_120pts",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_05 predicts stability across (m,k) grid; matches"
+    },
+    {
+      "claim": "A_06",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_06 conjecture-closure includes kink stability"
+    },
+    {
+      "claim": "A_07",
+      "evidence": "ev_atlas_h3_value",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_07 RIGID-BELTRAMI-A has H3 quartic"
+    },
+    {
+      "claim": "A_07",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_07 equilibrium achieves stability at <\u03b2>=12.3%"
+    },
+    {
+      "claim": "A_05",
+      "evidence": "ev_newcomb_static",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "A_05 OUT of regime here: static lacks H3; Atlas predicts instability persists (matches)"
+    },
+    {
+      "claim": "A_05",
+      "evidence": "ev_angus_m1_persists",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "A_05 OUT of regime: Angus profiles lack H3; Atlas predicts m=1 persists (matches)"
+    },
+    {
+      "claim": "A_05",
+      "evidence": "ev_bondeson_toroidal",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "A_05 OUT of regime: Bondeson toroidal lacks H3; Atlas predicts kink persists (matches)"
+    },
+    {
+      "claim": "A_02",
+      "evidence": "ev_angus_m1_persists",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "A_02 (H3 is the missing ingredient) predicts that absence of H3 in Angus \u2192 m=1 persists; matches"
+    },
+    {
+      "claim": "A_05",
+      "evidence": "ev_goedbloed_sari",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "A_05 boundary: SARI evidence at M_A\u22651 \u2014 outside Atlas regime; SARI expected (matches)"
+    },
+    {
+      "claim": "A_05",
+      "evidence": "ev_brughmans_growth",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "A_05 boundary: Brughmans SARI at M_A\u22651; expected (matches)"
+    },
+    {
+      "claim": "A_07",
+      "evidence": "ev_chandra_ck",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_07's CK basis from Chandrasekhar-Kendall"
+    },
+    {
+      "claim": "A_07",
+      "evidence": "ev_mahajan_db",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_07 builds on Mahajan-Yoshida double-Beltrami"
+    },
+    {
+      "claim": "A_04",
+      "evidence": "ev_friman_overstable",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_04 uses F-R operator framework"
+    },
+    {
+      "claim": "A_04",
+      "evidence": "ev_hameiri_continuum",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "A_04 uses Hameiri continuum decomposition"
+    },
+    {
+      "claim": "N_01",
+      "evidence": "ev_newcomb_static",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "N_01 predicts static instability; matches"
+    },
+    {
+      "claim": "N_02",
+      "evidence": "ev_newcomb_static",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "N_02 counting theorem applied to static"
+    },
+    {
+      "claim": "N_02",
+      "evidence": "ev_atlas_newcomb_bench",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "N_02 reproduces Atlas's benchmark recovery of static eigenvalues"
+    },
+    {
+      "claim": "N_01",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "N_01 applied OUT of regime to rotating helical \u2014 predicts instability \u2014 DISAGREES (Atlas shows stable)"
+    },
+    {
+      "claim": "N_01",
+      "evidence": "ev_atlas_h3_violate",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "N_01 consistent with monotonic-F counterexample (still static-like)"
+    },
+    {
+      "claim": "FR_01",
+      "evidence": "ev_friman_overstable",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "FR_01's foundational claim"
+    },
+    {
+      "claim": "FR_01",
+      "evidence": "ev_atlas_pseudospec",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "FR_01's non-Hermiticity is why Atlas needs \u03b5-pseudospectrum"
+    },
+    {
+      "claim": "H_01",
+      "evidence": "ev_hameiri_continuum",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "H_01 stability bounds via spectral methods"
+    },
+    {
+      "claim": "H_02",
+      "evidence": "ev_hameiri_continuum",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "H_02's essential-spectrum decomposition"
+    },
+    {
+      "claim": "H_02",
+      "evidence": "ev_goedbloed_sari",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "H_02's continuum framework underwrites SARI overlap analysis"
+    },
+    {
+      "claim": "B_01",
+      "evidence": "ev_bondeson_toroidal",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "B_01's primary observation"
+    },
+    {
+      "claim": "B_01",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "B_01 applied OUT of regime (toroidal) to Atlas's cylindrical \u2014 incorrectly predicts persistent kink"
+    },
+    {
+      "claim": "S_01",
+      "evidence": "ev_shumlak_threshold",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "S_01's home observation"
+    },
+    {
+      "claim": "S_02",
+      "evidence": "ev_shumlak_zap",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "S_02's home observation"
+    },
+    {
+      "claim": "S_01",
+      "evidence": "ev_angus_m0_scaling",
+      "base_prediction": 0.85,
+      "in_regime": false,
+      "comment": "S_01's m=0 threshold consistent with Angus m=0 scaling"
+    },
+    {
+      "claim": "AN_01",
+      "evidence": "ev_angus_m1_persists",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "AN_01's home observation"
+    },
+    {
+      "claim": "AN_02",
+      "evidence": "ev_angus_m0_scaling",
+      "base_prediction": 0.85,
+      "in_regime": true,
+      "comment": "AN_02's home observation"
+    },
+    {
+      "claim": "AN_01",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "AN_01 applied OUT of regime (no H3) \u2014 predicts m=1 persists \u2014 DISAGREES with Atlas stability"
+    },
+    {
+      "claim": "CK_01",
+      "evidence": "ev_chandra_ck",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "CK_01's home"
+    },
+    {
+      "claim": "MY_01",
+      "evidence": "ev_mahajan_db",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "MY_01's home"
+    },
+    {
+      "claim": "MY_01",
+      "evidence": "ev_atlas_h3_value",
+      "base_prediction": 1.0,
+      "in_regime": false,
+      "comment": "MY_01's framework enables Atlas's RIGID-BELTRAMI-A; consistent"
+    },
+    {
+      "claim": "SH_01",
+      "evidence": "ev_shiraishi_dilayer",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "SH_01's home"
+    },
+    {
+      "claim": "SH_01",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 1.0,
+      "in_regime": false,
+      "comment": "SH_01 implies Atlas's H3 singularity is regularized at finite d_i \u2014 consistent with Atlas's caveat"
+    },
+    {
+      "claim": "ML_01",
+      "evidence": "ev_sainterme_whistler",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "ML_01 supports new Hall instability branches"
+    },
+    {
+      "claim": "SE_01",
+      "evidence": "ev_sainterme_whistler",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "SE_01's home"
+    },
+    {
+      "claim": "SE_01",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 1.0,
+      "in_regime": false,
+      "comment": "SE_01 OUT of regime (Hall): doesn't directly contradict Atlas's d_i\u21920 result"
+    },
+    {
+      "claim": "GK_01",
+      "evidence": "ev_goedbloed_sari",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "GK_01's home observation"
+    },
+    {
+      "claim": "GK_02",
+      "evidence": "ev_goedbloed_sari",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "GK_02 M_A\u22651 SARI"
+    },
+    {
+      "claim": "GK_02",
+      "evidence": "ev_atlas_kink_zero",
+      "base_prediction": 1.0,
+      "in_regime": false,
+      "comment": "GK_02's M_A<1 exclusion conjecture is what Atlas proves"
+    },
+    {
+      "claim": "BR_01",
+      "evidence": "ev_brughmans_growth",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "BR_01's home"
+    },
+    {
+      "claim": "BR_01",
+      "evidence": "ev_goedbloed_sari",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "BR_01 confirms GK SARI prediction"
+    },
+    {
+      "claim": "W_01",
+      "evidence": "ev_wang_smri",
+      "base_prediction": 0.0,
+      "in_regime": true,
+      "comment": "W_01's home \u2014 observed SMRI"
+    },
+    {
+      "claim": "CL_01",
+      "evidence": "ev_legolas_bench",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "CL_01's home \u2014 Legolas validation"
+    },
+    {
+      "claim": "DJ_01",
+      "evidence": "ev_legolas_bench",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "DJ_01 extension of CL_01"
+    },
+    {
+      "claim": "CL_01",
+      "evidence": "ev_brughmans_growth",
+      "base_prediction": 0.0,
+      "in_regime": false,
+      "comment": "CL_01's code underwrites BR_01's growth-rate calc"
+    },
+    {
+      "claim": "Z_01",
+      "evidence": "ev_zhang_neutrons",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "Z_01's home"
+    },
+    {
+      "claim": "CR_01",
+      "evidence": "ev_crews_entropy",
+      "base_prediction": 1.0,
+      "in_regime": true,
+      "comment": "CR_01's home"
+    },
+    {
+      "claim": "CR_01",
+      "evidence": "ev_shumlak_threshold",
+      "base_prediction": 1.0,
+      "in_regime": false,
+      "comment": "CR_01's interpretation consistent with Shumlak m=0 mechanism"
+    }
+  ],
+  "iterations": [
+    {
+      "iteration": 0,
+      "total_residual": 3.0,
+      "summary": "initial state",
+      "type": "initial"
+    },
+    {
+      "iteration": 1,
+      "total_residual": 2.09,
+      "summary": "claim rewrite: B_01 via 'narrow_to_toroidal_without_H3'",
+      "type": "claim",
+      "target": "B_01",
+      "name": "narrow_to_toroidal_without_H3",
+      "description": "B_01 narrowed: toroidal rotation alone (without H3 quartic + helical shear) mitigates but doesn't eliminate kink.",
+      "weakness": "no non-monotonic Bz or helical sheared flow tested",
+      "rewrite_distance": 0.7,
+      "delta_residual": 0.9100000000000001,
+      "objective_gain": 0.4200000000000004,
+      "new_x": [
+        1.0,
+        0.3
+      ],
+      "new_context": null
+    },
+    {
+      "iteration": 2,
+      "total_residual": 1.13,
+      "summary": "claim rewrite: N_01 via 'narrow_to_static_regime'",
+      "type": "claim",
+      "target": "N_01",
+      "name": "narrow_to_static_regime",
+      "description": "N_01 narrowed: m=1 obstruction holds in STATIC Z-pinch at finite pressure (out-of-regime weak for rotating helical).",
+      "weakness": "static assumption \u2014 extension to rotating helical is non-trivial",
+      "rewrite_distance": 0.8,
+      "delta_residual": 0.96,
+      "objective_gain": 0.31999999999999984,
+      "new_x": [
+        1.0,
+        0.2
+      ],
+      "new_context": null
+    },
+    {
+      "iteration": 3,
+      "total_residual": 0.16999999999999998,
+      "summary": "claim rewrite: AN_01 via 'narrow_to_no_H3_profiles'",
+      "type": "claim",
+      "target": "AN_01",
+      "name": "narrow_to_no_H3_profiles",
+      "description": "AN_01 narrowed: linear axial shear alone (without H3 quartic structure) does not stabilize m=1 across tested profile families.",
+      "weakness": "tested profile families lack H3 quartic minimum \u2014 Atlas's structural ingredient",
+      "rewrite_distance": 0.8,
+      "delta_residual": 0.96,
+      "objective_gain": 0.3199999999999996,
+      "new_x": [
+        1.0,
+        0.2
+      ],
+      "new_context": null
+    }
+  ],
+  "applied_rewrites": [
+    {
+      "type": "claim",
+      "target": "B_01",
+      "name": "narrow_to_toroidal_without_H3",
+      "description": "B_01 narrowed: toroidal rotation alone (without H3 quartic + helical shear) mitigates but doesn't eliminate kink.",
+      "weakness": "no non-monotonic Bz or helical sheared flow tested",
+      "new_x": [
+        1.0,
+        0.3
+      ],
+      "new_state": null,
+      "new_total_residual": 2.09,
+      "delta_residual": 0.9100000000000001,
+      "rewrite_distance": 0.7,
+      "new_objective": 2.5799999999999996,
+      "objective_gain": 0.4200000000000004
+    },
+    {
+      "type": "claim",
+      "target": "N_01",
+      "name": "narrow_to_static_regime",
+      "description": "N_01 narrowed: m=1 obstruction holds in STATIC Z-pinch at finite pressure (out-of-regime weak for rotating helical).",
+      "weakness": "static assumption \u2014 extension to rotating helical is non-trivial",
+      "new_x": [
+        1.0,
+        0.2
+      ],
+      "new_state": null,
+      "new_total_residual": 1.13,
+      "delta_residual": 0.96,
+      "rewrite_distance": 0.8,
+      "new_objective": 2.26,
+      "objective_gain": 0.31999999999999984
+    },
+    {
+      "type": "claim",
+      "target": "AN_01",
+      "name": "narrow_to_no_H3_profiles",
+      "description": "AN_01 narrowed: linear axial shear alone (without H3 quartic structure) does not stabilize m=1 across tested profile families.",
+      "weakness": "tested profile families lack H3 quartic minimum \u2014 Atlas's structural ingredient",
+      "new_x": [
+        1.0,
+        0.2
+      ],
+      "new_state": null,
+      "new_total_residual": 0.16999999999999998,
+      "delta_residual": 0.96,
+      "rewrite_distance": 0.8,
+      "new_objective": 1.9400000000000002,
+      "objective_gain": 0.3199999999999996
+    }
+  ],
+  "initial_total_residual": 3.0,
+  "final_total_residual": 0.16999999999999998,
+  "sum_claim_d2": 1.7700000000000002,
+  "sum_context_d2": 0.0,
+  "lambda_claim": 1.0,
+  "lambda_evidence_context": 5.0,
+  "final_residuals_per_edge": [
+    {
+      "c": "A_01",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_01 predicts kink stable under H1-H5"
+    },
+    {
+      "c": "A_01",
+      "v": "ev_atlas_120pts",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_01 predicts stability across (m,k) grid"
+    },
+    {
+      "c": "A_01",
+      "v": "ev_atlas_h1_violate",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_01 necessity: violating H1 destabilizes; matches"
+    },
+    {
+      "c": "A_01",
+      "v": "ev_atlas_h3_violate",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_01 necessity: violating H3 destabilizes; matches"
+    },
+    {
+      "c": "A_02",
+      "v": "ev_atlas_h3_value",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_02 predicts H3 quartic structure; verified on RIGID-BELTRAMI-A"
+    },
+    {
+      "c": "A_02",
+      "v": "ev_atlas_h3_violate",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_02 necessity of H3; matches"
+    },
+    {
+      "c": "A_03",
+      "v": "ev_atlas_h3_value",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_03's n^-4 derives from H3 quartic"
+    },
+    {
+      "c": "A_04",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_04 Picone identity underwrites the proof; matches"
+    },
+    {
+      "c": "A_04",
+      "v": "ev_atlas_newcomb_bench",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_04 reduces to classical Newcomb in static limit"
+    },
+    {
+      "c": "A_05",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_05's headline claim; perfect match"
+    },
+    {
+      "c": "A_05",
+      "v": "ev_atlas_pseudospec",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_05 also implies no transient growth; matches"
+    },
+    {
+      "c": "A_05",
+      "v": "ev_atlas_120pts",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_05 predicts stability across (m,k) grid; matches"
+    },
+    {
+      "c": "A_06",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_06 conjecture-closure includes kink stability"
+    },
+    {
+      "c": "A_07",
+      "v": "ev_atlas_h3_value",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_07 RIGID-BELTRAMI-A has H3 quartic"
+    },
+    {
+      "c": "A_07",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_07 equilibrium achieves stability at <\u03b2>=12.3%"
+    },
+    {
+      "c": "A_05",
+      "v": "ev_newcomb_static",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_05 OUT of regime here: static lacks H3; Atlas predicts instability persists (matches)"
+    },
+    {
+      "c": "A_05",
+      "v": "ev_angus_m1_persists",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_05 OUT of regime: Angus profiles lack H3; Atlas predicts m=1 persists (matches)"
+    },
+    {
+      "c": "A_05",
+      "v": "ev_bondeson_toroidal",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_05 OUT of regime: Bondeson toroidal lacks H3; Atlas predicts kink persists (matches)"
+    },
+    {
+      "c": "A_02",
+      "v": "ev_angus_m1_persists",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_02 (H3 is the missing ingredient) predicts that absence of H3 in Angus \u2192 m=1 persists; matches"
+    },
+    {
+      "c": "A_05",
+      "v": "ev_goedbloed_sari",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_05 boundary: SARI evidence at M_A\u22651 \u2014 outside Atlas regime; SARI expected (matches)"
+    },
+    {
+      "c": "A_05",
+      "v": "ev_brughmans_growth",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "A_05 boundary: Brughmans SARI at M_A\u22651; expected (matches)"
+    },
+    {
+      "c": "A_07",
+      "v": "ev_chandra_ck",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_07's CK basis from Chandrasekhar-Kendall"
+    },
+    {
+      "c": "A_07",
+      "v": "ev_mahajan_db",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_07 builds on Mahajan-Yoshida double-Beltrami"
+    },
+    {
+      "c": "A_04",
+      "v": "ev_friman_overstable",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_04 uses F-R operator framework"
+    },
+    {
+      "c": "A_04",
+      "v": "ev_hameiri_continuum",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "A_04 uses Hameiri continuum decomposition"
+    },
+    {
+      "c": "N_01",
+      "v": "ev_newcomb_static",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "N_01 predicts static instability; matches"
+    },
+    {
+      "c": "N_02",
+      "v": "ev_newcomb_static",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "N_02 counting theorem applied to static"
+    },
+    {
+      "c": "N_02",
+      "v": "ev_atlas_newcomb_bench",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "N_02 reproduces Atlas's benchmark recovery of static eigenvalues"
+    },
+    {
+      "c": "N_01",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.8,
+      "actual": 1.0,
+      "residual": 0.03999999999999998,
+      "comment": "N_01 applied OUT of regime to rotating helical \u2014 predicts instability \u2014 DISAGREES (Atlas shows stable)"
+    },
+    {
+      "c": "N_01",
+      "v": "ev_atlas_h3_violate",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "N_01 consistent with monotonic-F counterexample (still static-like)"
+    },
+    {
+      "c": "FR_01",
+      "v": "ev_friman_overstable",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "FR_01's foundational claim"
+    },
+    {
+      "c": "FR_01",
+      "v": "ev_atlas_pseudospec",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "FR_01's non-Hermiticity is why Atlas needs \u03b5-pseudospectrum"
+    },
+    {
+      "c": "H_01",
+      "v": "ev_hameiri_continuum",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "H_01 stability bounds via spectral methods"
+    },
+    {
+      "c": "H_02",
+      "v": "ev_hameiri_continuum",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "H_02's essential-spectrum decomposition"
+    },
+    {
+      "c": "H_02",
+      "v": "ev_goedbloed_sari",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "H_02's continuum framework underwrites SARI overlap analysis"
+    },
+    {
+      "c": "B_01",
+      "v": "ev_bondeson_toroidal",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "B_01's primary observation"
+    },
+    {
+      "c": "B_01",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.7,
+      "actual": 1.0,
+      "residual": 0.09000000000000002,
+      "comment": "B_01 applied OUT of regime (toroidal) to Atlas's cylindrical \u2014 incorrectly predicts persistent kink"
+    },
+    {
+      "c": "S_01",
+      "v": "ev_shumlak_threshold",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "S_01's home observation"
+    },
+    {
+      "c": "S_02",
+      "v": "ev_shumlak_zap",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "S_02's home observation"
+    },
+    {
+      "c": "S_01",
+      "v": "ev_angus_m0_scaling",
+      "base_pred": 0.85,
+      "in_regime": false,
+      "predicted": 0.85,
+      "actual": 0.85,
+      "residual": 0.0,
+      "comment": "S_01's m=0 threshold consistent with Angus m=0 scaling"
+    },
+    {
+      "c": "AN_01",
+      "v": "ev_angus_m1_persists",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "AN_01's home observation"
+    },
+    {
+      "c": "AN_02",
+      "v": "ev_angus_m0_scaling",
+      "base_pred": 0.85,
+      "in_regime": true,
+      "predicted": 0.85,
+      "actual": 0.85,
+      "residual": 0.0,
+      "comment": "AN_02's home observation"
+    },
+    {
+      "c": "AN_01",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.8,
+      "actual": 1.0,
+      "residual": 0.03999999999999998,
+      "comment": "AN_01 applied OUT of regime (no H3) \u2014 predicts m=1 persists \u2014 DISAGREES with Atlas stability"
+    },
+    {
+      "c": "CK_01",
+      "v": "ev_chandra_ck",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "CK_01's home"
+    },
+    {
+      "c": "MY_01",
+      "v": "ev_mahajan_db",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "MY_01's home"
+    },
+    {
+      "c": "MY_01",
+      "v": "ev_atlas_h3_value",
+      "base_pred": 1.0,
+      "in_regime": false,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "MY_01's framework enables Atlas's RIGID-BELTRAMI-A; consistent"
+    },
+    {
+      "c": "SH_01",
+      "v": "ev_shiraishi_dilayer",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "SH_01's home"
+    },
+    {
+      "c": "SH_01",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 1.0,
+      "in_regime": false,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "SH_01 implies Atlas's H3 singularity is regularized at finite d_i \u2014 consistent with Atlas's caveat"
+    },
+    {
+      "c": "ML_01",
+      "v": "ev_sainterme_whistler",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "ML_01 supports new Hall instability branches"
+    },
+    {
+      "c": "SE_01",
+      "v": "ev_sainterme_whistler",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "SE_01's home"
+    },
+    {
+      "c": "SE_01",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 1.0,
+      "in_regime": false,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "SE_01 OUT of regime (Hall): doesn't directly contradict Atlas's d_i\u21920 result"
+    },
+    {
+      "c": "GK_01",
+      "v": "ev_goedbloed_sari",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "GK_01's home observation"
+    },
+    {
+      "c": "GK_02",
+      "v": "ev_goedbloed_sari",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "GK_02 M_A\u22651 SARI"
+    },
+    {
+      "c": "GK_02",
+      "v": "ev_atlas_kink_zero",
+      "base_pred": 1.0,
+      "in_regime": false,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "GK_02's M_A<1 exclusion conjecture is what Atlas proves"
+    },
+    {
+      "c": "BR_01",
+      "v": "ev_brughmans_growth",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "BR_01's home"
+    },
+    {
+      "c": "BR_01",
+      "v": "ev_goedbloed_sari",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "BR_01 confirms GK SARI prediction"
+    },
+    {
+      "c": "W_01",
+      "v": "ev_wang_smri",
+      "base_pred": 0.0,
+      "in_regime": true,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "W_01's home \u2014 observed SMRI"
+    },
+    {
+      "c": "CL_01",
+      "v": "ev_legolas_bench",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "CL_01's home \u2014 Legolas validation"
+    },
+    {
+      "c": "DJ_01",
+      "v": "ev_legolas_bench",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "DJ_01 extension of CL_01"
+    },
+    {
+      "c": "CL_01",
+      "v": "ev_brughmans_growth",
+      "base_pred": 0.0,
+      "in_regime": false,
+      "predicted": 0.0,
+      "actual": 0.0,
+      "residual": 0.0,
+      "comment": "CL_01's code underwrites BR_01's growth-rate calc"
+    },
+    {
+      "c": "Z_01",
+      "v": "ev_zhang_neutrons",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "Z_01's home"
+    },
+    {
+      "c": "CR_01",
+      "v": "ev_crews_entropy",
+      "base_pred": 1.0,
+      "in_regime": true,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "CR_01's home"
+    },
+    {
+      "c": "CR_01",
+      "v": "ev_shumlak_threshold",
+      "base_pred": 1.0,
+      "in_regime": false,
+      "predicted": 1.0,
+      "actual": 1.0,
+      "residual": 0.0,
+      "comment": "CR_01's interpretation consistent with Shumlak m=0 mechanism"
+    }
+  ],
+  "spectrum": {
+    "eigenvalues": [
+      -1.7050399685149165e-15,
+      -8.407542739973586e-16,
+      -7.740742409156329e-16,
+      -6.503920520762418e-16,
+      -5.805262567054397e-16,
+      -4.26826505080094e-16,
+      -6.219497460963711e-17,
+      -1.025596475501461e-17,
+      -2.6585634726844952e-31,
+      -2.2529764688307337e-31,
+      -1.6646979860743403e-31,
+      -1.536175700557815e-31,
+      -1.4420099306659842e-31,
+      -9.477948063156888e-32,
+      -9.19463227209869e-32,
+      -6.902848562373954e-32,
+      -6.887714397646082e-32,
+      -4.38968446575435e-32,
+      -4.163221931574016e-32,
+      -3.159086663777765e-32,
+      -2.1885331811907916e-32,
+      -2.034680401000064e-32,
+      -1.730082673223517e-32,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      6.0010006602433326e-33,
+      1.3837570218112332e-32,
+      3.822094466957024e-32,
+      4.5539887293981117e-32,
+      6.134827175932083e-32,
+      7.149449042125216e-32,
+      7.865253000310134e-32,
+      1.448877355146902e-31,
+      1.6461289088433728e-31,
+      1.770210161700361e-31,
+      1.8644032624607008e-31,
+      2.5201129863876074e-31,
+      1.8553914559384008e-16,
+      4.484815697679072e-16,
+      4.97489308327314e-16,
+      6.783753231944789e-16,
+      8.402914608247067e-16,
+      1.0809683951817537e-15,
+      1.1985771992408255e-15,
+      1.5377701478371764e-15,
+      0.9983679588691028,
+      0.9999999999999994,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.68988042647554,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      4.0,
+      5.0,
+      8.251751614655358
+    ],
+    "dim_H0": 82,
+    "dim_H1": 35,
+    "rank_delta": 28,
+    "D": 110,
+    "dim_C1": 63
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "claim_id": "BR_01",
+  "paper": "brughmans2024",
+  "label": "Non-axisymmetric SARI modes confirmed numerically by Legolas spectral code with growth rates comparable to MRI",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "disk equilibrium specific; large-inhomogeneity"
+  ]
+}

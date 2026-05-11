@@ -1,0 +1,12 @@
+{
+  "claim_id": "CK_01",
+  "paper": "chandrasekhar1957",
+  "label": "Force-free field eq curl H = \u03b1H admits poloidal+toroidal eigenfunction solutions (Chandrasekhar-Kendall basis)",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "force-free (zero pressure) only"
+  ]
+}

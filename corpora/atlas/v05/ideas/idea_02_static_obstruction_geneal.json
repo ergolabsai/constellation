@@ -1,0 +1,214 @@
+{
+  "idea_id": "idea_02_static_obstruction_geneal",
+  "label": "The static finite-\u03b2 m=1 obstruction is genuine and well-characterized \u2014 it survives as a special-case limit",
+  "description": "The classical Newcomb-Kadomtsev result establishes that the static finite-pressure Z-pinch is linearly unstable to m=1. This is reproduced and benchmarked by Atlas (the ARPACK pipeline recovers Newcomb 1960 eigenvalues to 10^-5 relative accuracy). The result is not weakened by Atlas \u2014 it is contextualized as the limit-case where H3 is absent (monotonic F profile). Bondeson-Iacono's toroidal flow analysis sits in an adjacent regime where rotation mitigates but doesn't eliminate the kink, again because the H3 ingredient is missing. The static obstruction is genuine and remains the correct prediction in its native regime.",
+  "scope": {
+    "regime": "static or non-helical-rotating Z-pinch at finite pressure",
+    "framework": "Frieman-Rotenberg self-adjoint MHD operator (no flow) \u2192 Newcomb counting theorem",
+    "conditions": [
+      "no rotation OR rotation without H3",
+      "monotonic F profile",
+      "finite \u03b2"
+    ]
+  },
+  "contributing_claims": [
+    {
+      "claim_id": "N_01",
+      "paper": "newcomb1960",
+      "label": "Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        0.2
+      ],
+      "rewritten": true,
+      "rewrite_summary": "narrow_to_static_regime",
+      "rewrite_description": "N_01 narrowed: m=1 obstruction holds in STATIC Z-pinch at finite pressure (out-of-regime weak for rotating helical).",
+      "weakness_invoked": "static assumption \u2014 extension to rotating helical is non-trivial"
+    },
+    {
+      "claim_id": "N_02",
+      "paper": "newcomb1960",
+      "label": "Number of unstable eigenvalues equals number of interior nodes of marginal mode (Newcomb counting)",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ],
+      "rewritten": false,
+      "rewrite_summary": null,
+      "rewrite_description": null,
+      "weakness_invoked": null
+    },
+    {
+      "claim_id": "FR_01",
+      "paper": "frieman1960",
+      "label": "Linear MHD stability with stationary flow is governed by a non-Hermitian operator (overstability possible)",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ],
+      "rewritten": false,
+      "rewrite_summary": null,
+      "rewrite_description": null,
+      "weakness_invoked": null
+    },
+    {
+      "claim_id": "B_01",
+      "paper": "bondeson1989",
+      "label": "In toroidal/cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        0.3
+      ],
+      "rewritten": true,
+      "rewrite_summary": "narrow_to_toroidal_without_H3",
+      "rewrite_description": "B_01 narrowed: toroidal rotation alone (without H3 quartic + helical shear) mitigates but doesn't eliminate kink.",
+      "weakness_invoked": "no non-monotonic Bz or helical sheared flow tested"
+    },
+    {
+      "claim_id": "AN_01",
+      "paper": "angus2020",
+      "label": "Linear shear flow alone does NOT stabilize m=1 kink across realistic Z-pinch profile classes",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        0.2
+      ],
+      "rewritten": true,
+      "rewrite_summary": "narrow_to_no_H3_profiles",
+      "rewrite_description": "AN_01 narrowed: linear axial shear alone (without H3 quartic structure) does not stabilize m=1 across tested profile families.",
+      "weakness_invoked": "tested profile families lack H3 quartic minimum \u2014 Atlas's structural ingredient"
+    },
+    {
+      "claim_id": "CR_01",
+      "paper": "crews2024",
+      "label": "Kadomtsev's interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ],
+      "rewritten": false,
+      "rewrite_summary": null,
+      "rewrite_description": null,
+      "weakness_invoked": null
+    }
+  ],
+  "contributing_evidence": [
+    {
+      "evidence_id": "ev_newcomb_static",
+      "paper": "newcomb1960",
+      "label": "Static finite-\u03b2 Z-pinch has unstable m=1 spectrum (Suydam-style)",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    },
+    {
+      "evidence_id": "ev_bondeson_toroidal",
+      "paper": "bondeson1989",
+      "label": "Toroidal rotation mitigates but doesn't eliminate kink (cylindrical analog)",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    },
+    {
+      "evidence_id": "ev_angus_m1_persists",
+      "paper": "angus2020",
+      "label": "m=1 kink remains unstable \u03b3 ~ O(v_i/a) at all tested shear levels on realistic profiles",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    },
+    {
+      "evidence_id": "ev_atlas_newcomb_bench",
+      "paper": "atlas2026",
+      "label": "ARPACK recovers Newcomb 1960 m=1 eigenvalues to 1e-5 relative accuracy",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    },
+    {
+      "evidence_id": "ev_atlas_h3_violate",
+      "paper": "atlas2026",
+      "label": "Violating H3 (monotonic F) gives only n^-2 Suydam accumulation; \u03b3 \u2248 4.2e-3 \u03c4_A^-1",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    },
+    {
+      "evidence_id": "ev_crews_entropy",
+      "paper": "crews2024",
+      "label": "Kadomtsev marginal-stable profile has entropy-gradient interpretation analogous to Schwarzschild-Ledoux",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    }
+  ],
+  "tensions_resolved": [
+    {
+      "before": "Three claims (N_01, AN_01, B_01) seemed to assert universal m=1 instability \u2014 Atlas would disagree",
+      "after": "Each is now scope-narrowed to its actual tested regime; Atlas's regime is genuinely new and complementary",
+      "resolution": "Scope narrowing without weakening the underlying observations"
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "Is there a unified statement that subsumes Newcomb-static, Atlas-H3, and Bondeson-toroidal into a single regime-parameterized theorem?",
+      "priority": "low",
+      "feeds_into": "Theoretical unification \u2014 currently each is its own theorem",
+      "suggested_next_steps": [
+        {
+          "kind": "theory_extension",
+          "description": "Identify the regime parameter (presence/absence of quartic F, M_A range, geometry) and write a master theorem with conditional clauses"
+        },
+        {
+          "kind": "re_examine_claim",
+          "description": "Revisit Crews 2024's entropy-gradient interpretation \u2014 does it have an analog for kink modes that aligns with the H3 picture?"
+        }
+      ]
+    }
+  ],
+  "transitions_out": [
+    {
+      "to_idea": "idea_01_m1_stability_via_H3",
+      "relation": "limit case \u2014 special case where H3 is absent"
+    },
+    {
+      "to_idea": "idea_05_shumlak_m0_complementary",
+      "relation": "complementary \u2014 m=0 stabilization closes a different mode, Newcomb-Kadomtsev silent on m=0 in this regime"
+    }
+  ]
+}

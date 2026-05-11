@@ -1,0 +1,12 @@
+{
+  "claim_id": "N_02",
+  "paper": "newcomb1960",
+  "label": "Number of unstable eigenvalues equals number of interior nodes of marginal mode (Newcomb counting)",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "self-adjoint operator assumed (static, no flow)"
+  ]
+}

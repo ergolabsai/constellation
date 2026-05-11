@@ -1,0 +1,12 @@
+{
+  "claim_id": "N_01",
+  "paper": "newcomb1960",
+  "label": "Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "static assumption \u2014 no flow; cylindrical only"
+  ]
+}

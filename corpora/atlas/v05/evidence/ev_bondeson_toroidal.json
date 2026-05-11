@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_bondeson_toroidal",
+  "paper": "bondeson1989",
+  "label": "Toroidal rotation mitigates but doesn't eliminate kink (cylindrical analog)",
+  "core_value": 0.0,
+  "context_init": 0.0,
+  "context_label": "toroidal flow, no helical Bz"
+}

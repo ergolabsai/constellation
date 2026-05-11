@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_shumlak_threshold",
+  "paper": "shumlak1995",
+  "label": "m=0 stabilization at v'/(kV_A) \u2248 0.1 demonstrated numerically",
+  "core_value": 1.0,
+  "context_init": 0.0,
+  "context_label": "marginal-stable static equilibrium, m=0 only"
+}

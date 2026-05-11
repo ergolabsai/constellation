@@ -1,0 +1,12 @@
+{
+  "claim_id": "A_04",
+  "paper": "atlas2026",
+  "label": "Bi-orthogonal Picone identity generalizes Newcomb node-counting to non-self-adjoint operators",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "bounded by O(M_A^2) residual; requires symmetrizable operator"
+  ]
+}

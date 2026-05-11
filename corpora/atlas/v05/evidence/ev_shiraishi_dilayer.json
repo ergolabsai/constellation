@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_shiraishi_dilayer",
+  "paper": "shiraishi2005",
+  "label": "Hall-MHD solutions converge to ideal MHD outside d_i-scale neighborhood of singularity",
+  "core_value": 1.0,
+  "context_init": 0.0,
+  "context_label": "single Alfv\u00e9n singularity layer"
+}

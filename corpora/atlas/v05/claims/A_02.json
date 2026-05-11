@@ -1,0 +1,12 @@
+{
+  "claim_id": "A_02",
+  "paper": "atlas2026",
+  "label": "H3 quartic Alfv\u00e9n minimum is the structural ingredient absent from shear-flow-only treatments",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "singular feature regularized by Hall at finite d_i/R"
+  ]
+}

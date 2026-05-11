@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Atlas v0.5 — Ideas Constellation</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root { --bg: #fafafa; --panel-bg: #ffffff; --border: #e3e3e3;
+          --text: #1f2937; --text-dim: #6b7280; --accent: #2563eb;
+          --pos: #22c55e; --neg: #ef4444; --warn: #f59e0b;
+          --atlas: #eab308; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text);
+         background: var(--bg); font-size: 13px; line-height: 1.4; }
+  header { padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--panel-bg);
+           display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 16px; font-weight: 600; margin: 0; }
+  .meta { color: var(--text-dim); font-size: 12px; }
+  .meta b { color: var(--text); font-weight: 600; }
+  .meta .atlas-hl { color: var(--atlas); font-weight: 600; }
+
+  main { display: grid; grid-template-columns: 1fr 440px; height: calc(100vh - 53px); overflow: hidden; }
+  #left { padding: 0; overflow: hidden; min-height: 0; height: 100%; position: relative; }
+  #graph-svg { width: 100%; height: 100%; display: block; cursor: grab; background: var(--bg); }
+  #right { border-left: 1px solid var(--border); padding: 12px 16px;
+           overflow-y: auto; min-height: 0; height: 100%; background: var(--panel-bg); }
+
+  .idea-hull { cursor: pointer; transition: opacity 200ms, stroke-width 200ms; }
+  .idea-hull.dimmed { opacity: 0.08; }
+  .idea-hull.focused { stroke-width: 3.5px; }
+  .idea-label {
+    pointer-events: none;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    fill: white; paint-order: stroke; stroke-width: 3.5px; stroke-linejoin: round;
+  }
+  .idea-label.dimmed { opacity: 0.15; }
+
+  /* Node base styles */
+  .node { transition: opacity 200ms; cursor: pointer; }
+  .node.dimmed { opacity: 0.18; }
+  .node circle, .node rect, .node path { stroke: white; stroke-width: 1.5; }
+  /* Atlas nodes — gold accent + heavier stroke */
+  .node.atlas circle, .node.atlas rect, .node.atlas path {
+    stroke: var(--atlas); stroke-width: 2.5;
+  }
+  /* Rewritten claims — dashed accent ring */
+  .node.rewritten circle, .node.rewritten path.claim-shape {
+    stroke: var(--accent); stroke-width: 3; stroke-dasharray: 4,2;
+  }
+  /* Context-filled evidence — warning yellow dashed */
+  .node.filled rect, .node.filled path.evidence-shape {
+    stroke: var(--warn); stroke-width: 2.5; stroke-dasharray: 4,2;
+  }
+  /* Click-selected node — bold black ring */
+  .node.selected circle, .node.selected rect, .node.selected path {
+    stroke: #111827 !important; stroke-width: 4 !important; stroke-dasharray: none;
+  }
+
+  .node-label { pointer-events: none; font-size: 9px; fill: #111827; font-weight: 600;
+                text-anchor: middle; }
+  .node-label.dimmed { opacity: 0.18; }
+  .node-label.atlas { fill: #713f12; font-weight: 700; }
+
+  /* Edges: color = residual magnitude (gray = agreement, orange = mild tension, red = strong) */
+  .edge-line { fill: none; stroke-width: 1.2; opacity: 0.5; transition: opacity 200ms; }
+  .edge-line.res-zero  { stroke: #cbd5e1; }
+  .edge-line.res-tiny  { stroke: #94a3b8; }
+  .edge-line.res-mild  { stroke: var(--warn); stroke-width: 2; opacity: 0.85; }
+  .edge-line.res-high  { stroke: var(--neg); stroke-width: 2.5; opacity: 0.9; }
+  .edge-line.dimmed { opacity: 0.05; }
+
+  /* Right panel */
+  h2 { font-size: 12px; font-weight: 600; color: var(--text-dim);
+       text-transform: uppercase; letter-spacing: 0.05em; margin: 12px 0 4px; }
+  h3 { font-size: 13px; font-weight: 600; margin: 8px 0 4px; }
+
+  .legend-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+    border: 1px solid var(--border); border-radius: 6px; margin: 3px 0;
+    cursor: pointer; background: white; font-size: 12px;
+    transition: all 150ms;
+  }
+  .legend-item:hover { background: #f9fafb; border-color: #d1d5db; }
+  .legend-item.active { background: #f0f9ff; border-color: var(--accent); }
+  .legend-swatch { flex: 0 0 14px; height: 14px; border-radius: 3px; }
+  .legend-text { flex: 1; line-height: 1.3; }
+  .legend-text .lt-id { font-family: ui-monospace, monospace; font-size: 10px;
+                         color: var(--text-dim); }
+  .legend-text .lt-label { display: block; font-weight: 600; color: var(--text);
+                            font-size: 11.5px; }
+  .legend-text .lt-stats { font-size: 10px; color: var(--text-dim); }
+
+  /* Paper-color legend */
+  .paper-theme { margin: 6px 0 8px; }
+  .paper-theme .theme-name { font-size: 10px; font-weight: 600; color: var(--text-dim);
+                              text-transform: uppercase; letter-spacing: 0.05em; }
+  .paper-row { display: flex; align-items: center; gap: 6px; margin: 2px 0; font-size: 11.5px; }
+  .paper-row .pr-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 9px; }
+  .paper-row.atlas-row .pr-dot { background: var(--atlas); }
+  .paper-row.atlas-row { font-weight: 600; }
+
+  /* Shape legend */
+  .shape-legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 8px; font-size: 11px; }
+  .shape-legend .sl { display: flex; align-items: center; gap: 4px; }
+  .shape-legend svg { width: 16px; height: 16px; vertical-align: middle; }
+
+  /* Edge legend */
+  .edge-legend { margin: 4px 0 8px; font-size: 11.5px; }
+  .edge-legend .el-row { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+  .edge-legend svg { width: 40px; height: 12px; flex: 0 0 40px; }
+  .edge-summary { font-size: 11px; color: var(--text-dim); margin-top: 6px;
+                  padding-top: 6px; border-top: 1px solid var(--border); }
+  .edge-summary b { color: var(--text); }
+
+  /* Idea detail */
+  .idea-detail { margin-top: 6px; }
+  .idea-detail h3 { margin-top: 0; }
+  .idea-detail .description { font-size: 12px; color: var(--text); margin: 4px 0 8px;
+                               line-height: 1.5; }
+  .idea-detail .scope-line { font-size: 11px; color: var(--text-dim); margin: 2px 0; }
+  .idea-detail .scope-line b { color: var(--text); font-weight: 600; }
+
+  .members-row { display: flex; flex-wrap: wrap; gap: 3px; margin: 4px 0; }
+  .members-row .pill { display: inline-flex; align-items: center; gap: 3px;
+                       padding: 2px 6px; border-radius: 10px;
+                       font-size: 10.5px; font-family: ui-monospace, monospace; }
+  .members-row .pill.claim { color: white; }
+  .members-row .pill.claim.rewritten { border: 2px dashed white; }
+  .members-row .pill.evidence { color: white; }
+  .members-row .pill.evidence.filled { border: 2px dashed white; }
+  .members-row .pill.atlas { box-shadow: 0 0 0 1.5px var(--atlas); }
+
+  .tension { background: #fff7ed; border-left: 3px solid var(--warn); padding: 6px 9px;
+             margin: 5px 0; font-size: 12px; border-radius: 0 3px 3px 0; }
+  .tension .before { color: #991b1b; }
+  .tension .after { color: #166534; margin-top: 3px; }
+  .tension .rewrite { color: var(--text-dim); font-size: 11px; margin-top: 3px;
+                       font-family: ui-monospace, monospace; }
+
+  .question { background: #eff6ff; border-left: 3px solid var(--accent); padding: 6px 9px;
+              margin: 5px 0; font-size: 12px; border-radius: 0 3px 3px 0; }
+  .question .q { font-weight: 600; }
+  .question .priority { display: inline-block; font-size: 9.5px; font-weight: 700;
+                         padding: 1px 5px; border-radius: 8px; margin-left: 6px;
+                         text-transform: uppercase; }
+  .question .priority.high { background: #fee2e2; color: #991b1b; }
+  .question .priority.medium { background: #fef3c7; color: #92400e; }
+  .question .priority.low { background: #d1fae5; color: #166534; }
+  .question .feeds { font-size: 10.5px; color: var(--text-dim); margin: 3px 0; font-style: italic; }
+
+  .next-step { background: white; border-left: 2px solid #cbd5e1; padding: 3px 7px;
+                margin: 2px 0; font-size: 11px; border-radius: 0 3px 3px 0; }
+  .next-step .kind { display: inline-block; font-size: 9px; font-weight: 700;
+                     padding: 1px 4px; border-radius: 5px; margin-right: 5px;
+                     background: #f1f5f9; color: #475569; text-transform: uppercase; }
+
+  .transition { font-size: 11px; padding: 4px 7px; margin: 2px 0;
+                border: 1px solid #d1d5db; border-radius: 4px;
+                cursor: pointer; transition: all 150ms; }
+  .transition:hover { background: #f0f9ff; border-color: var(--accent); }
+
+  /* Node-detail panel */
+  .node-detail h3 { margin: 0 0 4px 0; font-size: 13px; }
+  .edge-list { margin: 4px 0 8px; }
+  .edge-row { display: flex; align-items: center; gap: 6px; padding: 3px 6px;
+              border-radius: 4px; transition: background 100ms; }
+  .edge-row:hover { background: #f0f9ff; }
+  .rewrite-block { margin: 8px 0; }
+  .rewrite-card { background: white; border: 1px solid var(--accent);
+                  border-left: 4px solid var(--accent); border-radius: 4px;
+                  padding: 8px 10px; font-size: 12px; }
+
+  .clear-btn { font-size: 11px; color: var(--text-dim); cursor: pointer;
+                padding: 3px 7px; border: 1px solid var(--border); border-radius: 4px;
+                background: white; margin-top: 6px; }
+  .clear-btn:hover { background: #f9fafb; border-color: var(--text-dim); }
+
+  .tooltip { position: absolute; pointer-events: none;
+             background: rgba(17, 24, 39, 0.95); color: white;
+             padding: 6px 10px; border-radius: 4px; font-size: 11.5px;
+             max-width: 260px; line-height: 1.4; opacity: 0;
+             transition: opacity 100ms; z-index: 100; }
+  .tooltip .tt-id { font-family: ui-monospace, monospace; color: #93c5fd;
+                     font-size: 10.5px; }
+  .tooltip .tt-label { font-weight: 600; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Atlas v0.5 — Ideas Constellation</h1>
+  <div class="meta">
+    <b>30</b> claims · <b>25</b> evidence · <b>63</b> edges · <b>5</b> ideas
+    · latest paper: <span class="atlas-hl">Kumar et al. 2026 (Atlas)</span> shown with stars + diamonds
+  </div>
+</header>
+
+<main>
+  <div id="left">
+    <svg id="graph-svg"></svg>
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <div id="right">
+    <h2>Node shapes</h2>
+    <div class="shape-legend">
+      <div class="sl">
+        <svg viewBox="-12 -12 24 24"><circle r="9" fill="#94a3b8" stroke="white" stroke-width="1.5"/></svg>
+        claim (prior)
+      </div>
+      <div class="sl">
+        <svg viewBox="-12 -12 24 24">
+          <path d="M 0,-10 L 2.8,-3 L 10,-3 L 4.4,1.6 L 6.5,9 L 0,5 L -6.5,9 L -4.4,1.6 L -10,-3 L -2.8,-3 Z"
+                fill="#eab308" stroke="#eab308" stroke-width="2"/>
+        </svg>
+        claim (Atlas)
+      </div>
+      <div class="sl">
+        <svg viewBox="-12 -12 24 24"><rect x="-9" y="-9" width="18" height="18" rx="2" ry="2" fill="#94a3b8" stroke="white" stroke-width="1.5"/></svg>
+        evidence (prior)
+      </div>
+      <div class="sl">
+        <svg viewBox="-12 -12 24 24">
+          <path d="M 0,-10 L 10,0 L 0,10 L -10,0 Z" fill="#eab308" stroke="#eab308" stroke-width="2"/>
+        </svg>
+        evidence (Atlas)
+      </div>
+    </div>
+
+    <h2>Edges</h2>
+    <div class="edge-legend">
+      <div class="el-row">
+        <svg viewBox="0 -6 40 12" preserveAspectRatio="none"><line x1="2" y1="0" x2="38" y2="0" stroke="#cbd5e1" stroke-width="1.6"/></svg>
+        <span><b>agreement</b> — residual ≈ 0</span>
+      </div>
+      <div class="el-row">
+        <svg viewBox="0 -6 40 12" preserveAspectRatio="none"><line x1="2" y1="0" x2="38" y2="0" stroke="#f59e0b" stroke-width="2.4"/></svg>
+        <span><b>mild tension</b> — residual 0.01 – 0.05</span>
+      </div>
+      <div class="el-row">
+        <svg viewBox="0 -6 40 12" preserveAspectRatio="none"><line x1="2" y1="0" x2="38" y2="0" stroke="#ef4444" stroke-width="3"/></svg>
+        <span><b>strong tension</b> — residual ≥ 0.05</span>
+      </div>
+      <div class="edge-summary" id="edge-summary"></div>
+    </div>
+
+    <h2>Papers (color)</h2>
+    <div id="papers-legend"></div>
+
+    <h2>Ideas</h2>
+    <div id="legend"></div>
+    <div id="idea-detail-container"></div>
+  </div>
+</main>
+
+<script>
+const DATA = {"claims": [{"id": "A_01", "type": "claim", "label": "5 constraints H1-H5 are necessary and sufficient for m=1 stability in rotating helical Z-pinch", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "A_02", "type": "claim", "label": "H3 quartic Alfv\u00e9n minimum is the structural ingredient absent from shear-flow-only treatments", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "A_03", "type": "claim", "label": "Discrete spectrum near quartic continuum minimum accumulates as n^-4 (exponent sharp)", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "A_04", "type": "claim", "label": "Bi-orthogonal Picone identity generalizes Newcomb node-counting to non-self-adjoint operators", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "A_05", "type": "claim", "label": "Below SARI bound M_A<1, ideal-MHD m=1 growth rate is exactly zero in asymptotic d_i/R\u21920 regime", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "A_06", "type": "claim", "label": "Framework simultaneously closes five prior conjectures (Bondeson-Iacono helical, Hameiri Sturmian, n^-4 sharpness, SARI exclusion, kink obstruction)", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "A_07", "type": "claim", "label": "RIGID-BELTRAMI-A double-Beltrami equilibrium achieves <\u03b2>=12.3% with all H1-H5 satisfied", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "N_01", "type": "claim", "label": "Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD", "paper": "newcomb1960", "paper_label": "Newcomb 1960", "color": "#1e40af", "is_atlas": false, "x_in": 1.0, "x_out": 0.2, "rewritten": true}, {"id": "N_02", "type": "claim", "label": "Number of unstable eigenvalues equals number of interior nodes of marginal mode (Newcomb counting)", "paper": "newcomb1960", "paper_label": "Newcomb 1960", "color": "#1e40af", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "FR_01", "type": "claim", "label": "Linear MHD stability with stationary flow is governed by a non-Hermitian operator (overstability possible)", "paper": "frieman1960", "paper_label": "Frieman-Rotenberg 1960", "color": "#3b82f6", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "H_01", "type": "claim", "label": "Sufficient stability conditions for rotating screw-pinch via circle theorems and spectral bounds", "paper": "hameiri1981", "paper_label": "Hameiri 1981", "color": "#7c3aed", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "H_02", "type": "claim", "label": "Essential spectrum of ideal MHD with flow consists of forward/backward Doppler-shifted Alfv\u00e9n + slow continua", "paper": "hameiri1985", "paper_label": "Hameiri 1985", "color": "#a78bfa", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "B_01", "type": "claim", "label": "In toroidal/cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure", "paper": "bondeson1989", "paper_label": "Bondeson-Iacono 1989", "color": "#60a5fa", "is_atlas": false, "x_in": 1.0, "x_out": 0.3, "rewritten": true}, {"id": "S_01", "type": "claim", "label": "Sheared axial flow v'/(kV_A) > ~0.1 stabilizes m=0 sausage mode in static Z-pinch", "paper": "shumlak1995", "paper_label": "Shumlak-Hartman 1995", "color": "#ea580c", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "S_02", "type": "claim", "label": "ZaP experiment observes long stable period (>700\u00d7 growth time) coincident with sheared sub-Alfv\u00e9nic flow", "paper": "shumlak2001", "paper_label": "Shumlak 2001 (ZaP)", "color": "#f97316", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "AN_01", "type": "claim", "label": "Linear shear flow alone does NOT stabilize m=1 kink across realistic Z-pinch profile classes", "paper": "angus2020", "paper_label": "Angus et al. 2020", "color": "#dc2626", "is_atlas": false, "x_in": 1.0, "x_out": 0.2, "rewritten": true}, {"id": "AN_02", "type": "claim", "label": "Required shear for m=0 stabilization scales as ~c_0(ka)/(ka)\u00b7\u03b1 with \u03b1\u226a1; m=1 needs different mechanism", "paper": "angus2020", "paper_label": "Angus et al. 2020", "color": "#dc2626", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "CK_01", "type": "claim", "label": "Force-free field eq curl H = \u03b1H admits poloidal+toroidal eigenfunction solutions (Chandrasekhar-Kendall basis)", "paper": "chandrasekhar1957", "paper_label": "Chandrasekhar-Kendall 1957", "color": "#0e7490", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "MY_01", "type": "claim", "label": "Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure", "paper": "mahajan1998", "paper_label": "Mahajan-Yoshida 1998", "color": "#06b6d4", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "SH_01", "type": "claim", "label": "Hall effect regularizes the Alfv\u00e9n singularity over a layer of thickness ~d_i", "paper": "shiraishi2005", "paper_label": "Shiraishi et al. 2005", "color": "#16a34a", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "ML_01", "type": "claim", "label": "Hall MHD waves are fundamentally distinct from MHD waves at d_i scales", "paper": "mahajan2024", "paper_label": "Mahajan-Sharma-Lingam 2024", "color": "#22c55e", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "SE_01", "type": "claim", "label": "In Hall regime, global whistler instabilities grow significantly faster than ideal-MHD modes", "paper": "sainterme2026", "paper_label": "Sainterme-Ebrahimi 2026", "color": "#86efac", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "GK_01", "type": "claim", "label": "Super-Alfv\u00e9nic Rotational Instability (SARI) emerges from overlap of forward/backward Doppler-shifted Alfv\u00e9n continua", "paper": "goedbloed2022", "paper_label": "Goedbloed-Keppens 2022", "color": "#be185d", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "GK_02", "type": "claim", "label": "At M_A \u2265 1 continuum overlap opens uncontrolled SARI spectrum", "paper": "goedbloed2022", "paper_label": "Goedbloed-Keppens 2022", "color": "#be185d", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "BR_01", "type": "claim", "label": "Non-axisymmetric SARI modes confirmed numerically by Legolas spectral code with growth rates comparable to MRI", "paper": "brughmans2024", "paper_label": "Brughmans et al. 2024", "color": "#ec4899", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "W_01", "type": "claim", "label": "Axisymmetric SMRI directly observed in liquid-metal Taylor-Couette experiment", "paper": "wang2022", "paper_label": "Wang et al. 2022 (SMRI exp)", "color": "#f9a8d4", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "CL_01", "type": "claim", "label": "Legolas finite-element MHD spectroscopy code computes full eigenspectrum for 1D equilibria with flow", "paper": "claes2020", "paper_label": "Claes et al. 2020 (Legolas)", "color": "#475569", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "DJ_01", "type": "claim", "label": "Legolas extension with viscosity and Hall current benchmarked against historic results", "paper": "dejonghe2022", "paper_label": "De Jonghe et al. 2022", "color": "#94a3b8", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "CR_01", "type": "claim", "label": "Kadomtsev's interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux", "paper": "crews2024", "paper_label": "Crews et al. 2024", "color": "#fdba74", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}, {"id": "Z_01", "type": "claim", "label": "FuZE experimentally demonstrates sustained ~5\u03bcs neutron production during ~16\u03bcs quiescent period", "paper": "zhang2019", "paper_label": "Zhang et al. 2019 (FuZE)", "color": "#fb923c", "is_atlas": false, "x_in": 1.0, "x_out": 1.0, "rewritten": false}], "evidence": [{"id": "ev_atlas_kink_zero", "type": "evidence", "label": "|\u03b3_m=1| < 8e-12 \u03c4_A^-1 on RIGID-BELTRAMI-A at <\u03b2>=12.3%", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_atlas_pseudospec", "type": "evidence", "label": "\u03b5-pseudospectrum boundary < 4.1e-7 \u03c4_A^-1 in upper half-plane (no transient growth)", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_atlas_newcomb_bench", "type": "evidence", "label": "ARPACK recovers Newcomb 1960 m=1 eigenvalues to 1e-5 relative accuracy", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_atlas_h3_value", "type": "evidence", "label": "|F''(r*)|/F_max = 0.41/R^2 on RIGID-BELTRAMI-A confirms H3 quartic", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_atlas_120pts", "type": "evidence", "label": "All 120 (m,k) points satisfy |\u03b3|<1e-11 \u03c4_A^-1; worst case (2,0.69): 5.8e-12", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_atlas_h1_violate", "type": "evidence", "label": "Violating H1 (q_min=0.92) produces unstable kink \u03b3 \u2248 0.18 \u03c4_A^-1", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_atlas_h3_violate", "type": "evidence", "label": "Violating H3 (monotonic F) gives only n^-2 Suydam accumulation; \u03b3 \u2248 4.2e-3 \u03c4_A^-1", "paper": "atlas2026", "paper_label": "Kumar et al. 2026 (Atlas)", "color": "#eab308", "is_atlas": true, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_newcomb_static", "type": "evidence", "label": "Static finite-\u03b2 Z-pinch has unstable m=1 spectrum (Suydam-style)", "paper": "newcomb1960", "paper_label": "Newcomb 1960", "color": "#1e40af", "is_atlas": false, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_shumlak_threshold", "type": "evidence", "label": "m=0 stabilization at v'/(kV_A) \u2248 0.1 demonstrated numerically", "paper": "shumlak1995", "paper_label": "Shumlak-Hartman 1995", "color": "#ea580c", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_shumlak_zap", "type": "evidence", "label": "ZaP stable period 15-20\u03bcs (>700\u00d7 growth time) coincident with shear", "paper": "shumlak2001", "paper_label": "Shumlak 2001 (ZaP)", "color": "#f97316", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_angus_m1_persists", "type": "evidence", "label": "m=1 kink remains unstable \u03b3 ~ O(v_i/a) at all tested shear levels on realistic profiles", "paper": "angus2020", "paper_label": "Angus et al. 2020", "color": "#dc2626", "is_atlas": false, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_angus_m0_scaling", "type": "evidence", "label": "m=0 shear-stabilization scaling du_z/dr ~ c_0/(ka)\u00b7\u03b1 with \u03b1<<1", "paper": "angus2020", "paper_label": "Angus et al. 2020", "color": "#dc2626", "is_atlas": false, "core": 0.85, "context": 0.0, "context_filled": false}, {"id": "ev_bondeson_toroidal", "type": "evidence", "label": "Toroidal rotation mitigates but doesn't eliminate kink (cylindrical analog)", "paper": "bondeson1989", "paper_label": "Bondeson-Iacono 1989", "color": "#60a5fa", "is_atlas": false, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_goedbloed_sari", "type": "evidence", "label": "SARI modes fill 2D continua in eigenfrequency plane for |k|>>|m| at M_A>1", "paper": "goedbloed2022", "paper_label": "Goedbloed-Keppens 2022", "color": "#be185d", "is_atlas": false, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_brughmans_growth", "type": "evidence", "label": "Non-axisymmetric SARI growth rates comparable to MRI at high mode numbers", "paper": "brughmans2024", "paper_label": "Brughmans et al. 2024", "color": "#ec4899", "is_atlas": false, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_shiraishi_dilayer", "type": "evidence", "label": "Hall-MHD solutions converge to ideal MHD outside d_i-scale neighborhood of singularity", "paper": "shiraishi2005", "paper_label": "Shiraishi et al. 2005", "color": "#16a34a", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_sainterme_whistler", "type": "evidence", "label": "Global whistler instabilities grow significantly faster than ideal-MHD modes at d_i/L ~ few%", "paper": "sainterme2026", "paper_label": "Sainterme-Ebrahimi 2026", "color": "#86efac", "is_atlas": false, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_wang_smri", "type": "evidence", "label": "Axisymmetric SMRI onset observed at critical Rm in Taylor-Couette liquid metal", "paper": "wang2022", "paper_label": "Wang et al. 2022 (SMRI exp)", "color": "#f9a8d4", "is_atlas": false, "core": 0.0, "context": 0.0, "context_filled": false}, {"id": "ev_zhang_neutrons", "type": "evidence", "label": "FuZE: ~5\u03bcs sustained neutron emission, (1.25\u00b10.45)\u00d710^5 n/pulse, scaling with n_D^2", "paper": "zhang2019", "paper_label": "Zhang et al. 2019 (FuZE)", "color": "#fb923c", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_crews_entropy", "type": "evidence", "label": "Kadomtsev marginal-stable profile has entropy-gradient interpretation analogous to Schwarzschild-Ledoux", "paper": "crews2024", "paper_label": "Crews et al. 2024", "color": "#fdba74", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_hameiri_continuum", "type": "evidence", "label": "Ideal MHD with flow has forward/backward Doppler-shifted Alfv\u00e9n continua governing essential spectrum", "paper": "hameiri1985", "paper_label": "Hameiri 1985", "color": "#a78bfa", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_friman_overstable", "type": "evidence", "label": "Stationary-flow MHD operator is non-Hermitian \u2192 overstability possible", "paper": "frieman1960", "paper_label": "Frieman-Rotenberg 1960", "color": "#3b82f6", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_chandra_ck", "type": "evidence", "label": "Force-free field eq curl H=\u03b1H solvable in poloidal+toroidal basis with equipartition", "paper": "chandrasekhar1957", "paper_label": "Chandrasekhar-Kendall 1957", "color": "#0e7490", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_mahajan_db", "type": "evidence", "label": "Double-curl Beltrami equilibrium admits non-trivial pressure confining minimum-|B| configuration", "paper": "mahajan1998", "paper_label": "Mahajan-Yoshida 1998", "color": "#06b6d4", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}, {"id": "ev_legolas_bench", "type": "evidence", "label": "Legolas reproduces canonical MHD spectra: Parker, interchange, KH, tearing, magneto-thermal", "paper": "claes2020", "paper_label": "Claes et al. 2020 (Legolas)", "color": "#475569", "is_atlas": false, "core": 1.0, "context": 0.0, "context_filled": false}], "edges": [{"source": "A_01", "target": "ev_atlas_kink_zero", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_01", "target": "ev_atlas_120pts", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_01", "target": "ev_atlas_h1_violate", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "A_01", "target": "ev_atlas_h3_violate", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "A_02", "target": "ev_atlas_h3_value", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_02", "target": "ev_atlas_h3_violate", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "A_03", "target": "ev_atlas_h3_value", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_04", "target": "ev_atlas_kink_zero", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_04", "target": "ev_atlas_newcomb_bench", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_05", "target": "ev_atlas_kink_zero", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_05", "target": "ev_atlas_pseudospec", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_05", "target": "ev_atlas_120pts", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_06", "target": "ev_atlas_kink_zero", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_07", "target": "ev_atlas_h3_value", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_07", "target": "ev_atlas_kink_zero", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_05", "target": "ev_newcomb_static", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "A_05", "target": "ev_angus_m1_persists", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "A_05", "target": "ev_bondeson_toroidal", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "A_02", "target": "ev_angus_m1_persists", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "A_05", "target": "ev_goedbloed_sari", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "A_05", "target": "ev_brughmans_growth", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "A_07", "target": "ev_chandra_ck", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_07", "target": "ev_mahajan_db", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_04", "target": "ev_friman_overstable", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "A_04", "target": "ev_hameiri_continuum", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "N_01", "target": "ev_newcomb_static", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "N_02", "target": "ev_newcomb_static", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "N_02", "target": "ev_atlas_newcomb_bench", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "N_01", "target": "ev_atlas_kink_zero", "in_regime": false, "base_pred": 0.0, "residual": 0.03999999999999998}, {"source": "N_01", "target": "ev_atlas_h3_violate", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "FR_01", "target": "ev_friman_overstable", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "FR_01", "target": "ev_atlas_pseudospec", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "H_01", "target": "ev_hameiri_continuum", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "H_02", "target": "ev_hameiri_continuum", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "H_02", "target": "ev_goedbloed_sari", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "B_01", "target": "ev_bondeson_toroidal", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "B_01", "target": "ev_atlas_kink_zero", "in_regime": false, "base_pred": 0.0, "residual": 0.09000000000000002}, {"source": "S_01", "target": "ev_shumlak_threshold", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "S_02", "target": "ev_shumlak_zap", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "S_01", "target": "ev_angus_m0_scaling", "in_regime": false, "base_pred": 0.85, "residual": 0.0}, {"source": "AN_01", "target": "ev_angus_m1_persists", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "AN_02", "target": "ev_angus_m0_scaling", "in_regime": true, "base_pred": 0.85, "residual": 0.0}, {"source": "AN_01", "target": "ev_atlas_kink_zero", "in_regime": false, "base_pred": 0.0, "residual": 0.03999999999999998}, {"source": "CK_01", "target": "ev_chandra_ck", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "MY_01", "target": "ev_mahajan_db", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "MY_01", "target": "ev_atlas_h3_value", "in_regime": false, "base_pred": 1.0, "residual": 0.0}, {"source": "SH_01", "target": "ev_shiraishi_dilayer", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "SH_01", "target": "ev_atlas_kink_zero", "in_regime": false, "base_pred": 1.0, "residual": 0.0}, {"source": "ML_01", "target": "ev_sainterme_whistler", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "SE_01", "target": "ev_sainterme_whistler", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "SE_01", "target": "ev_atlas_kink_zero", "in_regime": false, "base_pred": 1.0, "residual": 0.0}, {"source": "GK_01", "target": "ev_goedbloed_sari", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "GK_02", "target": "ev_goedbloed_sari", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "GK_02", "target": "ev_atlas_kink_zero", "in_regime": false, "base_pred": 1.0, "residual": 0.0}, {"source": "BR_01", "target": "ev_brughmans_growth", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "BR_01", "target": "ev_goedbloed_sari", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "W_01", "target": "ev_wang_smri", "in_regime": true, "base_pred": 0.0, "residual": 0.0}, {"source": "CL_01", "target": "ev_legolas_bench", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "DJ_01", "target": "ev_legolas_bench", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "CL_01", "target": "ev_brughmans_growth", "in_regime": false, "base_pred": 0.0, "residual": 0.0}, {"source": "Z_01", "target": "ev_zhang_neutrons", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "CR_01", "target": "ev_crews_entropy", "in_regime": true, "base_pred": 1.0, "residual": 0.0}, {"source": "CR_01", "target": "ev_shumlak_threshold", "in_regime": false, "base_pred": 1.0, "residual": 0.0}], "ideas": [{"id": "idea_01_m1_stability_via_H3", "label": "m=1 stability of rotating helical Z-pinch is closed by the H3 quartic Alfv\u00e9n minimum", "description": "Atlas (Kumar et al. 2026) extends the Hameiri framework to the rotating helical Z-pinch with non-monotonic Bz and proves that under five necessary and sufficient constraints H1-H5, the m=1 ideal-MHD growth rate is exactly zero in the asymptotic d_i/R\u21920 limit. The structural ingredient absent from prior shear-flow-only treatments is the H3 quartic minimum of F(r)=(mB\u03b8+krBz)/r, which produces a spectral gap separating the discrete kink mode from the Alfv\u00e9n continuum. The static obstruction of Newcomb-Kadomtsev does not extend across this regime, and the linear-shear-only result of Angus 2020 is silent on profile families that satisfy H3.", "color": "#7c3aed", "claim_ids": ["A_01", "A_02", "A_03", "A_04", "A_05", "A_06", "A_07", "N_01", "AN_01", "B_01"], "evidence_ids": ["ev_atlas_kink_zero", "ev_atlas_h3_value", "ev_atlas_120pts", "ev_atlas_h1_violate", "ev_atlas_h3_violate", "ev_atlas_pseudospec", "ev_newcomb_static", "ev_angus_m1_persists", "ev_bondeson_toroidal"], "rewritten_claims": ["N_01", "AN_01", "B_01"], "tensions_resolved": [{"before": "Newcomb-Kadomtsev: m=1 unstable at finite \u03b2 in static Z-pinch (and Atlas would seemingly disagree)", "after": "Newcomb statement narrowed to STATIC regime; Atlas adds rotation+helical Bz with H3 as new structural ingredient", "resolution": "Claim rewrite N_01 \u2192 narrow_to_static_regime"}, {"before": "Angus 2020: linear shear flow doesn't stabilize m=1 across realistic profile families", "after": "Angus statement narrowed to NO-H3 profile families; Atlas's H3 is the missing ingredient", "resolution": "Claim rewrite AN_01 \u2192 narrow_to_no_H3_profiles"}, {"before": "Bondeson-Iacono 1989: toroidal rotation alone doesn't eliminate kink", "after": "Bondeson narrowed to TOROIDAL-without-H3 case; helical sheared flow + non-monotonic Bz is the missing ingredient", "resolution": "Claim rewrite B_01 \u2192 narrow_to_toroidal_without_H3"}], "open_questions": [{"question": "What happens to the n^-4 accumulation when d_i/R is finite \u2014 does the Hall layer break or preserve global stability?", "priority": "high", "feeds_into": "Atlas's own caveat; companion work [Sainterme&Ebrahimi 2025, Torasso&Hameiri 2007]", "suggested_next_steps": [{"kind": "theory_extension", "description": "Extend bi-orthogonal Picone identity to symmetrizable Hall-MHD with bounded perturbation; estimate the new residual O((d_i/R)^2 + M_A^2)"}, {"kind": "simulation", "description": "Run finite-d_i/R Hall-MHD eigensolver on RIGID-BELTRAMI-A; track |\u03b3_m=1| as function of d_i/R"}, {"kind": "literature", "description": "Compare with Sainterme-Ebrahimi 2026 global whistler instability regime and assess overlap"}]}, {"question": "Can the RIGID-BELTRAMI-A profile family be realized experimentally? What polarimetry resolution does it require?", "priority": "medium", "feeds_into": "Atlas's own experimental-access section", "suggested_next_steps": [{"kind": "experiment", "description": "Design staged-formation discharge per Mahajan-Yoshida with two relaxed Beltrami eigenvalues; characterize Bz(r) profile"}, {"kind": "experiment", "description": "Develop polarimetry diagnostic with \u03b4r/R<0.05 resolution to verify F(r) quartic structure near r*"}]}], "transitions_out": [{"to_idea": "idea_02_static_obstruction_geneal", "relation": "structurally extends \u2014 Atlas's framework includes the static case as a special-case limit"}, {"to_idea": "idea_03_hall_regularization", "relation": "asymptotic boundary \u2014 Atlas's d_i/R\u21920 result is the reference for Hall corrections"}, {"to_idea": "idea_04_sari_boundary", "relation": "operating boundary \u2014 Atlas's stability ends at M_A=1 where SARI takes over"}], "scope": {"regime": "rotating helical cylindrical Z-pinch, m=1 mode, ideal MHD, d_i/R\u21920", "framework": "Hain-L\u00fcst-Hameiri reduction + bi-orthogonal Picone identity", "conditions": ["H1-H5 satisfied", "M_A<1 (SARI bound)", "non-monotonic Bz with quartic F minimum"]}}, {"id": "idea_02_static_obstruction_geneal", "label": "The static finite-\u03b2 m=1 obstruction is genuine and well-characterized \u2014 it survives as a special-case limit", "description": "The classical Newcomb-Kadomtsev result establishes that the static finite-pressure Z-pinch is linearly unstable to m=1. This is reproduced and benchmarked by Atlas (the ARPACK pipeline recovers Newcomb 1960 eigenvalues to 10^-5 relative accuracy). The result is not weakened by Atlas \u2014 it is contextualized as the limit-case where H3 is absent (monotonic F profile). Bondeson-Iacono's toroidal flow analysis sits in an adjacent regime where rotation mitigates but doesn't eliminate the kink, again because the H3 ingredient is missing. The static obstruction is genuine and remains the correct prediction in its native regime.", "color": "#0891b2", "claim_ids": ["N_01", "N_02", "FR_01", "B_01", "AN_01", "CR_01"], "evidence_ids": ["ev_newcomb_static", "ev_bondeson_toroidal", "ev_angus_m1_persists", "ev_atlas_newcomb_bench", "ev_atlas_h3_violate", "ev_crews_entropy"], "rewritten_claims": ["N_01", "B_01", "AN_01"], "tensions_resolved": [{"before": "Three claims (N_01, AN_01, B_01) seemed to assert universal m=1 instability \u2014 Atlas would disagree", "after": "Each is now scope-narrowed to its actual tested regime; Atlas's regime is genuinely new and complementary", "resolution": "Scope narrowing without weakening the underlying observations"}], "open_questions": [{"question": "Is there a unified statement that subsumes Newcomb-static, Atlas-H3, and Bondeson-toroidal into a single regime-parameterized theorem?", "priority": "low", "feeds_into": "Theoretical unification \u2014 currently each is its own theorem", "suggested_next_steps": [{"kind": "theory_extension", "description": "Identify the regime parameter (presence/absence of quartic F, M_A range, geometry) and write a master theorem with conditional clauses"}, {"kind": "re_examine_claim", "description": "Revisit Crews 2024's entropy-gradient interpretation \u2014 does it have an analog for kink modes that aligns with the H3 picture?"}]}], "transitions_out": [{"to_idea": "idea_01_m1_stability_via_H3", "relation": "limit case \u2014 special case where H3 is absent"}, {"to_idea": "idea_05_shumlak_m0_complementary", "relation": "complementary \u2014 m=0 stabilization closes a different mode, Newcomb-Kadomtsev silent on m=0 in this regime"}], "scope": {"regime": "static or non-helical-rotating Z-pinch at finite pressure", "framework": "Frieman-Rotenberg self-adjoint MHD operator (no flow) \u2192 Newcomb counting theorem", "conditions": ["no rotation OR rotation without H3", "monotonic F profile", "finite \u03b2"]}}, {"id": "idea_03_hall_regularization", "label": "Hall corrections at finite d_i/R regularize the H3 singularity over a layer of thickness d_i", "description": "The H3 quartic minimum of F(r) is a singular feature of ideal MHD. At finite ion skin depth d_i, Hall corrections regularize this singularity over a layer of thickness ~d_i (Shiraishi 2005). For compact pinches with d_i/R~0.1, this is a regime change rather than a perturbation. Recent work (Mahajan-Lingam 2024, Sainterme-Ebrahimi 2026) characterizes the Hall-MHD wave spectrum as fundamentally distinct from MHD at d_i scales, with global whistler instabilities growing faster than ideal-MHD modes. Atlas's framework provides the unperturbed reference against which Hall corrections are to be computed in companion work.", "color": "#16a34a", "claim_ids": ["SH_01", "ML_01", "SE_01", "A_05", "A_02"], "evidence_ids": ["ev_shiraishi_dilayer", "ev_sainterme_whistler", "ev_atlas_kink_zero"], "rewritten_claims": [], "tensions_resolved": [], "open_questions": [{"question": "Does the n^-4 accumulation survive at finite d_i, or is it replaced by a Hall-modified spectrum on scale d_i?", "priority": "high", "feeds_into": "Atlas's own caveat; this question is essentially the bridge between the asymptotic result and any operational pinch", "suggested_next_steps": [{"kind": "simulation", "description": "Run Legolas with Hall current extension (De Jonghe et al. 2022) on RIGID-BELTRAMI-A across d_i/R\u2208[0, 0.1]; track spectral accumulation exponent"}, {"kind": "theory_extension", "description": "Derive matched-asymptotic Hall-MHD correction to the H3 indicial equation"}, {"kind": "literature", "description": "Sainterme-Ebrahimi 2026 vs Atlas: do whistler modes appear in the Atlas-stable parameter region or only outside it?"}]}, {"question": "At what d_i/R does the global whistler instability cross the Atlas-stable region?", "priority": "medium", "feeds_into": "Operational pinch design", "suggested_next_steps": [{"kind": "simulation", "description": "Parametric Hall-MHD eigenvalue scan vs d_i/R, M_A, \u03b2"}]}], "transitions_out": [{"to_idea": "idea_01_m1_stability_via_H3", "relation": "boundary case \u2014 Atlas's d_i/R\u21920 is the unperturbed reference"}, {"to_idea": "idea_04_sari_boundary", "relation": "competing instability \u2014 both are non-ideal mechanisms that can defeat Atlas-stable regime"}], "scope": {"regime": "finite d_i/R, Hall-MHD regime around H3 layer", "framework": "Hall MHD, symmetrizable but non-Hermitian operator", "conditions": ["d_i/R > 0", "compact pinch (d_i/R ~ 0.01\u20130.1)"]}}, {"id": "idea_04_sari_boundary", "label": "Atlas's regime ends at M_A=1 where SARI continuum overlap takes over", "description": "The Super-Alfv\u00e9nic Rotational Instability (Goedbloed-Keppens 2022, Brughmans-Keppens-Goedbloed 2024) emerges from overlap of forward and backward Doppler-shifted Alfv\u00e9n continua when M_A \u2265 1. Atlas's stability proof requires the SARI exclusion bound M_A < 1 \u2014 pointwise, on the full radial domain. Atlas proves the M_A<1 exclusion side of the Goedbloed-Keppens conjecture, while the M_A\u22651 side is the unstable regime that links pinch physics to accretion-disk theory. The experimental observation of axisymmetric SMRI (Wang et al. 2022) is in the axisymmetric (m=0) and SMRI (not SARI) regime \u2014 separate but related.", "color": "#ea580c", "claim_ids": ["GK_01", "GK_02", "BR_01", "W_01", "A_05", "H_02"], "evidence_ids": ["ev_goedbloed_sari", "ev_brughmans_growth", "ev_wang_smri", "ev_atlas_kink_zero", "ev_hameiri_continuum"], "rewritten_claims": [], "tensions_resolved": [{"before": "GK_02 stated M_A<1 SARI exclusion as a CONJECTURE", "after": "GK_02 tightened \u2014 at M_A<1 with H1-H5 the SARI spectrum is provably empty (Atlas closes this side)", "resolution": "Claim rewrite GK_02 \u2192 tighten_MA1_threshold (note: not applied by optimizer because Atlas's evidence already binds; the tightening is conceptually present in Idea description)"}], "open_questions": [{"question": "What is the precise width of the M_A\u21921 transition region?", "priority": "medium", "feeds_into": "Operational boundary of Atlas-stable pinches", "suggested_next_steps": [{"kind": "simulation", "description": "Sweep M_A\u21921^- on RIGID-BELTRAMI-A; track how |\u03b3_m=1| grows as M_A approaches 1"}, {"kind": "theory_extension", "description": "Derive the M_A\u21921 asymptotic of the residual O(M_A^2) Atlas leaves in the proof"}]}], "transitions_out": [{"to_idea": "idea_01_m1_stability_via_H3", "relation": "operating boundary \u2014 Atlas's stability is for M_A<1"}, {"to_idea": "idea_03_hall_regularization", "relation": "alternative defeat mechanism \u2014 Hall vs SARI as ways out of Atlas-stable region"}], "scope": {"regime": "rotating plasma at varying M_A; transition at M_A=1", "framework": "global non-axisymmetric MHD spectral analysis", "conditions": ["differential rotation", "M_A \u2208 (0, \u221e)", "m \u2260 0 for SARI"]}}, {"id": "idea_05_shumlak_m0_complementary", "label": "Shumlak's m=0 sheared-flow stabilization is complementary, not competing \u2014 together both modes are closed", "description": "Shumlak & Hartman 1995 established that sheared axial flow above v'/(kV_A) \u2248 0.1 stabilizes the m=0 sausage in static Z-pinches; the ZaP experiment (Shumlak 2001) and FuZE (Zhang 2019) operationally demonstrate this in long-quiescent plasmas. Atlas explicitly notes that this result is silent on m=1, and that its own H3 ingredient closes the distinct m=1 obstruction. On RIGID-BELTRAMI-A both ingredients are simultaneously present, so the joint configuration potentially closes both modes. The mode families differ (m=0 for Shumlak, m=1 for Atlas), so this is a complementary rather than a generalizing result.", "color": "#9333ea", "claim_ids": ["S_01", "S_02", "AN_02", "CR_01", "Z_01", "A_06"], "evidence_ids": ["ev_shumlak_threshold", "ev_shumlak_zap", "ev_angus_m0_scaling", "ev_zhang_neutrons", "ev_crews_entropy"], "rewritten_claims": [], "tensions_resolved": [], "open_questions": [{"question": "Can RIGID-BELTRAMI-A-like profiles be realized on an existing ZaP/FuZE-class device?", "priority": "high", "feeds_into": "Experimental verification path", "suggested_next_steps": [{"kind": "experiment", "description": "Design FuZE-mode discharge that achieves double-Beltrami Bz(r) with both axial and azimuthal shear"}, {"kind": "simulation", "description": "Couple Atlas's H1-H5 framework with Shumlak's m=0 shear-stabilization analysis; demonstrate joint stability on a common profile"}]}, {"question": "Does the combined m=0 + m=1 stabilization extrapolate to higher mode numbers (m\u22652)?", "priority": "medium", "feeds_into": "Atlas's own (m,k) grid scan covers m\u2208{1..4} but the m=1 theorem is specific", "suggested_next_steps": [{"kind": "theory_extension", "description": "Derive m-dependent generalization of the H3 quartic structure"}]}], "transitions_out": [{"to_idea": "idea_01_m1_stability_via_H3", "relation": "complementary \u2014 different mode family, joint stability achievable"}], "scope": {"regime": "Z-pinch with sheared axial flow (Shumlak) + helical sheared flow with H3 (Atlas)", "framework": "ideal MHD, two complementary mode-family analyses", "conditions": ["v'/(kV_A) > 0.1 for m=0 (Shumlak threshold)", "H1-H5 + M_A<1 for m=1 (Atlas)"]}}], "papers": {"atlas2026": "#eab308", "newcomb1960": "#1e40af", "frieman1960": "#3b82f6", "bondeson1989": "#60a5fa", "hameiri1981": "#7c3aed", "hameiri1985": "#a78bfa", "angus2020": "#dc2626", "shumlak1995": "#ea580c", "shumlak2001": "#f97316", "zhang2019": "#fb923c", "crews2024": "#fdba74", "chandrasekhar1957": "#0e7490", "mahajan1998": "#06b6d4", "shiraishi2005": "#16a34a", "mahajan2024": "#22c55e", "sainterme2026": "#86efac", "goedbloed2022": "#be185d", "brughmans2024": "#ec4899", "wang2022": "#f9a8d4", "claes2020": "#475569", "dejonghe2022": "#94a3b8"}, "paper_themes": {"Latest (Atlas)": ["atlas2026"], "Static obstruction": ["newcomb1960", "frieman1960", "bondeson1989"], "Hameiri framework": ["hameiri1981", "hameiri1985"], "Z-pinch experimental": ["angus2020", "shumlak1995", "shumlak2001", "zhang2019", "crews2024"], "Beltrami foundations": ["chandrasekhar1957", "mahajan1998"], "Hall regularization": ["shiraishi2005", "mahajan2024", "sainterme2026"], "SARI / MRI": ["goedbloed2022", "brughmans2024", "wang2022"], "Numerical methods": ["claes2020", "dejonghe2022"]}, "paper_labels": {"atlas2026": "Kumar et al. 2026 (Atlas)", "newcomb1960": "Newcomb 1960", "frieman1960": "Frieman-Rotenberg 1960", "bondeson1989": "Bondeson-Iacono 1989", "hameiri1981": "Hameiri 1981", "hameiri1985": "Hameiri 1985", "angus2020": "Angus et al. 2020", "shumlak1995": "Shumlak-Hartman 1995", "shumlak2001": "Shumlak 2001 (ZaP)", "zhang2019": "Zhang et al. 2019 (FuZE)", "crews2024": "Crews et al. 2024", "chandrasekhar1957": "Chandrasekhar-Kendall 1957", "mahajan1998": "Mahajan-Yoshida 1998", "shiraishi2005": "Shiraishi et al. 2005", "mahajan2024": "Mahajan-Sharma-Lingam 2024", "sainterme2026": "Sainterme-Ebrahimi 2026", "goedbloed2022": "Goedbloed-Keppens 2022", "brughmans2024": "Brughmans et al. 2024", "wang2022": "Wang et al. 2022 (SMRI exp)", "claes2020": "Claes et al. 2020 (Legolas)", "dejonghe2022": "De Jonghe et al. 2022"}, "atlas_paper": "atlas2026", "applied_rewrites": [{"type": "claim", "target": "B_01", "name": "narrow_to_toroidal_without_H3", "description": "B_01 narrowed: toroidal rotation alone (without H3 quartic + helical shear) mitigates but doesn't eliminate kink.", "weakness": "no non-monotonic Bz or helical sheared flow tested", "new_x": [1.0, 0.3], "new_state": null, "new_total_residual": 2.09, "delta_residual": 0.9100000000000001, "rewrite_distance": 0.7, "new_objective": 2.5799999999999996, "objective_gain": 0.4200000000000004}, {"type": "claim", "target": "N_01", "name": "narrow_to_static_regime", "description": "N_01 narrowed: m=1 obstruction holds in STATIC Z-pinch at finite pressure (out-of-regime weak for rotating helical).", "weakness": "static assumption \u2014 extension to rotating helical is non-trivial", "new_x": [1.0, 0.2], "new_state": null, "new_total_residual": 1.13, "delta_residual": 0.96, "rewrite_distance": 0.8, "new_objective": 2.26, "objective_gain": 0.31999999999999984}, {"type": "claim", "target": "AN_01", "name": "narrow_to_no_H3_profiles", "description": "AN_01 narrowed: linear axial shear alone (without H3 quartic structure) does not stabilize m=1 across tested profile families.", "weakness": "tested profile families lack H3 quartic minimum \u2014 Atlas's structural ingredient", "new_x": [1.0, 0.2], "new_state": null, "new_total_residual": 0.16999999999999998, "delta_residual": 0.96, "rewrite_distance": 0.8, "new_objective": 1.9400000000000002, "objective_gain": 0.3199999999999996}]};
+
+const allNodes = [];
+DATA.claims.forEach(c => allNodes.push({...c, kind: "claim"}));
+DATA.evidence.forEach(e => allNodes.push({...e, kind: "evidence"}));
+const nodeById = Object.fromEntries(allNodes.map(n => [n.id, n]));
+const ideaById = Object.fromEntries(DATA.ideas.map(i => [i.id, i]));
+
+const svgEl = document.getElementById("graph-svg");
+const W = svgEl.clientWidth, H = svgEl.clientHeight;
+const svg = d3.select("#graph-svg");
+const root = svg.append("g");
+const hullsLayer = root.append("g").attr("class", "hulls");
+const edgesLayer = root.append("g").attr("class", "edges");
+const nodesLayer = root.append("g").attr("class", "nodes");
+const labelsLayer = root.append("g").attr("class", "labels");
+const ideaLabelsLayer = root.append("g").attr("class", "idea-labels");
+
+svg.call(d3.zoom().scaleExtent([0.4, 3]).on("zoom", ev => root.attr("transform", ev.transform)));
+
+const linkData = DATA.edges.map(e => ({source: e.source, target: e.target, ...e}));
+const ideaLinks = [];
+DATA.ideas.forEach(idea => {
+  const members = [...idea.claim_ids, ...idea.evidence_ids].filter(id => nodeById[id]);
+  for (let i = 0; i < members.length; i++)
+    for (let j = i+1; j < members.length; j++)
+      ideaLinks.push({source: members[i], target: members[j], idea: idea.id});
+});
+
+const sim = d3.forceSimulation(allNodes)
+  .force("link", d3.forceLink(linkData).id(d => d.id).distance(75).strength(0.5))
+  .force("idea", d3.forceLink(ideaLinks).id(d => d.id).distance(60).strength(0.18))
+  .force("charge", d3.forceManyBody().strength(-300))
+  .force("center", d3.forceCenter(W/2, H/2))
+  .force("collide", d3.forceCollide().radius(22))
+  .force("y", d3.forceY().y(d => d.kind === "claim" ? H*0.36 : H*0.66).strength(0.08))
+  .alphaDecay(0.025);
+
+// ----- edges -----
+// Residual thresholds — tuned for the actual residual distribution in this run.
+// After 3 rewrites, residuals are tiny (max ~0.09); we want the surviving
+// tensions to be visible even though they're small.
+function edgeClass(e) {
+  if (e.residual >= 0.05) return "edge-line res-high";
+  if (e.residual >= 0.01) return "edge-line res-mild";
+  if (e.residual >= 1e-6) return "edge-line res-tiny";
+  return "edge-line res-zero";
+}
+const edgeSel = edgesLayer.selectAll("path").data(linkData).join("path").attr("class", edgeClass);
+
+// ----- node shape paths (SVG path data centered at origin) -----
+const STAR_PATH = "M 0,-10 L 2.8,-3 L 10,-3 L 4.4,1.6 L 6.5,9 L 0,5 L -6.5,9 L -4.4,1.6 L -10,-3 L -2.8,-3 Z";
+const DIAMOND_PATH = "M 0,-10 L 10,0 L 0,10 L -10,0 Z";
+
+// ----- claims (atlas → star, others → circle) -----
+const claimSel = nodesLayer.selectAll("g.claim-node")
+  .data(allNodes.filter(n => n.kind === "claim"))
+  .join("g")
+  .attr("class", d => "node claim-node"
+                       + (d.is_atlas ? " atlas" : "")
+                       + (d.rewritten ? " rewritten" : ""))
+  .on("mouseover", (ev, d) => showTip(ev, nodeTip(d)))
+  .on("mouseout", hideTip)
+  .on("click", (ev, d) => { focusNode(d); ev.stopPropagation(); });
+
+claimSel.each(function(d) {
+  const sel = d3.select(this);
+  if (d.is_atlas) {
+    sel.append("path").attr("class", "claim-shape").attr("d", STAR_PATH).attr("fill", d.color);
+  } else {
+    sel.append("circle").attr("r", 10).attr("fill", d.color);
+  }
+});
+
+// ----- evidence (atlas → diamond, others → square) -----
+const evSel = nodesLayer.selectAll("g.evidence-node")
+  .data(allNodes.filter(n => n.kind === "evidence"))
+  .join("g")
+  .attr("class", d => "node evidence-node"
+                       + (d.is_atlas ? " atlas" : "")
+                       + (d.context_filled ? " filled" : ""))
+  .on("mouseover", (ev, d) => showTip(ev, nodeTip(d)))
+  .on("mouseout", hideTip)
+  .on("click", (ev, d) => { focusNode(d); ev.stopPropagation(); });
+
+evSel.each(function(d) {
+  const sel = d3.select(this);
+  if (d.is_atlas) {
+    sel.append("path").attr("class", "evidence-shape").attr("d", DIAMOND_PATH).attr("fill", d.color);
+  } else {
+    sel.append("rect").attr("x", -9).attr("y", -9).attr("width", 18).attr("height", 18)
+       .attr("rx", 2).attr("ry", 2).attr("fill", d.color);
+  }
+});
+
+// ----- labels -----
+const labelSel = labelsLayer.selectAll("text")
+  .data(allNodes)
+  .join("text")
+  .attr("class", d => "node-label" + (d.is_atlas ? " atlas" : ""))
+  .attr("dy", 22)
+  .text(d => d.id);
+
+// ----- hulls -----
+function buildHullPath(points, padding=24) {
+  if (points.length < 1) return "";
+  if (points.length === 1) {
+    const [x, y] = points[0];
+    return `M ${x-padding} ${y} a ${padding} ${padding} 0 1 0 ${padding*2} 0 a ${padding} ${padding} 0 1 0 ${-padding*2} 0`;
+  }
+  if (points.length === 2) {
+    const [a, b] = points;
+    const dx = b[0]-a[0], dy = b[1]-a[1];
+    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    const nx = -dy/len * padding, ny = dx/len * padding;
+    return `M ${a[0]+nx} ${a[1]+ny} L ${b[0]+nx} ${b[1]+ny}
+            A ${padding} ${padding} 0 0 1 ${b[0]-nx} ${b[1]-ny}
+            L ${a[0]-nx} ${a[1]-ny}
+            A ${padding} ${padding} 0 0 1 ${a[0]+nx} ${a[1]+ny} Z`;
+  }
+  const hull = d3.polygonHull(points);
+  if (!hull) return "";
+  const cx = d3.mean(hull, p=>p[0]), cy = d3.mean(hull, p=>p[1]);
+  const expanded = hull.map(([x,y]) => {
+    const dx = x-cx, dy = y-cy;
+    const d = Math.sqrt(dx*dx + dy*dy) || 1;
+    return [x + dx/d * padding, y + dy/d * padding];
+  });
+  return d3.line().curve(d3.curveCardinalClosed.tension(0.5))(expanded);
+}
+
+let focusedIdeaId = null;
+
+const hullSel = hullsLayer.selectAll("path")
+  .data(DATA.ideas)
+  .join("path")
+  .attr("class", "idea-hull")
+  .attr("fill", d => d.color)
+  .attr("fill-opacity", 0.12)
+  .attr("stroke", d => d.color)
+  .attr("stroke-opacity", 0.7)
+  .attr("stroke-width", 1.5)
+  .on("click", (ev, d) => { focusIdea(d.id === focusedIdeaId ? null : d.id); ev.stopPropagation(); })
+  .on("mouseover", (ev, d) => showTip(ev, `<div class="tt-id">${d.id}</div><div class="tt-label">${escapeHtml(d.label)}</div>`))
+  .on("mouseout", hideTip);
+
+const ideaLabelSel = ideaLabelsLayer.selectAll("text")
+  .data(DATA.ideas)
+  .join("text")
+  .attr("class", "idea-label")
+  .attr("text-anchor", "middle")
+  .attr("stroke", d => d.color)
+  .text((d, i) => "Idea " + (i+1));
+
+svg.on("click", () => clearFocus());
+
+// ----- focus state (mutually exclusive: either an idea OR a node, never both) -----
+let focusedNodeId = null;
+
+function clearFocus() {
+  focusedIdeaId = null;
+  focusedNodeId = null;
+  d3.selectAll(".legend-item").classed("active", false);
+  hullSel.classed("dimmed", false).classed("focused", false).attr("fill-opacity", 0.12);
+  ideaLabelSel.classed("dimmed", false);
+  claimSel.classed("dimmed", false).classed("selected", false);
+  evSel.classed("dimmed", false).classed("selected", false);
+  labelSel.classed("dimmed", false);
+  edgeSel.classed("dimmed", false);
+  document.getElementById("idea-detail-container").innerHTML = "";
+}
+
+// Build edge index for quick neighbor lookup
+const edgesByNode = {};
+allNodes.forEach(n => edgesByNode[n.id] = []);
+for (const e of linkData) {
+  // e.source/e.target may be objects after simulation start; use string forms initially
+  const sid = typeof e.source === "object" ? e.source.id : e.source;
+  const tid = typeof e.target === "object" ? e.target.id : e.target;
+  if (edgesByNode[sid]) edgesByNode[sid].push({other: tid, edge: e, direction: "out"});
+  if (edgesByNode[tid]) edgesByNode[tid].push({other: sid, edge: e, direction: "in"});
+}
+
+// Idea-membership index per node
+const ideasByNode = {};
+allNodes.forEach(n => ideasByNode[n.id] = []);
+DATA.ideas.forEach(idea => {
+  idea.claim_ids.forEach(cid => { if (ideasByNode[cid]) ideasByNode[cid].push(idea.id); });
+  idea.evidence_ids.forEach(eid => { if (ideasByNode[eid]) ideasByNode[eid].push(idea.id); });
+});
+
+function focusNode(node) {
+  if (focusedNodeId === node.id) { clearFocus(); return; }
+  // clear idea focus, set node focus
+  focusedIdeaId = null;
+  focusedNodeId = node.id;
+  d3.selectAll(".legend-item").classed("active", false);
+
+  // Dim hulls (but keep the ones that contain this node a bit visible)
+  const ideasContaining = new Set(ideasByNode[node.id] || []);
+  hullSel.classed("dimmed", d => !ideasContaining.has(d.id))
+         .classed("focused", false)
+         .attr("fill-opacity", d => ideasContaining.has(d.id) ? 0.18 : 0.12);
+  ideaLabelSel.classed("dimmed", d => !ideasContaining.has(d.id));
+
+  // Neighbors of selected node
+  const neighbors = new Set([node.id]);
+  for (const link of edgesByNode[node.id] || []) neighbors.add(link.other);
+
+  claimSel.classed("dimmed", d => !neighbors.has(d.id))
+          .classed("selected", d => d.id === node.id);
+  evSel.classed("dimmed", d => !neighbors.has(d.id))
+       .classed("selected", d => d.id === node.id);
+  labelSel.classed("dimmed", d => !neighbors.has(d.id));
+  edgeSel.classed("dimmed", e => {
+    const sid = typeof e.source === "object" ? e.source.id : e.source;
+    const tid = typeof e.target === "object" ? e.target.id : e.target;
+    return !(sid === node.id || tid === node.id);
+  });
+
+  if (node.kind === "claim") renderClaimDetail(node);
+  else renderEvidenceDetail(node);
+}
+
+sim.on("tick", () => {
+  edgeSel.attr("d", d => `M ${d.source.x} ${d.source.y} L ${d.target.x} ${d.target.y}`);
+  claimSel.attr("transform", d => `translate(${d.x},${d.y})`);
+  evSel.attr("transform", d => `translate(${d.x},${d.y})`);
+  labelSel.attr("x", d => d.x).attr("y", d => d.y);
+
+  hullSel.attr("d", idea => {
+    const pts = [];
+    idea.claim_ids.forEach(cid => {
+      const n = nodeById[cid]; if (n && Number.isFinite(n.x)) pts.push([n.x, n.y]);
+    });
+    idea.evidence_ids.forEach(eid => {
+      const n = nodeById[eid]; if (n && Number.isFinite(n.x)) pts.push([n.x, n.y]);
+    });
+    return buildHullPath(pts, 28);
+  });
+
+  ideaLabelSel.attr("x", idea => {
+    const pts = [...idea.claim_ids, ...idea.evidence_ids].map(id => nodeById[id]).filter(n => n);
+    return pts.length ? d3.mean(pts, p => p.x) : W/2;
+  }).attr("y", idea => {
+    const pts = [...idea.claim_ids, ...idea.evidence_ids].map(id => nodeById[id]).filter(n => n);
+    return pts.length ? d3.min(pts, p => p.y) - 34 : H/2;
+  });
+});
+
+function focusIdea(ideaId) {
+  if (!ideaId) { clearFocus(); return; }
+  focusedNodeId = null;        // clear any node focus
+  focusedIdeaId = ideaId;
+  claimSel.classed("selected", false);
+  evSel.classed("selected", false);
+  d3.selectAll(".legend-item").classed("active", function() { return this.dataset.id === ideaId; });
+  hullSel.classed("dimmed", d => d.id !== ideaId)
+         .classed("focused", d => d.id === ideaId)
+         .attr("fill-opacity", d => d.id === ideaId ? 0.22 : 0.12);
+  ideaLabelSel.classed("dimmed", d => d.id !== ideaId);
+  const idea = ideaById[ideaId];
+  const memberSet = new Set([...idea.claim_ids, ...idea.evidence_ids]);
+  claimSel.classed("dimmed", d => !memberSet.has(d.id));
+  evSel.classed("dimmed", d => !memberSet.has(d.id));
+  labelSel.classed("dimmed", d => !memberSet.has(d.id));
+  edgeSel.classed("dimmed", e => {
+    const sid = typeof e.source === "object" ? e.source.id : e.source;
+    const tid = typeof e.target === "object" ? e.target.id : e.target;
+    return !(memberSet.has(sid) && memberSet.has(tid));
+  });
+  renderIdeaDetail(idea);
+}
+
+function renderPapers() {
+  let html = "";
+  for (const [theme, paperIds] of Object.entries(DATA.paper_themes)) {
+    html += `<div class="paper-theme"><div class="theme-name">${escapeHtml(theme)}</div>`;
+    for (const pid of paperIds) {
+      const color = DATA.papers[pid] || "#9ca3af";
+      const label = DATA.paper_labels[pid] || pid;
+      const isAtlas = (pid === DATA.atlas_paper);
+      html += `<div class="paper-row${isAtlas ? ' atlas-row' : ''}">
+        <div class="pr-dot" style="background:${color}"></div>${escapeHtml(label)}
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  document.getElementById("papers-legend").innerHTML = html;
+}
+
+function renderLegend() {
+  const html = DATA.ideas.map((idea, i) => {
+    const ncR = idea.rewritten_claims.length;
+    return `<div class="legend-item" data-id="${idea.id}">
+      <div class="legend-swatch" style="background:${idea.color}"></div>
+      <div class="legend-text">
+        <span class="lt-id">Idea ${i+1}</span>
+        <span class="lt-label">${escapeHtml(idea.label)}</span>
+        <span class="lt-stats">${idea.claim_ids.length} claims · ${idea.evidence_ids.length} evidence${ncR ? ` · ${ncR} rewrite${ncR>1?'s':''}` : ''}</span>
+      </div>
+    </div>`;
+  }).join("");
+  const root_ = document.getElementById("legend");
+  root_.innerHTML = html;
+  root_.querySelectorAll(".legend-item").forEach(el => {
+    el.addEventListener("click", ev => {
+      ev.stopPropagation();
+      focusIdea(el.dataset.id === focusedIdeaId ? null : el.dataset.id);
+    });
+  });
+}
+
+function renderIdeaDetail(idea) {
+  const i = DATA.ideas.indexOf(idea);
+  const claimPills = idea.claim_ids.map(cid => {
+    const n = nodeById[cid]; if (!n) return "";
+    const rw = n.rewritten ? " rewritten" : "";
+    const atlas = n.is_atlas ? " atlas" : "";
+    const sym = n.is_atlas ? "★" : "●";
+    return `<span class="pill claim${rw}${atlas}" style="background:${n.color}"
+       title="${escapeHtml(n.label)} (${escapeHtml(n.paper_label)})">${sym} ${cid}${n.rewritten ? " ✎" : ""}</span>`;
+  }).join("");
+
+  const evPills = idea.evidence_ids.map(eid => {
+    const n = nodeById[eid]; if (!n) return "";
+    const filled = n.context_filled ? " filled" : "";
+    const atlas = n.is_atlas ? " atlas" : "";
+    const sym = n.is_atlas ? "◆" : "■";
+    return `<span class="pill evidence${filled}${atlas}" style="background:${n.color}"
+       title="${escapeHtml(n.label)} (${escapeHtml(n.paper_label)})">${sym} ${eid}${n.context_filled ? " ⊕" : ""}</span>`;
+  }).join("");
+
+  const tensions = (idea.tensions_resolved || []).map(t => `
+    <div class="tension">
+      <div class="before"><b>Before:</b> ${escapeHtml(t.before || "")}</div>
+      <div class="after"><b>After:</b> ${escapeHtml(t.after || "")}</div>
+      ${t.resolution ? `<div class="rewrite">${escapeHtml(t.resolution)}</div>` : ""}
+    </div>`).join("");
+
+  const questions = (idea.open_questions || []).map(q => {
+    const pri = q.priority || "medium";
+    const steps = (q.suggested_next_steps || []).map(s =>
+      `<div class="next-step"><span class="kind">${s.kind || "?"}</span>${escapeHtml(s.description || "")}</div>`
+    ).join("");
+    return `<div class="question">
+      <div><span class="q">${escapeHtml(q.question || "")}</span>
+           <span class="priority ${pri}">${pri}</span></div>
+      ${q.feeds_into ? `<div class="feeds">feeds into: ${escapeHtml(q.feeds_into)}</div>` : ""}
+      ${steps}
+    </div>`;
+  }).join("");
+
+  const transitions = (idea.transitions_out || []).map(t => `
+    <div class="transition" data-target="${t.to_idea}">
+      <b>${escapeHtml((ideaById[t.to_idea] && ideaById[t.to_idea].label) || t.to_idea)}</b>
+      ${t.relation ? `<div style="font-size:10.5px;color:var(--text-dim);margin-top:2px;">${escapeHtml(t.relation)}</div>` : ""}
+    </div>`).join("");
+
+  const scope = idea.scope || {};
+  const html = `
+    <div class="idea-detail">
+      <h3 style="color:${idea.color}">Idea ${i+1}: ${escapeHtml(idea.label)}</h3>
+      <div class="description">${escapeHtml(idea.description || "")}</div>
+      ${scope.regime ? `<div class="scope-line"><b>Regime:</b> ${escapeHtml(scope.regime)}</div>` : ""}
+      ${scope.framework ? `<div class="scope-line"><b>Framework:</b> ${escapeHtml(scope.framework)}</div>` : ""}
+      <h2>Claims</h2><div class="members-row">${claimPills}</div>
+      <h2>Evidence</h2><div class="members-row">${evPills}</div>
+      ${tensions ? `<h2>Tensions resolved</h2>${tensions}` : ""}
+      ${questions ? `<h2>Open questions</h2>${questions}` : ""}
+      ${transitions ? `<h2>Transitions out</h2>${transitions}` : ""}
+      <button class="clear-btn" onclick="event.stopPropagation(); focusIdea(null);">← back to all ideas</button>
+    </div>`;
+  document.getElementById("idea-detail-container").innerHTML = html;
+  document.querySelectorAll(".transition").forEach(el => {
+    el.addEventListener("click", ev => { ev.stopPropagation(); focusIdea(el.dataset.target); });
+  });
+}
+
+function residualBadge(r) {
+  let color, label;
+  if (r >= 0.05) { color = "#ef4444"; label = "strong"; }
+  else if (r >= 0.01) { color = "#f59e0b"; label = "mild"; }
+  else if (r >= 1e-6) { color = "#94a3b8"; label = "tiny"; }
+  else { color = "#cbd5e1"; label = "zero"; }
+  return `<span style="display:inline-block;font-size:10px;font-weight:700;
+            padding:1px 5px;border-radius:6px;background:${color};color:white;
+            margin-left:6px;">${r.toFixed(3)} (${label})</span>`;
+}
+
+function shapeSvg(n, size=14) {
+  const s = size;
+  const half = s/2;
+  if (n.kind === "claim") {
+    if (n.is_atlas) {
+      return `<svg viewBox="-12 -12 24 24" width="${s}" height="${s}" style="vertical-align:middle">
+        <path d="M 0,-10 L 2.8,-3 L 10,-3 L 4.4,1.6 L 6.5,9 L 0,5 L -6.5,9 L -4.4,1.6 L -10,-3 L -2.8,-3 Z"
+              fill="${n.color}" stroke="${n.color}" stroke-width="1.5"/></svg>`;
+    }
+    return `<svg viewBox="-12 -12 24 24" width="${s}" height="${s}" style="vertical-align:middle">
+      <circle r="9" fill="${n.color}" stroke="white" stroke-width="1.5"/></svg>`;
+  } else {
+    if (n.is_atlas) {
+      return `<svg viewBox="-12 -12 24 24" width="${s}" height="${s}" style="vertical-align:middle">
+        <path d="M 0,-10 L 10,0 L 0,10 L -10,0 Z" fill="${n.color}" stroke="${n.color}" stroke-width="1.5"/></svg>`;
+    }
+    return `<svg viewBox="-12 -12 24 24" width="${s}" height="${s}" style="vertical-align:middle">
+      <rect x="-9" y="-9" width="18" height="18" rx="2" ry="2" fill="${n.color}" stroke="white" stroke-width="1.5"/></svg>`;
+  }
+}
+
+function renderClaimDetail(n) {
+  const links = (edgesByNode[n.id] || []);  // all are "out" for claims
+  const ideaIds = ideasByNode[n.id] || [];
+  const containingIdeas = ideaIds.map(iid => DATA.ideas.find(I => I.id === iid)).filter(Boolean);
+
+  const edgeRows = links.map(L => {
+    const v = nodeById[L.other]; if (!v) return "";
+    return `<div class="edge-row" data-target="${v.id}">
+      ${shapeSvg(v, 14)}
+      <span style="font-family:ui-monospace,monospace;font-size:11px;">${v.id}</span>
+      ${residualBadge(L.edge.residual)}
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-left:24px;margin-bottom:4px;">
+      pred=${(L.edge.base_pred).toFixed(2)} → actual=${(v.core).toFixed(2)} · ${escapeHtml(v.label)}
+    </div>`;
+  }).join("");
+
+  const ideasRow = containingIdeas.map((I, idx) => {
+    const ideaIdx = DATA.ideas.indexOf(I);
+    return `<div class="transition" data-target="${I.id}" data-kind="idea">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${I.color};margin-right:6px;"></span>
+      <b>Idea ${ideaIdx+1}: ${escapeHtml(I.label)}</b>
+    </div>`;
+  }).join("");
+
+  const rewriteBlock = n.rewritten ? (() => {
+    const r = (DATA.applied_rewrites || []).find(a => a.target === n.id && a.type === "claim");
+    return `<div class="rewrite-block">
+      <h2>Rewrite applied</h2>
+      <div class="rewrite-card">
+        <div><b>${escapeHtml(r ? r.name : 'rewritten')}</b></div>
+        <div style="margin-top:4px;font-size:12px;">${escapeHtml(r ? r.description : '')}</div>
+        ${r && r.weakness ? `<div style="margin-top:4px;font-size:11px;color:var(--text-dim);">
+            <i>weakness invoked:</i> ${escapeHtml(r.weakness)}</div>` : ''}
+      </div>
+    </div>`;
+  })() : "";
+
+  const html = `
+    <div class="node-detail">
+      <h3 style="display:flex;align-items:center;gap:8px;">
+        ${shapeSvg(n, 22)}
+        <span style="font-family:ui-monospace,monospace;">${n.id}</span>
+        ${n.is_atlas ? '<span style="font-size:10px;background:var(--atlas);color:#713f12;padding:2px 6px;border-radius:6px;">ATLAS · LATEST</span>' : ''}
+      </h3>
+      <div style="font-size:13px;font-weight:600;margin:4px 0 6px;">${escapeHtml(n.label)}</div>
+      <div class="scope-line">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${n.color};margin-right:4px;"></span>
+        <b>${escapeHtml(n.paper_label)}</b>
+      </div>
+      <div class="scope-line">
+        Strengths: in-regime <b>${n.x_in.toFixed(2)}</b> · out-of-regime <b>${n.x_out.toFixed(2)}</b>
+        ${n.rewritten ? '<span style="color:var(--accent);margin-left:6px;">✎ rewritten</span>' : ''}
+      </div>
+
+      ${rewriteBlock}
+
+      <h2>Edges to evidence (${links.length})</h2>
+      <div class="edge-list">${edgeRows || '<i style="font-size:11px;color:var(--text-dim)">none</i>'}</div>
+
+      <h2>Appears in ideas (${containingIdeas.length})</h2>
+      ${ideasRow || '<i style="font-size:11px;color:var(--text-dim)">none</i>'}
+
+      <button class="clear-btn" onclick="event.stopPropagation(); clearFocus();">← back to all</button>
+    </div>`;
+  document.getElementById("idea-detail-container").innerHTML = html;
+  wireUpDetailLinks();
+}
+
+function renderEvidenceDetail(n) {
+  const links = (edgesByNode[n.id] || []);
+  const ideaIds = ideasByNode[n.id] || [];
+  const containingIdeas = ideaIds.map(iid => DATA.ideas.find(I => I.id === iid)).filter(Boolean);
+
+  const edgeRows = links.map(L => {
+    const c = nodeById[L.other]; if (!c) return "";
+    return `<div class="edge-row" data-target="${c.id}">
+      ${shapeSvg(c, 14)}
+      <span style="font-family:ui-monospace,monospace;font-size:11px;">${c.id}</span>
+      ${residualBadge(L.edge.residual)}
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-left:24px;margin-bottom:4px;">
+      ${escapeHtml(c.paper_label)} predicts ${L.edge.base_pred.toFixed(2)} · ${escapeHtml(c.label)}
+    </div>`;
+  }).join("");
+
+  const ideasRow = containingIdeas.map((I, idx) => {
+    const ideaIdx = DATA.ideas.indexOf(I);
+    return `<div class="transition" data-target="${I.id}" data-kind="idea">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${I.color};margin-right:6px;"></span>
+      <b>Idea ${ideaIdx+1}: ${escapeHtml(I.label)}</b>
+    </div>`;
+  }).join("");
+
+  const fillBlock = n.context_filled ? `<div class="rewrite-block">
+    <h2>Context fill</h2>
+    <div class="rewrite-card" style="border-color:var(--warn);">
+      <div>Context value filled from <b>${(0.0).toFixed(2)}</b> → <b>${n.context.toFixed(2)}</b></div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Context becomes explicit (e.g. regime parameter); claims out-of-regime can blend toward in-regime.</div>
+    </div>
+  </div>` : "";
+
+  const html = `
+    <div class="node-detail">
+      <h3 style="display:flex;align-items:center;gap:8px;">
+        ${shapeSvg(n, 22)}
+        <span style="font-family:ui-monospace,monospace;">${n.id}</span>
+        ${n.is_atlas ? '<span style="font-size:10px;background:var(--atlas);color:#713f12;padding:2px 6px;border-radius:6px;">ATLAS · LATEST</span>' : ''}
+      </h3>
+      <div style="font-size:13px;font-weight:600;margin:4px 0 6px;">${escapeHtml(n.label)}</div>
+      <div class="scope-line">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${n.color};margin-right:4px;"></span>
+        <b>${escapeHtml(n.paper_label)}</b>
+      </div>
+      <div class="scope-line">
+        Observed: core <b>${n.core.toFixed(2)}</b> · context <b>${n.context.toFixed(2)}</b>
+        ${n.context_filled ? '<span style="color:var(--warn);margin-left:6px;">⊕ context filled</span>' : ''}
+      </div>
+
+      ${fillBlock}
+
+      <h2>Predicted by claims (${links.length})</h2>
+      <div class="edge-list">${edgeRows || '<i style="font-size:11px;color:var(--text-dim)">none</i>'}</div>
+
+      <h2>Appears in ideas (${containingIdeas.length})</h2>
+      ${ideasRow || '<i style="font-size:11px;color:var(--text-dim)">none</i>'}
+
+      <button class="clear-btn" onclick="event.stopPropagation(); clearFocus();">← back to all</button>
+    </div>`;
+  document.getElementById("idea-detail-container").innerHTML = html;
+  wireUpDetailLinks();
+}
+
+function wireUpDetailLinks() {
+  document.querySelectorAll(".transition").forEach(el => {
+    el.addEventListener("click", ev => {
+      ev.stopPropagation();
+      const id = el.dataset.target;
+      const kind = el.dataset.kind;
+      if (kind === "idea") focusIdea(id);
+      else if (ideaById[id]) focusIdea(id);
+      else if (nodeById[id]) focusNode(nodeById[id]);
+    });
+  });
+  document.querySelectorAll(".edge-row").forEach(el => {
+    el.addEventListener("click", ev => {
+      ev.stopPropagation();
+      const id = el.dataset.target;
+      if (nodeById[id]) focusNode(nodeById[id]);
+    });
+    el.style.cursor = "pointer";
+  });
+}
+
+function escapeHtml(s) {
+  if (!s) return "";
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+const tt = document.getElementById("tooltip");
+function showTip(ev, html) {
+  tt.innerHTML = html;
+  tt.style.opacity = 1;
+  const rect = svgEl.getBoundingClientRect();
+  tt.style.left = (ev.clientX - rect.left + 12) + "px";
+  tt.style.top  = (ev.clientY - rect.top  + 12) + "px";
+}
+function hideTip() { tt.style.opacity = 0; }
+
+function nodeTip(d) {
+  const atlas_marker = d.is_atlas ? '<i style="color:#fde047;">★ Atlas (latest)</i><br>' : '';
+  if (d.kind === "claim") {
+    return `<div class="tt-id">${d.id} · ${escapeHtml(d.paper_label)}</div>
+            <div class="tt-label">${escapeHtml(d.label)}</div>
+            <div style="margin-top:4px;font-size:10.5px;">
+              ${atlas_marker}x_in=${d.x_in.toFixed(2)} · x_out=${d.x_out.toFixed(2)}
+              ${d.rewritten ? '<br><i>✎ rewritten</i>' : ''}
+            </div>`;
+  } else {
+    return `<div class="tt-id">${d.id} · ${escapeHtml(d.paper_label)}</div>
+            <div class="tt-label">${escapeHtml(d.label)}</div>
+            <div style="margin-top:4px;font-size:10.5px;">
+              ${atlas_marker}core=${d.core.toFixed(2)} · context=${d.context.toFixed(2)}
+              ${d.context_filled ? '<br><i>⊕ context filled</i>' : ''}
+            </div>`;
+  }
+}
+
+renderPapers();
+renderLegend();
+
+// Edge-residual summary
+(function renderEdgeSummary() {
+  const buckets = {high: [], mild: [], tiny: [], zero: 0};
+  for (const e of DATA.edges) {
+    if (e.residual >= 0.05) buckets.high.push(e);
+    else if (e.residual >= 0.01) buckets.mild.push(e);
+    else if (e.residual >= 1e-6) buckets.tiny.push(e);
+    else buckets.zero += 1;
+  }
+  const total = DATA.edges.reduce((s,e) => s + e.residual, 0);
+  let html = "";
+  html += `Total residual: <b>${total.toFixed(3)}</b><br>`;
+  html += `${buckets.zero}/${DATA.edges.length} edges at residual ≈ 0<br>`;
+  if (buckets.tiny.length)
+    html += `${buckets.tiny.length} edge${buckets.tiny.length>1?'s':''} with tiny residual (< 0.01)<br>`;
+  if (buckets.mild.length) {
+    html += `<b style="color:#92400e">${buckets.mild.length} edge${buckets.mild.length>1?'s':''} with mild tension (0.01–0.05):</b><br>`;
+    for (const e of buckets.mild)
+      html += `&nbsp;&nbsp;<span style="font-family:ui-monospace,monospace">${e.source}→${e.target}</span> (${e.residual.toFixed(3)})<br>`;
+  }
+  if (buckets.high.length) {
+    html += `<b style="color:#991b1b">${buckets.high.length} edge${buckets.high.length>1?'s':''} with strong tension (≥ 0.05):</b><br>`;
+    for (const e of buckets.high)
+      html += `&nbsp;&nbsp;<span style="font-family:ui-monospace,monospace">${e.source}→${e.target}</span> (${e.residual.toFixed(3)})<br>`;
+  }
+  document.getElementById("edge-summary").innerHTML = html;
+})();
+</script>
+</body>
+</html>

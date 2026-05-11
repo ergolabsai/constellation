@@ -1,0 +1,12 @@
+{
+  "claim_id": "Z_01",
+  "paper": "zhang2019",
+  "label": "FuZE experimentally demonstrates sustained ~5\u03bcs neutron production during ~16\u03bcs quiescent period",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "operational characterization; not stability mechanism"
+  ]
+}

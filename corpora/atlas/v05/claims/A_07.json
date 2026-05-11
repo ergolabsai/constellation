@@ -1,0 +1,12 @@
+{
+  "claim_id": "A_07",
+  "paper": "atlas2026",
+  "label": "RIGID-BELTRAMI-A double-Beltrami equilibrium achieves <\u03b2>=12.3% with all H1-H5 satisfied",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "one specific profile; experimental realization not yet demonstrated"
+  ]
+}

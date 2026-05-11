@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_atlas_h1_violate",
+  "paper": "atlas2026",
+  "label": "Violating H1 (q_min=0.92) produces unstable kink \u03b3 \u2248 0.18 \u03c4_A^-1",
+  "core_value": 0.0,
+  "context_init": 0.0,
+  "context_label": "counterexample for necessity"
+}

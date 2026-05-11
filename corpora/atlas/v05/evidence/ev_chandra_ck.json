@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_chandra_ck",
+  "paper": "chandrasekhar1957",
+  "label": "Force-free field eq curl H=\u03b1H solvable in poloidal+toroidal basis with equipartition",
+  "core_value": 1.0,
+  "context_init": 0.0,
+  "context_label": "force-free, zero pressure"
+}

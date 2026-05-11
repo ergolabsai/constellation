@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_brughmans_growth",
+  "paper": "brughmans2024",
+  "label": "Non-axisymmetric SARI growth rates comparable to MRI at high mode numbers",
+  "core_value": 0.0,
+  "context_init": 0.0,
+  "context_label": "weakly magnetized disk"
+}

@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_newcomb_static",
+  "paper": "newcomb1960",
+  "label": "Static finite-\u03b2 Z-pinch has unstable m=1 spectrum (Suydam-style)",
+  "core_value": 0.0,
+  "context_init": 0.0,
+  "context_label": "static (no flow), finite pressure"
+}

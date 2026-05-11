@@ -1,0 +1,12 @@
+{
+  "claim_id": "SH_01",
+  "paper": "shiraishi2005",
+  "label": "Hall effect regularizes the Alfv\u00e9n singularity over a layer of thickness ~d_i",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "singular-layer analysis; doesn't address global stability"
+  ]
+}

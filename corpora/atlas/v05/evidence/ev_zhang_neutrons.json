@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_zhang_neutrons",
+  "paper": "zhang2019",
+  "label": "FuZE: ~5\u03bcs sustained neutron emission, (1.25\u00b10.45)\u00d710^5 n/pulse, scaling with n_D^2",
+  "core_value": 1.0,
+  "context_init": 0.0,
+  "context_label": "FuZE operational regime"
+}

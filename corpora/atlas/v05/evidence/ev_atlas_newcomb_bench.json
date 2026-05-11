@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_atlas_newcomb_bench",
+  "paper": "atlas2026",
+  "label": "ARPACK recovers Newcomb 1960 m=1 eigenvalues to 1e-5 relative accuracy",
+  "core_value": 1.0,
+  "context_init": 0.0,
+  "context_label": "static parabolic-current benchmark"
+}

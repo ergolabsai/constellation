@@ -1,0 +1,12 @@
+{
+  "claim_id": "H_01",
+  "paper": "hameiri1981",
+  "label": "Sufficient stability conditions for rotating screw-pinch via circle theorems and spectral bounds",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "bounds not sharp; circle theorems give region not eigenvalue"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_hameiri_continuum",
+  "paper": "hameiri1985",
+  "label": "Ideal MHD with flow has forward/backward Doppler-shifted Alfv\u00e9n continua governing essential spectrum",
+  "core_value": 1.0,
+  "context_init": 0.0,
+  "context_label": "Lagrangian-displacement formalism"
+}

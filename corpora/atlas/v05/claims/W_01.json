@@ -1,0 +1,12 @@
+{
+  "claim_id": "W_01",
+  "paper": "wang2022",
+  "label": "Axisymmetric SMRI directly observed in liquid-metal Taylor-Couette experiment",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "axisymmetric only; not non-axisymmetric SARI"
+  ]
+}

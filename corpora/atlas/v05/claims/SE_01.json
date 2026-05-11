@@ -1,0 +1,12 @@
+{
+  "claim_id": "SE_01",
+  "paper": "sainterme2026",
+  "label": "In Hall regime, global whistler instabilities grow significantly faster than ideal-MHD modes",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "incompressible; differential rotation specific"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "claim_id": "S_02",
+  "paper": "shumlak2001",
+  "label": "ZaP experiment observes long stable period (>700\u00d7 growth time) coincident with sheared sub-Alfv\u00e9nic flow",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "correlation not causation; doesn't separate m=0 vs m=1"
+  ]
+}

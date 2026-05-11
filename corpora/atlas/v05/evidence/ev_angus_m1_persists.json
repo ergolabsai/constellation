@@ -1,0 +1,8 @@
+{
+  "evidence_id": "ev_angus_m1_persists",
+  "paper": "angus2020",
+  "label": "m=1 kink remains unstable \u03b3 ~ O(v_i/a) at all tested shear levels on realistic profiles",
+  "core_value": 0.0,
+  "context_init": 0.0,
+  "context_label": "linear ideal MHD, axial-only shear, non-helical Bz"
+}

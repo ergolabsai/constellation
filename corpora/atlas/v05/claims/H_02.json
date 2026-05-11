@@ -1,0 +1,12 @@
+{
+  "claim_id": "H_02",
+  "paper": "hameiri1985",
+  "label": "Essential spectrum of ideal MHD with flow consists of forward/backward Doppler-shifted Alfv\u00e9n + slow continua",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "continuous spectrum analysis only \u2014 doesn't address discrete modes"
+  ]
+}

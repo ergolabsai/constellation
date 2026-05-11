@@ -1,0 +1,14 @@
+{
+  "claim_id": "A_01",
+  "paper": "atlas2026",
+  "label": "5 constraints H1-H5 are necessary and sufficient for m=1 stability in rotating helical Z-pinch",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "only cylindrical geometry",
+    "ideal MHD only",
+    "specific scope of profile family"
+  ]
+}

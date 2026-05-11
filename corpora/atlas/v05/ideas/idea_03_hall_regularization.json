@@ -1,0 +1,175 @@
+{
+  "idea_id": "idea_03_hall_regularization",
+  "label": "Hall corrections at finite d_i/R regularize the H3 singularity over a layer of thickness d_i",
+  "description": "The H3 quartic minimum of F(r) is a singular feature of ideal MHD. At finite ion skin depth d_i, Hall corrections regularize this singularity over a layer of thickness ~d_i (Shiraishi 2005). For compact pinches with d_i/R~0.1, this is a regime change rather than a perturbation. Recent work (Mahajan-Lingam 2024, Sainterme-Ebrahimi 2026) characterizes the Hall-MHD wave spectrum as fundamentally distinct from MHD at d_i scales, with global whistler instabilities growing faster than ideal-MHD modes. Atlas's framework provides the unperturbed reference against which Hall corrections are to be computed in companion work.",
+  "scope": {
+    "regime": "finite d_i/R, Hall-MHD regime around H3 layer",
+    "framework": "Hall MHD, symmetrizable but non-Hermitian operator",
+    "conditions": [
+      "d_i/R > 0",
+      "compact pinch (d_i/R ~ 0.01\u20130.1)"
+    ]
+  },
+  "contributing_claims": [
+    {
+      "claim_id": "SH_01",
+      "paper": "shiraishi2005",
+      "label": "Hall effect regularizes the Alfv\u00e9n singularity over a layer of thickness ~d_i",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ],
+      "rewritten": false,
+      "rewrite_summary": null,
+      "rewrite_description": null,
+      "weakness_invoked": null
+    },
+    {
+      "claim_id": "ML_01",
+      "paper": "mahajan2024",
+      "label": "Hall MHD waves are fundamentally distinct from MHD waves at d_i scales",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ],
+      "rewritten": false,
+      "rewrite_summary": null,
+      "rewrite_description": null,
+      "weakness_invoked": null
+    },
+    {
+      "claim_id": "SE_01",
+      "paper": "sainterme2026",
+      "label": "In Hall regime, global whistler instabilities grow significantly faster than ideal-MHD modes",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ],
+      "rewritten": false,
+      "rewrite_summary": null,
+      "rewrite_description": null,
+      "weakness_invoked": null
+    },
+    {
+      "claim_id": "A_05",
+      "paper": "atlas2026",
+      "label": "Below SARI bound M_A<1, ideal-MHD m=1 growth rate is exactly zero in asymptotic d_i/R\u21920 regime",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ],
+      "rewritten": false,
+      "rewrite_summary": null,
+      "rewrite_description": null,
+      "weakness_invoked": null
+    },
+    {
+      "claim_id": "A_02",
+      "paper": "atlas2026",
+      "label": "H3 quartic Alfv\u00e9n minimum is the structural ingredient absent from shear-flow-only treatments",
+      "x_init": [
+        1.0,
+        1.0
+      ],
+      "x_final": [
+        1.0,
+        1.0
+      ],
+      "rewritten": false,
+      "rewrite_summary": null,
+      "rewrite_description": null,
+      "weakness_invoked": null
+    }
+  ],
+  "contributing_evidence": [
+    {
+      "evidence_id": "ev_shiraishi_dilayer",
+      "paper": "shiraishi2005",
+      "label": "Hall-MHD solutions converge to ideal MHD outside d_i-scale neighborhood of singularity",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    },
+    {
+      "evidence_id": "ev_sainterme_whistler",
+      "paper": "sainterme2026",
+      "label": "Global whistler instabilities grow significantly faster than ideal-MHD modes at d_i/L ~ few%",
+      "core_value": 0.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    },
+    {
+      "evidence_id": "ev_atlas_kink_zero",
+      "paper": "atlas2026",
+      "label": "|\u03b3_m=1| < 8e-12 \u03c4_A^-1 on RIGID-BELTRAMI-A at <\u03b2>=12.3%",
+      "core_value": 1.0,
+      "context_init": 0.0,
+      "context_final": 0.0,
+      "context_filled": false,
+      "context_summary": null
+    }
+  ],
+  "tensions_resolved": [],
+  "open_questions": [
+    {
+      "question": "Does the n^-4 accumulation survive at finite d_i, or is it replaced by a Hall-modified spectrum on scale d_i?",
+      "priority": "high",
+      "feeds_into": "Atlas's own caveat; this question is essentially the bridge between the asymptotic result and any operational pinch",
+      "suggested_next_steps": [
+        {
+          "kind": "simulation",
+          "description": "Run Legolas with Hall current extension (De Jonghe et al. 2022) on RIGID-BELTRAMI-A across d_i/R\u2208[0, 0.1]; track spectral accumulation exponent"
+        },
+        {
+          "kind": "theory_extension",
+          "description": "Derive matched-asymptotic Hall-MHD correction to the H3 indicial equation"
+        },
+        {
+          "kind": "literature",
+          "description": "Sainterme-Ebrahimi 2026 vs Atlas: do whistler modes appear in the Atlas-stable parameter region or only outside it?"
+        }
+      ]
+    },
+    {
+      "question": "At what d_i/R does the global whistler instability cross the Atlas-stable region?",
+      "priority": "medium",
+      "feeds_into": "Operational pinch design",
+      "suggested_next_steps": [
+        {
+          "kind": "simulation",
+          "description": "Parametric Hall-MHD eigenvalue scan vs d_i/R, M_A, \u03b2"
+        }
+      ]
+    }
+  ],
+  "transitions_out": [
+    {
+      "to_idea": "idea_01_m1_stability_via_H3",
+      "relation": "boundary case \u2014 Atlas's d_i/R\u21920 is the unperturbed reference"
+    },
+    {
+      "to_idea": "idea_04_sari_boundary",
+      "relation": "competing instability \u2014 both are non-ideal mechanisms that can defeat Atlas-stable regime"
+    }
+  ]
+}

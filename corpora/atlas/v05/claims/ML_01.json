@@ -1,0 +1,12 @@
+{
+  "claim_id": "ML_01",
+  "paper": "mahajan2024",
+  "label": "Hall MHD waves are fundamentally distinct from MHD waves at d_i scales",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "wave-mode analysis only"
+  ]
+}

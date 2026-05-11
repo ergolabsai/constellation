@@ -1,0 +1,12 @@
+{
+  "claim_id": "MY_01",
+  "paper": "mahajan1998",
+  "label": "Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure",
+  "x_init": [
+    1.0,
+    1.0
+  ],
+  "weaknesses": [
+    "specific equilibrium family; existence not always stable"
+  ]
+}
