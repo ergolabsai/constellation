@@ -416,12 +416,81 @@ def _fill_transitions_in(ideas: list[dict]) -> None:
         idea["transitions_in"] = in_map.get(idea["idea_id"], [])
 
 
+def _deduplicate_ideas(ideas: list[dict]) -> list[dict]:
+    """Remove claims that appear in multiple Ideas, keeping first occurrence.
+
+    Returns deduplicated ideas and logs a warning if any duplicates were found.
+    """
+    claim_to_idea: dict[str, str] = {}
+    duplicates: dict[str, list[str]] = {}
+
+    for idea in ideas:
+        idea_id = idea.get("idea_id", "unknown")
+        for contrib in idea.get("contributing_claims", []) or []:
+            claim_id = contrib.get("claim_id")
+            if not claim_id:
+                continue
+            if claim_id in claim_to_idea:
+                # Track duplicate
+                if claim_id not in duplicates:
+                    duplicates[claim_id] = [claim_to_idea[claim_id]]
+                duplicates[claim_id].append(idea_id)
+            else:
+                claim_to_idea[claim_id] = idea_id
+
+    if not duplicates:
+        return ideas
+
+    # Log the duplicates
+    console.print(f"  [yellow]warning[/yellow]: found {len(duplicates)} duplicated claims")
+    for claim_id, idea_ids in sorted(duplicates.items()):
+        console.print(
+            f"    {claim_id}: keeping in {idea_ids[0]}, "
+            f"removing from {', '.join(idea_ids[1:])}"
+        )
+
+    # Remove duplicates: keep in first Idea, remove from rest
+    first_idea_per_claim = {
+        claim_id: idea_ids[0] for claim_id, idea_ids in duplicates.items()
+    }
+
+    for idea in ideas:
+        idea_id = idea.get("idea_id", "unknown")
+        original_count = len(idea.get("contributing_claims", []) or [])
+        idea["contributing_claims"] = [
+            contrib
+            for contrib in (idea.get("contributing_claims", []) or [])
+            if contrib.get("claim_id") not in first_idea_per_claim
+            or first_idea_per_claim[contrib["claim_id"]] == idea_id
+        ]
+        removed = original_count - len(idea["contributing_claims"])
+        if removed > 0:
+            console.print(f"    → {idea_id}: removed {removed} duplicate(s)")
+
+    return ideas
+
+
 def _validate_and_write_ideas(
     run: Run,
     ideas: list[dict],
     selected_claim_ids: set[str],
+    selected_edges: list[dict],
+    sheaf: dict,
 ) -> None:
     """Validate a new Idea set, then replace the run's Idea JSON files."""
+    ideas = _deduplicate_ideas(ideas)
+
+    # Recompute consensus and frustration blocks if any ideas lost claims
+    for idea in ideas:
+        contributing = idea.get("contributing_claims", []) or []
+        if contributing:
+            idea["consensus"] = _compute_consensus(contributing, selected_edges)
+            contributing_ids = {c["claim_id"] for c in contributing}
+            sheaf_penrose = sheaf.get("frustration", {}).get("penrose_triangles", [])
+            idea["frustration"] = _compute_intra_frustration(
+                contributing_ids, selected_edges, sheaf_penrose
+            )
+
     _validate_idea_partition(ideas, selected_claim_ids)
     for idea in ideas:
         validate_idea(idea)
@@ -491,7 +560,7 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow)
 
     _fill_transitions_in(ideas)
     selected_ids = set(sheaf["map_section"]["selected"].keys())
-    _validate_and_write_ideas(run, ideas, selected_ids)
+    _validate_and_write_ideas(run, ideas, selected_ids, selected_edges, sheaf)
     cache_write_success(
         cache_handle,
         raw_response=cache_text,

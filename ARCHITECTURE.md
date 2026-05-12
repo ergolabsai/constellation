@@ -1,188 +1,677 @@
-# Landscape Map: Architecture (v2, paper-as-stalk)
+# Restriction-Rewriting Architecture
 
-## What This Document Is
+## v0.5: bipartite cellular sheaf with cost-asymmetric evidence
 
-This is the consolidated architecture for the Landscape Map v2 pipeline. It supersedes the v1 pipeline (cluster-first-then-score-frustration) and replaces its cluster-level `stalk_schema` with a pair of schemas — `sheaf_schema` and `idea_schema` — that carry the hypothesis-space stalks, restriction maps, MAP section, and consolidated knowledge units respectively. The central architectural shift: clustering no longer happens before coherence-checking. Claims are first placed into a sheaf where each claim's hypothesis-space stalk contains the original statement plus evidence-faithful alternative rewrites; a Maximum-A-Posteriori global section is chosen over the sheaf to maximize coherence minus rewrite cost; then the surviving section is partitioned into Ideas (ε-states) that are the corpus's deliverable knowledge units.
+This architecture builds a knowledge layer by stitching papers into a coherent set of ideas. The core object is a bipartite cellular sheaf whose two vertex types are **claims** and **evidence-pieces**. Edges run from a claim to each evidence-piece it predicts at.
 
-## Scope
+The key modeling choice is epistemic asymmetry:
 
-The Landscape Map is a research dashboard for literature exploration and gap-finding. Given a curated set of papers, it extracts their claims, records the argument DAG inside each paper, places claims into a sheaf over their comparability complex, selects the maximally-coherent global section under an evidence-faithfulness constraint, and consolidates the surviving claims into Ideas that carry consensus, frustration, and open-question metrics. The deliverable is a set of Idea documents plus a Sheaf document that records how they were derived.
+- Evidence cores are fixed: the system does not modify measurements.
+- Evidence context can be inferred, but only at high cost and with explicit provenance.
+- Claim interpretations are rewriteable: most reconciliation should happen by narrowing, weakening, or otherwise clarifying claims.
 
-**MVP scale:** 10–20 papers, curated by the researcher.
+The output is not just a graph of papers. It is a structured layer of Ideas: coherent cross-paper knowledge units with supporting evidence, rewritten claims, unresolved tensions, and suggested next steps.
 
-**Out of scope for MVP:** automated paper discovery, visualization UI beyond the current D3 HTML view, formal verification of claims, incremental processing, cross-corpus loop closure, Rashomon analysis over sections, causal-state partition computed from a predictive structure rather than hand-curated. These are all Phase 2 or later; see the Deferred section.
+## Core Structure
 
-## Core Objects
+The corpus is represented as a bipartite complex:
 
-Four object types carry the architecture.
+```text
+claims  --->  evidence-pieces
+```
 
-**Paper.** The paper's semilattice coordinate (what it studied, at what model level, under what conditions) together with its internal argument DAG — every extracted claim flagged as `primary` or `supporting`, with `depends_on` edges recording which claim rests on which within the paper. See `paper_schema.json` (v0.5).
+There are two disjoint vertex sets:
 
-**Claim.** A simple directed relation extracted from a paper: X causes Y, X modulates Y, X contradicts Y, etc. Every claim carries two scopes (claimed vs evidenced) and an `evidence` object that records the evidence type, description, honest strengths, honest weaknesses, and optional structured quantitative content. The weaknesses are load-bearing: they justify the rewrites generated in the sheaf stage. See `claim_schema.json` (v0.5).
+- `C`: claim vertices, one per extracted scientific claim.
+- `V`: evidence vertices, one per extracted observation, measurement, simulation result, theorem, or reported artifact.
 
-**Sheaf.** The corpus-level structural object. Records, for each claim, its hypothesis-space stalk (the original plus any evidence-faithful alternative readings); for each comparable pair of claims, the restriction map with a full variant-pair compatibility matrix; for the whole corpus, the MAP global section, residual H¹ (unresolved edges), and Penrose-frustration diagnostics. One sheaf per corpus run. See `sheaf_schema.json` (v0.1).
+An edge `(c, v)` exists when claim `c` makes a prediction about evidence-piece `v`. A single claim can predict many evidence-pieces, and a single evidence-piece can be predicted by many claims.
 
-**Idea.** A consolidated knowledge unit extracted from a sheaf's MAP section — an ε-state in the corpus's ε-machine. Records the contributing claims (with their MAP-selected variants), the idea's own first-class scope (meet of contributing claims' evidenced scopes), consensus and frustration metrics, ε-transitions to other Ideas, and open questions tied to residual frustration. Each open question carries a `suggested_next_steps` array with typed entries (experiment / simulation / theoretical_development / further_extraction / literature_review / code_capability / instrumentation) so research-priority dashboards can group and rank work-to-do. One Idea per ε-state; typically 3–10 Ideas per corpus. See `idea_schema.json` (v0.2). The corpus-level ε-machine metrics are stored separately in `epsilon_machine_schema.json` (v0.1).
+Papers are not structural vertices. They are provenance groupings over claims and evidence.
 
-The Sheaf is where the structural work happens; the Idea is what a reader browses. The old v1 `Stalk` object has no direct successor — its three conflated roles (hypothesis space, pre-clustering, within-cluster coherence) now live in Sheaf.stalks, in the absence of pre-clustering, and in Idea.frustration respectively.
+## Vertex Stalks
+
+### Claim vertices
+
+Each claim vertex has an interpretation stalk:
+
+```text
+F(c) = R^{k_c}
+```
+
+The default implementation uses:
+
+```text
+x_c = (in_regime_strength, out_regime_strength)
+```
+
+with initial value:
+
+```text
+x_c_init = (1.0, 1.0)
+```
+
+This means the claim is initially asserted at full strength both inside and outside its home regime. A common rewrite moves the claim to something like:
+
+```text
+x_c_final = (1.0, 0.2)
+```
+
+which preserves the claim in its home regime but weakens its out-of-regime predictions.
+
+The interpretation stalk can be expanded when a claim needs richer scope parameters, such as framework, geometry, scale, organism, instrument, dataset, or modeling assumption.
+
+### Evidence vertices
+
+Each evidence vertex has a stalk with two parts:
+
+```text
+F(v) = core(v) ⊕ context(v)
+```
+
+The **core** contains the actual reported observation. It is hard-fixed.
+
+The **context** contains implicit regime parameters that may not have been explicitly encoded at extraction time. Context values start unspecified or zero and can be filled only at high cost.
+
+Examples:
+
+- Core: "m=1 fluctuations remain low at experimental shear."
+- Context: "linear ideal MHD framework", "Bennett profile", "rainfall regularity", "short-scale kinetic regime."
+
+Evidence-context filling is not evidence mutation. It is an auditable claim that the corpus needs an omitted contextual distinction in order to cohere.
+
+## Edges
+
+An edge `(c, v)` means:
+
+```text
+claim c predicts at evidence-piece v
+```
+
+Each edge stores:
+
+- `claim_id`
+- `evidence_id`
+- `base_prediction`: what the claim predicts at the evidence point under full assertion.
+- `regime_tag`: whether the evidence point is inside the claim's home regime.
+- `edge_stalk`: the comparison space for the evidence core.
+- `prediction_rationale`: natural-language explanation of the prediction.
+- `provenance`: source spans, extraction model, human review status, and confidence.
+
+The edge stalk is:
+
+```text
+F(c, v) = R^{dim core(v)}
+```
+
+In simple demonstrations this is often one-dimensional. In real corpora it should usually be a typed vector with units, uncertainty, and variable names.
+
+## Restriction Maps
+
+Each edge has two restriction maps into the edge stalk:
+
+```text
+R_claim_to_edge: F(c) -> F(c, v)
+R_evidence_to_edge: F(v) -> F(c, v)
+```
+
+The evidence restriction projects the fixed evidence core into the comparison space:
+
+```text
+R_evidence_to_edge(x_v) = core(v)
+```
+
+The claim restriction computes the claim's prediction at `v`, modulated by the claim interpretation and any relevant evidence context:
+
+```text
+R_claim_to_edge(x_c, context(v)) = predicted_at_v
+```
+
+The current scalar implementation uses an affine blend:
+
+```text
+predicted_at_v = strength * base_prediction
+               + (1 - strength) * actual_core(v)
+```
+
+where:
+
+```text
+strength = in_regime_strength   if v is in the claim's home regime
+strength = out_regime_strength  otherwise
+```
+
+This gives a useful interpretation:
+
+- `strength = 1`: full assertion of the claim's prediction.
+- `strength = 0`: no opinion at this evidence point, so the prediction collapses to the actual core and creates no residual.
+
+For richer domains, `R_claim_to_edge` can be a typed prediction function rather than a scalar formula. The important invariant is that its output is comparable to the evidence core at `v`.
+
+## Residual
+
+The edge residual is:
+
+```text
+(δx)_{c,v} = R_claim_to_edge(x_c, context(v))
+           - R_evidence_to_edge(x_v)
+```
+
+or:
+
+```text
+residual(c, v) = predicted_at_v - actual_at_v
+```
+
+Large residuals identify specific claim-evidence tensions. Attribution is direct: the source claim on the edge is the claim whose prediction failed at that evidence-piece.
+
+## Objective
+
+The optimizer minimizes:
+
+```text
+total_objective =
+    ||δx||^2
+  + λ_claim * Σ_c ||x_c - x_c_init||^2
+  + λ_context * Σ_v ||context(v) - context_init(v)||^2
+  + ∞ * Σ_v ||core(v) - core_init(v)||^2
+```
+
+with typical default weights:
+
+```text
+λ_claim = 1.0
+λ_context = 5.0
+```
+
+This makes claim rewriting cheaper than evidence-context filling, while evidence-core modification is forbidden.
+
+The objective formalizes the intended reading discipline:
+
+1. First, see whether claims can be scoped more carefully.
+2. If that is insufficient, infer missing context only when the residual strongly justifies it.
+3. Never change reported measurements to improve coherence.
+
+## Rewrite Operations
+
+The system has three operation classes.
+
+### 1. Claim interpretation rewrite
+
+Move `x_c` within the claim stalk. This is the preferred operation.
+
+Examples:
+
+- Narrow an out-of-regime generalization.
+- Demote a causal claim to a correlation.
+- Restrict a theoretical claim to its modeling framework.
+- Split a broad claim into multiple scoped claims.
+
+### 2. Evidence-context filling
+
+Move `context(v)` away from its initial unspecified value. This is expensive and must be explicitly flagged.
+
+Examples:
+
+- Infer that a result depends on a hidden rainfall regime.
+- Add an omitted instrument calibration context.
+- Mark a simulation result as belonging to a specific numerical closure or boundary condition.
+
+### 3. Evidence-core modification
+
+Forbidden. The original reported observation is treated as sacred data. If the source paper is later found to contain an error, that should enter as a new evidence item or provenance correction, not as silent core mutation.
+
+## Schemas
+
+### Evidence
+
+```json
+{
+  "evidence_id": "obs_eig_m1_growth",
+  "paper_id": "eigenmode_zpinch",
+  "label": "gamma t_a ~ 0.7 m=1 NOT stabilized at experimental shear",
+  "core": {
+    "dimensions": [
+      {
+        "name": "m1_stabilized",
+        "value": 0.0,
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "source_span": "..."
+      }
+    ],
+    "locked": true
+  },
+  "context": {
+    "dimensions": [
+      {
+        "name": "framework",
+        "value": 0.0,
+        "label": "linear ideal MHD framework / profile family tested",
+        "filled_by_pipeline": false,
+        "source_span": "..."
+      }
+    ]
+  },
+  "provenance": {
+    "extractor": "llm_or_human",
+    "confidence": 0.82,
+    "review_status": "unreviewed"
+  }
+}
+```
+
+### Claim
+
+```json
+{
+  "claim_id": "S_02",
+  "paper_id": "shumlak2009",
+  "label": "0.1 k V_A is the m=1 stabilization threshold",
+  "stalk_basis": ["in_regime_strength", "out_regime_strength"],
+  "x_init": [1.0, 1.0],
+  "x_final": [1.0, 0.2],
+  "weaknesses": [
+    "uniform-shear derivation",
+    "single wavelength tested",
+    "causality not established"
+  ],
+  "rewrite_history": [
+    {
+      "operation": "narrow_to_uniform_shear_window",
+      "from": [1.0, 1.0],
+      "to": [1.0, 0.2],
+      "distance": 0.8,
+      "justification": "Preserves the ZaP-window observation while weakening out-of-regime MHD generalization."
+    }
+  ],
+  "provenance": {
+    "source_span": "...",
+    "extractor": "llm_or_human",
+    "confidence": 0.79,
+    "review_status": "unreviewed"
+  }
+}
+```
+
+### Claim-evidence edge
+
+```json
+{
+  "edge_id": "S_02__obs_eig_m1_growth",
+  "claim_id": "S_02",
+  "evidence_id": "obs_eig_m1_growth",
+  "base_prediction": {
+    "dimensions": [
+      {
+        "name": "m1_stabilized",
+        "value": 1.0,
+        "scale": "normalized_binary"
+      }
+    ]
+  },
+  "regime_tag": "out_of_regime",
+  "prediction_rationale": "If the threshold claim is asserted out of regime, the eigenmode calculation should also show m=1 stabilization at experimental shear.",
+  "residual": {
+    "initial": 1.0,
+    "final": 0.04
+  },
+  "provenance": {
+    "prediction_generated_by": "llm_or_human",
+    "confidence": 0.68,
+    "review_status": "needs_domain_review"
+  }
+}
+```
+
+### Sheaf state
+
+```json
+{
+  "sheaf_id": "shumlak_v05",
+  "version": "v0.5_bipartite",
+  "claim_vertices": ["S_01", "S_02", "E_02"],
+  "evidence_vertices": ["obs_zap_m1", "obs_eig_m1_growth"],
+  "edges": ["S_02__obs_zap_m1", "S_02__obs_eig_m1_growth"],
+  "objective": {
+    "initial_residual": 4.0,
+    "final_residual": 2.08,
+    "claim_rewrite_distance": 0.8,
+    "context_fill_distance": 0.0
+  },
+  "remaining_tensions": [
+    {
+      "edge_id": "E_02__obs_zap_m1",
+      "residual": 1.0,
+      "interpretation": "The linear-MHD claim predicts no stability where ZaP observes stability."
+    }
+  ]
+}
+```
+
+### Idea
+
+```json
+{
+  "idea_id": "idea_01_m1_real_but_nonMHD",
+  "title": "m=1 stabilization at experimental shear is real but linear MHD does not explain it",
+  "scope": {
+    "system": "flowing Z-pinch",
+    "regime": "experimental shear, non-ideal effects likely relevant"
+  },
+  "contributing_claims": ["S_01", "S_02", "E_02", "E_05", "G_03", "G_04"],
+  "contributing_evidence": ["obs_zap_m1", "obs_eig_m1_growth"],
+  "tensions_resolved": [
+    {
+      "edge_id": "S_02__obs_eig_m1_growth",
+      "resolution": "S_02 narrowed to the ZaP-window / uniform-shear regime."
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "Which non-ideal mechanism explains the observed m=1 stabilization?",
+      "priority": "high",
+      "suggested_next_steps": ["simulation", "theory_extension", "corpus_expansion"]
+    }
+  ],
+  "transitions_out": ["idea_03_linear_MHD_boundaries"]
+}
+```
 
 ## Pipeline
 
-Nine stages, run in sequence as a batch over the full paper set.
+### Stage 1: Extract evidence and claims
 
-### 1. Extract paper + claims + argument DAG
+For each paper, extract evidence and claims separately.
 
-**Input:** One paper (PDF or structured text).
-**Output:** One `paper_schema` instance with populated `claims` DAG, N `claim_schema` instances.
+Evidence extraction captures fixed observations with basis, units, uncertainty, source spans, and provenance.
 
-One or more LLM calls per paper return:
+Claim extraction captures statements with source spans, acknowledged limitations, home regime, and possible predictive targets.
 
-- The paper's `observational_ground` (physical_system, phenomena_studied, parameter_regime, computational_framework, geometry, measurements) and `model_level`.
-- A list of claims with cause / effect / direction / strength, `scope.claimed` and `scope.evidenced`, `evidence.{type, description, strengths, weaknesses, quantitative}`, and a `credibility_score`.
-- The paper's internal argument DAG — each extracted claim tagged as `primary` or `supporting`, with `depends_on` edges listing the claims (within the same paper) it directly rests on.
+### Stage 2: Build evidence comparability
 
-The extractor is expected to populate `evidence.weaknesses` honestly — these drive the alternative-generation step downstream and a pipeline that routinely leaves this field empty produces weak sheaves.
+Identify evidence-pieces that live in comparable observational spaces or nearby regimes. This is not yet the sheaf edge set; it is a candidate map of where predictions may be meaningful.
 
-Single-pass extraction at MVP. Median-of-runs is deferred until extraction instability is observed.
+Useful comparability signals include:
 
-### 2. Tag claims with (semilattice, SNAG) coordinates
+- Shared observable.
+- Shared physical system.
+- Shared task or benchmark.
+- Shared model class.
+- Regime overlap or regime containment.
+- Explicit citation or critique.
 
-**Input:** All extracted claims.
-**Output:** Each claim gains `_tags.semilattice` and `_tags.snag_nodes` (pipeline-internal, not schema fields).
+### Stage 3: Generate claim-evidence prediction edges
 
-Each claim is projected onto a fixed-dimension semilattice coordinate (mode, profile, framework, scope, wavelength, geometry — or the per-domain equivalent) and tagged with the SNAG node list drawn from its `cause`/`effect` mechanism variables. This structured projection replaces the free-form `scope.evidenced.conditions` prose with coordinates that support mechanical comparability checks in the next stage.
+For each claim and candidate evidence-piece, ask whether the claim predicts anything at that evidence-piece.
 
-The tag ontology is domain-specific. The MVP pipeline accepts a hand-authored tag vocabulary per domain; a Phase 2 step would generate tags from a controlled vocabulary the LLM is given via few-shot.
+If yes, create an edge `(c, v)` with:
 
-### 3. Build the comparability complex
+- A base prediction.
+- A regime tag.
+- A rationale.
+- A confidence score.
+- Provenance for the source text used to construct the prediction.
 
-**Input:** All tagged claims.
-**Output:** A graph whose 0-cells are claims and whose 1-cells are comparability edges — the nerve of the sheaf.
+Edges should be sparse. A claim should not connect to every evidence-piece by default.
 
-Two claims are an edge iff their semilattice coordinates meet (regime compatibility: modes compatible, frameworks in the same hierarchy branch, profiles specializable) AND their SNAG node lists overlap (mechanism compatibility). The first test filters for "these claims are about overlapping regimes"; the second tests "they talk about overlapping mechanism." Both are required.
+### Stage 4: Build the bipartite sheaf
 
-The comparability complex replaces v1's cosine-similarity clustering. Crucially, this stage produces a graph, not a partition — a claim can appear on many comparability edges.
+Create claim vertices, evidence vertices, and claim-evidence edges.
 
-### 4. Generate hypothesis-space stalks
+Build the residual operator from the current prediction functions:
 
-**Input:** The comparability complex; the claim schema's `evidence.strengths` and `evidence.weaknesses`.
-**Output:** Per-claim stalks — for each claim, a list of variants containing the `#original` plus any evidence-faithful alternatives.
-
-For each claim c and each neighbor d, test whether c's original statement restricts compatibly into d under the meet of their scopes. If not, generate one or more alternative variants of c that (a) preserve the strengths invoked by c's own evidence, (b) narrow the scope by invoking one or more of c's own stated weaknesses, and (c) restrict compatibly into d. Each variant is scored for `rewrite_distance` (how far from the original) and tagged with `targets` (which neighbor claim_ids triggered its generation), `evidence_strengths_invoked`, `evidence_weaknesses_invoked`, and an `evidence_faithful` boolean with a `faithfulness_note`.
-
-Most claims' stalks remain singletons (just the `#original`) — only contested claims accumulate alternatives. A representative MVP run over 15 claims produced 3 variants for one claim; other corpora will vary.
-
-### 5. Score the full compatibility cube
-
-**Input:** The comparability complex with per-claim stalks.
-**Output:** For each comparability edge, a full |stalk_a| × |stalk_b| matrix of compatibility scores.
-
-One LLM call per variant pair. For each restriction-map edge, every cross product of variants is scored in [−1, +1] with a categorical `kind` (agreement / extension / refinement / qualification / boundary / contradiction) and a prose `explanation`. Storing the full cube (not just the pair MAP will eventually pick) lets the section be replayed at different λ rewrite penalties or under different solver rules without re-scoring — it's the load-bearing reason the sheaf JSON is large.
-
-At MVP scale (~15 claims, ~10 edges, ~1–3 variants per contested claim), the cube has ~30–60 entries — easily LLM-judged in a single batch.
-
-### 6. MAP global section
-
-**Input:** The scored compatibility cube; the rewrite distances; a chosen λ.
-**Output:** `map_section.selected` — one variant_id per claim — together with total score, coherence, rewrite cost, top-N alternative sections, and residual H¹.
-
-Maximize coherence(σ) − λ × rewrite_cost(σ) over the product space Π F(c). At MVP scale the product space is small enough for exhaustive enumeration; at larger scale use loopy belief propagation on the factor graph, ILP for exact solutions, or simulated annealing for stochastic approximation. The solver identity and runtime are recorded in `map_section.solver`.
-
-λ is a modeling knob — how aggressively to preserve originals vs rewrite for coherence. Stage 6 reports the canonical MAP section at the configured primary λ and also replays the solver across the configured sensitivity sweep (default λ ∈ {0.1, 0.2, 0.4, 0.8}). This identifies λ-stable selections (high confidence) and λ-sensitive ones (where MAP depends on the prior).
-
-Residual H¹ is the set of edges whose compatibility score on the selected variant pair is ≤ 0 — obstructions to a global section that no rewrite could resolve.
-
-### 7. Frustration diagnostics on the MAP section
-
-**Input:** The selected section; the compatibility cube.
-**Output:** `sheaf.frustration` — triangle count, signed count, Penrose count, ρ, explicit list of Penrose triangles.
-
-For the selected variant pair on each edge, determine the sign. Enumerate all triangles in the comparability complex. Count triangles where `sign(e_ab) × sign(e_ac) × sign(e_bc) < 0` — these are Penrose triangles (structurally inconsistent three-claim configurations). ρ = n_penrose / n_signed_triangles is a discrete-H¹ surrogate.
-
-This replaces v1's stalk-level frustration. In v2, frustration is measured on the sheaf's selected section rather than on a pre-imposed cluster. A healthy sheaf has ρ near 0 on the MAP section; ρ > 0.2 indicates structural tension the alternative-generation step couldn't resolve, which is itself useful diagnostic information.
-
-### 8. Consolidate into Ideas (ε-machine partition)
-
-**Input:** The MAP section.
-**Output:** A set of Idea JSON files, one per ε-state.
-
-Partition the surviving claims (in their MAP-selected variants) into ε-states. Two claims land in the same state iff they have the same predictive structure under the corpus's claim DAG — same SNAG-ancestors, same SNAG-descendants, same semilattice-projection onto the Idea's scope. At MVP scale this is done by hand-curation guided by the LLM; Phase 2 would compute causal states programmatically from a predictive model over the claim-claim transition structure.
-
-For each ε-state, populate an Idea document: `label`, `description`, `contributing_claims` with their MAP variants, `scope` (meet of contributing claims' evidenced scopes — the Idea's first-class scope, with a `derivation_timestamp` so staleness can be detected), `consensus` block (papers represented, mean credibility, agreement_score, count of rewrites), `frustration` block (intra-Idea ρ), `transitions_out` and `transitions_in` to other Ideas (with kinds: tool_supply, empirical_phenomenon, tool_under_critique, trust_scaffolding, critique_of_framework, extension, specialization), and `open_questions` tied to residual edges or under-developed transition targets. Each open question decomposes into typed `suggested_next_steps` — experiments, simulations, theoretical developments, further extractions, literature reviews, or code-capability / instrumentation needs — with per-step descriptions, required capabilities, expected outcomes, effort estimates, and maturity flags (immediate vs tool-development-required vs depends-on-other-step).
-
-After the Idea partition validates, compute `epsilon_machine.json`: the Idea state distribution, statistical complexity Cμ = H[state] in bits, normalized Cμ, effective state count 2^Cμ, and transition graph density. The MVP state distribution is claim occupancy per Idea; future versions can add weighted distributions without changing the core artifact.
-
-Ideas are the corpus's deliverable outputs. A typical corpus of 10–20 papers produces 3–10 Ideas.
-
-### 9. Write artifacts
-
-**Output:** A directory tree:
-
-```
-corpus_root/
-  run_config.json         (model, schema, prompt hash, and parameter snapshot)
-  papers/*.json            (paper_schema v0.5)
-  claims/*.json            (claim_schema v0.5)
-  sheaf.json               (sheaf_schema v0.1, including λ sensitivity)
-  ideas/*.json             (idea_schema v0.1)
-  epsilon_machine.json     (epsilon_machine_schema v0.1)
-  report.md                (human-readable synthesis)
-  constellation.html       (interactive D3 view — optional)
-  failures.json            (structured stage failures, when present)
-  llm_cache/               (successful validated LLM JSON responses)
+```text
+δ(c, v) = predicted_at_v - actual_at_v
 ```
 
-JSON files remain the source of truth during development; a graph-DB derived artifact is produced downstream if the visualizer needs one.
+For nonlinear prediction functions, this is an evaluation operator rather than a single fixed global matrix.
 
-## Storage During MVP
+### Stage 5: Compute residuals
 
-JSON files on disk, one per paper / per claim plus one sheaf and N Ideas per corpus run. Every file carries a `$schema` version tag for migration. No database until the schemas and pipeline stabilize. A corpus-run directory is the atomic unit; re-running the pipeline produces a new directory rather than mutating an old one.
+Evaluate all edge residuals under the current assignments.
 
-## Configuration Parameters (MVP Defaults)
+Rank tensions by:
 
-| Parameter | Default | Purpose |
-|---|---|---|
-| `LLM_MODEL` | current general-purpose model | Extraction, comparability tagging, alternative generation, compatibility scoring, ε-state curation |
-| `SEMILATTICE_TAG_DIMENSIONS` | domain-authored | Ontology for stage 2 tagging (6 dimensions typical) |
-| `SNAG_OVERLAP_THRESHOLD` | 2 literal + 1 soft keyword | Minimum overlap to form a comparability edge |
-| `LAMBDA_REWRITE` | 0.4 | MAP objective's rewrite-distance penalty coefficient |
-| `LAMBDA_SENSITIVITY_VALUES` | [0.1, 0.2, 0.4, 0.8] | λ sweep values replayed after the primary MAP section |
-| `MAP_SOLVER` | `enumerate` | Exhaustive at MVP scale; loopy_bp at larger |
-| `MIN_CLAIMS_PER_IDEA` | 2 | Below this, an Idea is suspect — usually indicates mis-partition |
-| `FRUSTRATION_WARNING_RHO` | 0.2 | ρ above this flags the Idea or sheaf for manual review |
+- Residual magnitude.
+- Edge confidence.
+- Scientific importance.
+- Whether the tension is central to an emerging Idea.
 
-All values are provisional and expected to shift once the pipeline has run against multiple real corpora.
+### Stage 6: Generate rewrite candidates
 
-## Deferred (Phase 2 and Beyond)
+For each high-residual edge, generate candidate rewrites for the source claim.
 
-- **Automated tag ontology generation.** Derive the per-domain semilattice tag vocabulary from an LLM given few-shot examples, rather than hand-authoring it per corpus.
-- **Causal-state partition from predictive structure.** Replace the hand-curated ε-state partition with a computed causal-state partition over a trained predictive model of claim-claim transitions. Requires enough corpus structure to estimate conditional distributions reliably — probably n > 50 claims.
-- **Incremental sheaves.** Add a paper to an existing corpus without re-running the whole pipeline. Requires restricting recomputation to the affected part of the comparability complex.
-- **Cross-corpus loop closure.** Detect when two independently-built Ideas (in different corpora) are really the same ε-state. The SLAM analogy is direct.
-- **Formal verification.** Lean / AxiomProver for mathematically precise claims.
-- **Active paper discovery.** An agent that selects candidate papers based on what the current Ideas collectively leave underdetermined. Feeds the pipeline's credibility_score and populates stalks with new alternatives.
-- **Full interactive dashboard.** The current D3 artifact now surfaces Ideas, λ sensitivity, ε-machine metrics, and research-priority filters. A fuller UI could add persisted layouts, cross-run comparison, saved reviewer notes, and richer Idea-transition browsing.
+The rewrite prompt should require candidates to:
 
-Each item is additive; none requires rewriting the v2 pipeline.
+1. Preserve the claim's home-regime evidence when appropriate.
+2. Reduce the target edge residual.
+3. Invoke an acknowledged limitation, scope condition, or framework boundary.
+4. Produce a reader-verifiable natural-language rewrite.
+5. Report a rewrite distance and justification.
 
-## Theoretical Grounding (Condensed)
+Candidate rewrites can include:
 
-Three sources inspired the architecture; the v2 pipeline makes each more load-bearing than v1 did.
+- Scope narrowing.
+- Framework restriction.
+- Regime split.
+- Causal-to-correlational demotion.
+- Mechanism substitution when supported by other claims.
+- Claim split into multiple child claims.
 
-**Sheaf theory (Hansen-Ghrist, Robinson 2017).** The core semantics. Claims are local data; the comparability complex is the base space; per-claim hypothesis-space stalks carry the allowed local readings; restriction maps between comparable claims impose compatibility under the meet of their scopes; the MAP global section is the nearest-to-global-section the sheaf admits, and residual H¹ is the structural obstruction to a fully global one. v1 treated sheaf theory as distant inspiration; v2 implements the formal structure.
+### Stage 7: Score operations
 
-**Coherence-driven inference (Huntsman 2025).** The local/global split: LLMs score pairwise consistency (local), a global optimization selects a partition or section (global). v2's MAP step is exactly a coherence-driven inference — log-posterior maximization with a rewrite-distance prior. The paper-as-stalk refinement sharpens CDI by introducing the hypothesis-space stalk as the quantified unit: instead of voting over claims, MAP votes over variants of claims, with the rewrite-distance prior preventing free-for-all rewriting.
+Score each candidate operation by the full objective:
 
-**Computational mechanics / ε-machines (Crutchfield-Shalizi).** The consolidation step. Once the MAP section is fixed, partition the surviving claims into causal states — equivalence classes of "same predictive structure over the claim DAG." Each ε-state becomes an Idea. The partition is the minimal sufficient statistic of the corpus's theoretical content, and statistical complexity Cμ measures its richness. At MVP scale the partition is hand-curated; computing it programmatically is a Phase 2 objective.
+```text
+new_residual
++ λ_claim * claim_rewrite_distance
++ λ_context * context_fill_distance
+```
 
-## Open Questions
+Evidence-context fills may be proposed when claim rewrites cannot explain the residual without inventing unsupported claim content.
 
-1. **How are alternatives actually generated at scale?** MVP generates alternatives targeted at each failing neighbor restriction. Unclear whether this produces a bounded or explosive set of variants on larger corpora. A cap on |stalk| with a priority ranking (by rewrite distance ascending, then by number of neighbors satisfied descending) is the likely fallback.
+Adopt the operation that most improves the objective while preserving provenance and evidence-faithfulness constraints.
 
-2. **Should alternatives be generated before OR during MAP?** Currently all alternatives are generated in stage 4 and scored in stage 5 before MAP runs. A variant would defer alternative generation until MAP identifies which claims are under pressure — cheaper but harder to guarantee the MAP's optimality.
+### Stage 8: Iterate
 
-3. **How is the ε-state partition verified?** At MVP it's hand-curated and human-reviewed. Whether the partition is the unique or optimal one under any criterion is an open methodological question.
+After each accepted operation, recompute residuals. Continue until:
 
-4. **λ-reporting discipline.** How wide should the default λ sweep be, and should reports flag a run as underdetermined when too many selections are λ-sensitive?
+- No proposed operation improves the objective.
+- The residual is below a chosen tolerance.
+- A maximum iteration budget is reached.
+- Human review is required because high-impact low-confidence rewrites dominate the next step.
 
-5. **What counts as a contested claim?** In stage 4, alternative generation is triggered by restriction failure. An edge case: a claim that has no failing neighbor under its original but would have one under a narrower scope — should speculative alternatives be generated? MVP says no; larger corpora may need to.
+### Stage 9: Consolidate Ideas
+
+Group the stabilized sheaf into Ideas. An Idea is a coherent cross-paper knowledge unit with:
+
+- Scope.
+- Contributing claims.
+- Contributing evidence.
+- Rewrites and context fills.
+- Resolved tensions.
+- Remaining tensions.
+- Open questions.
+- Typed suggested next steps.
+- Transitions to related Ideas.
+
+Ideas are the main user-facing knowledge layer.
+
+## Mathematical Framing
+
+The architecture is a sheaf-inspired inverse problem over a bipartite cellular complex.
+
+The state consists of:
+
+```text
+x = ({x_c}_{c in C}, {x_v}_{v in V})
+```
+
+where:
+
+- `x_c` is the current claim interpretation.
+- `x_v = (core(v), context(v))`.
+- `core(v)` is fixed.
+- `context(v)` is optimization-visible but expensive.
+
+For each edge `(c, v)`:
+
+```text
+δ_{c,v}(x) = R_claim_to_edge(x_c, context(v)) - R_evidence_to_edge(x_v)
+```
+
+The optimization is:
+
+```text
+minimize_x  Σ_{(c,v)} ||δ_{c,v}(x)||^2
+          + λ_claim Σ_c ||x_c - x_c_init||^2
+          + λ_context Σ_v ||context(v) - context_init(v)||^2
+
+subject to core(v) = core_init(v) for all evidence vertices v
+```
+
+In practice, optimization is usually discrete or hybrid:
+
+- The LLM proposes interpretable candidate rewrites and context fills.
+- The system scores them numerically.
+- Human review can accept, reject, or edit high-impact operations.
+
+This favors interpretability over global continuous optimality.
+
+## Diagnostics
+
+### Residual diagnostics
+
+The primary diagnostic is the edge residual:
+
+```text
+residual(c, v) = predicted_at_v - actual_at_v
+```
+
+This answers:
+
+- Which claim failed to predict which evidence-piece?
+- Did rewriting the claim reduce the failure?
+- Did the residual move elsewhere after the rewrite?
+
+### Linearized spectral diagnostics
+
+When prediction functions are nonlinear, a global sheaf Laplacian is no longer the whole story. A linearized operator can still be useful around the current state:
+
+```text
+J = derivative of δ at current x
+L = J^T J
+```
+
+The spectrum of `L` is a local sensitivity diagnostic. It can reveal flat directions, fragile directions, and degeneracies in the current encoding.
+
+It should not be treated as the primary proof of global coherence in the nonlinear setting.
+
+### Remaining residuals
+
+If residual remains after all allowed rewrites and context fills, call it an unresolved obstruction under the current model and candidate set.
+
+Do not automatically identify this residual with sheaf cohomology. In the nonlinear, candidate-generated setting, it is more precise to say:
+
+```text
+the corpus is still far from a global section under the available operations
+```
+
+This may mean:
+
+- The corpus contains a genuine contradiction.
+- The evidence representation is too coarse.
+- The prediction edge was extracted incorrectly.
+- The candidate rewrite set was incomplete.
+- External information is needed.
+
+## Provenance and Auditability
+
+Every generated object should carry provenance:
+
+- Source paper.
+- Source span.
+- Extractor identity.
+- Extraction confidence.
+- Human review status.
+- Rewrite rationale.
+- Whether context was explicit in source text or inferred by the pipeline.
+
+Outputs must clearly distinguish:
+
+- Original evidence core.
+- Extracted or normalized evidence representation.
+- Inferred context.
+- Original claim.
+- Rewritten claim.
+- Model-generated prediction edge.
+
+The reader should always be able to ask: "Did the paper actually say this, or did the pipeline infer it?"
+
+## Implementation Plan
+
+1. Define schemas for evidence, claims, claim-evidence edges, sheaf state, operations, and Ideas.
+2. Implement extraction for evidence cores, evidence context candidates, claims, and claim weaknesses.
+3. Implement sparse claim-evidence edge generation with confidence and provenance.
+4. Implement residual evaluation for scalar and typed-vector evidence cores.
+5. Implement candidate operation generation for claim rewrites and context fills.
+6. Implement objective scoring and iteration.
+7. Implement Idea consolidation from final sheaf state.
+8. Implement visualizations for claim/evidence graph, residuals, rewrites, context fills, and Ideas.
+
+## Milestones
+
+### Milestone 1: Known small corpus
+
+Run the pipeline on the Shumlak three-paper corpus. Confirm that:
+
+- Cross-paper tensions localize to specific claim-evidence edges.
+- The threshold claim narrows rather than forcing evidence changes.
+- Evidence-context filling does not trigger when claim rewriting is sufficient.
+- Ideas expose actionable scientific conclusions.
+
+### Milestone 2: Context-fill corpus
+
+Run on a corpus where missing context is structurally necessary. Confirm that:
+
+- Claim rewrites alone cannot resolve the residual.
+- Evidence context fills only after the residual justifies the higher cost.
+- The output explicitly flags inferred context as inferred.
+
+### Milestone 3: Larger corpus
+
+Scale to a larger research landscape. Confirm that:
+
+- Edge generation remains sparse and meaningful.
+- Residual ranking remains interpretable.
+- Idea consolidation produces useful cross-paper concepts rather than paper clusters.
+- Human review effort is concentrated on high-impact, low-confidence edges and rewrites.
+
+## Limitations
+
+### Claim-to-prediction operationalization is the hardest step
+
+The weak link is translating natural-language claims into structured predictions. This needs source spans, confidence, and domain review. The sheaf can only diagnose tensions in the prediction graph it is given.
+
+### Evidence representation can be too coarse
+
+If the evidence core or context basis omits the variable needed to explain a distinction, the system may misattribute residual to a claim. Context-fill operations and schema expansion are the safety valve, but they require careful review.
+
+### The optimization is candidate-limited
+
+The system finds the best operation among proposed candidates, not the global optimum over all possible scientific interpretations. This is intentional: interpretable rewrites are more useful than opaque continuous parameter updates.
+
+### Nonlinear predictions weaken global spectral claims
+
+Linearized Laplacians are useful local diagnostics, but the main coherence measure is the evaluated residual objective.
+
+### Hidden confounders remain hard
+
+If the needed explanatory variable appears nowhere in the corpus, the system can flag unresolved residual but cannot responsibly invent the missing fact. That should become an open question or corpus-expansion task.
+
+## Summary
+
+The v0.5 architecture treats knowledge synthesis as disciplined restriction rewriting. Claims make predictions at evidence-pieces; residuals show exactly where those predictions fail; cheap claim rewrites and expensive context fills search for a coherent reading without altering measurements.
+
+The final knowledge layer is a set of Ideas: scoped, auditable, cross-paper units that preserve evidence, expose rewritten interpretations, and make remaining uncertainty actionable.

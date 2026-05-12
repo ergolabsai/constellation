@@ -1,5 +1,7 @@
 """Stage 2: tag claims with (semilattice, SNAG) coordinates.
 
+See ARCHITECTURE.md Stage 2: Tag claims with (semilattice, SNAG) coordinates
+
 Two sub-steps:
 
   2a. propose vocabulary — the LLM looks at the whole corpus (papers + claims)
@@ -7,13 +9,14 @@ Two sub-steps:
       and ordering) plus a SNAG node vocabulary. Output: tag_vocabulary.json.
 
   2b. tag claims — the LLM tags each claim against that vocabulary. Output:
-      tags.json keyed by claim_id.
+      augmented claims with ._tags field containing semilattice + SNAG coordinates.
 
 If tag_vocabulary.json already exists in the run directory, sub-step 2a is
 SKIPPED — this is the "review and iterate" path: the user edits the vocabulary
 by hand, then re-runs `--from 2 --to 2` to retag claims under the new vocab.
 
-Tags are pipeline-internal (not part of claim_schema).
+Claims are loaded as Claim domain objects; tags augment each claim's ._tags
+field and are persisted when serializing claims via .to_dict().
 """
 from __future__ import annotations
 
@@ -23,11 +26,12 @@ from typing import Any
 
 from rich.console import Console
 
-from ..config import model_name, stage_config
+from ..config import model_name, stage_config, get_mvp_config
 from ..failures import append_stage_failures, clear_stage_failures
 from ..llm import LLM, parse_json_response
 from ..llm_cache import lookup as cache_lookup
 from ..llm_cache import write_success as cache_write_success
+from ..objects import Claim
 from ..paths import Corpus, Run
 from ..prompt_loader import load_prompt
 
@@ -37,23 +41,35 @@ STAGE_NAME = "stage2_tag"
 # ---------- shared loaders ---------------------------------------------------
 
 
-def _load_corpus(run: Run) -> tuple[list[dict], list[dict]]:
-    """Read all paper.json and claim.json artifacts produced by stage 1."""
+def _load_corpus(run: Run) -> tuple[list[dict], list[Claim]]:
+    """Read all paper.json and claim.json artifacts produced by stage 1.
+
+    Papers are returned as dicts (used only for vocabulary proposal summary).
+    Claims are returned as domain objects (will be augmented with ._tags).
+    """
     papers = [json.loads(p.read_text()) for p in sorted(run.papers_dir.glob("*.json"))]
-    claims = [json.loads(p.read_text()) for p in sorted(run.claims_dir.glob("*.json"))]
+    claims = [Claim.from_dict(json.loads(p.read_text())) for p in sorted(run.claims_dir.glob("*.json"))]
     return papers, claims
 
 
-def _claim_summary(claim: dict) -> dict:
-    """Compact projection of a claim — enough to tag against, not the whole record."""
+def _claim_summary(claim: Claim | dict) -> dict:
+    """Compact projection of a claim — enough to tag against, not the whole record.
+
+    Accepts both Claim objects (from stage 2) and dicts (from stage 1 during
+    vocabulary proposal).
+    """
+    if isinstance(claim, Claim):
+        claim_dict = claim.to_dict()
+    else:
+        claim_dict = claim
     return {
-        "claim_id": claim["claim_id"],
-        "paper_id": claim["paper_id"],
-        "claim_type": claim.get("claim_type"),
-        "cause": claim.get("cause"),
-        "effect": claim.get("effect"),
-        "direction": claim.get("direction"),
-        "scope_evidenced": claim.get("scope", {}).get("evidenced"),
+        "claim_id": claim_dict["claim_id"],
+        "paper_id": claim_dict["paper_id"],
+        "claim_type": claim_dict.get("claim_type"),
+        "cause": claim_dict.get("cause"),
+        "effect": claim_dict.get("effect"),
+        "direction": claim_dict.get("direction"),
+        "scope_evidenced": claim_dict.get("scope", {}).get("evidenced"),
     }
 
 
@@ -246,29 +262,30 @@ def _tag_claims(
     llm: LLM,
     run: Run,
     vocab: dict,
-    claims: list[dict],
+    claims: list[Claim],
     *,
     max_retries: int,
     tag_batch_size: int,
     allow_partial: bool,
-) -> dict[str, Any]:
+) -> None:
     """Tag all claims by chunking into batches.
 
-    A single call for hundreds of claims hits two failure modes: (1) max_tokens
-    truncation, (2) the model losing structural fidelity over very long outputs.
-    Chunking bounds both. Per-batch failures don't kill the run — we log and
-    continue only when allow_partial is enabled; strict mode records failures and
-    raises before writing tags.json.
+    Augments each Claim object with ._tags field. A single call for hundreds of
+    claims hits two failure modes: (1) max_tokens truncation, (2) the model losing
+    structural fidelity over very long outputs. Chunking bounds both. Per-batch
+    failures don't kill the run — we log and continue only when allow_partial is
+    enabled; strict mode records failures and raises.
     """
     system_template = load_prompt("s2b_tag_claims")
     system = system_template.replace("{vocabulary_json}", json.dumps(vocab, indent=2))
 
     n_batches = (len(claims) + tag_batch_size - 1) // tag_batch_size
-    all_tags: dict[str, Any] = {}
+    n_tagged = 0
     failures: list[dict[str, Any]] = []
 
     for i in range(n_batches):
         batch = claims[i * tag_batch_size : (i + 1) * tag_batch_size]
+        batch_dicts = [c.to_dict() for c in batch]
         console.print(
             f"    batch {i + 1}/{n_batches}: tagging {len(batch)} claims…"
         )
@@ -277,17 +294,21 @@ def _tag_claims(
                 llm,
                 run,
                 vocab,
-                batch,
+                batch_dicts,
                 system,
                 max_retries=max_retries,
             )
-            all_tags.update(batch_tags)
+            # Augment Claim objects with ._tags
+            for claim in batch:
+                if claim.claim_id in batch_tags:
+                    claim.tags = batch_tags[claim.claim_id]
+                    n_tagged += 1
         except Exception as e:
             failures.append(
                 {
                     "kind": "tag_batch_failed",
                     "batch": i + 1,
-                    "claim_ids": [c["claim_id"] for c in batch],
+                    "claim_ids": [c.claim_id for c in batch],
                     "error": str(e),
                 }
             )
@@ -297,16 +318,15 @@ def _tag_claims(
         append_stage_failures(run, STAGE_NAME, failures)
         console.print(
             f"  [yellow]warning[/yellow]: {len(failures)}/{n_batches} tag batches "
-            f"failed; {len(all_tags)}/{len(claims)} claims tagged"
+            f"failed; {n_tagged}/{len(claims)} claims tagged"
         )
         if not allow_partial:
             raise RuntimeError(
                 f"stage 2 failed for {len(failures)} tag batch(es); "
                 f"see {run.failures_path}"
             )
-    if not all_tags:
+    if n_tagged == 0:
         raise RuntimeError("tagging produced no successful batches")
-    return all_tags
 
 
 def _validate_tags(tags: Any, vocab: dict, claims: list[dict]) -> None:
@@ -358,10 +378,7 @@ def _validate_tags(tags: Any, vocab: dict, claims: list[dict]) -> None:
 
 def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow of builtin)
     clear_stage_failures(run, STAGE_NAME)
-    cfg = stage_config(run, corpus, STAGE_NAME)
-    allow_partial = bool(cfg["allow_partial"])
-    max_retries = int(cfg["max_retries"])
-    tag_batch_size = int(cfg["tag_batch_size"])
+    cfg = get_mvp_config(run, corpus)
     llm = LLM(model=model_name(run, corpus))
     papers, claims = _load_corpus(run)
     if not claims:
@@ -381,22 +398,28 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow of 
     )
 
     console.print(f"  tagging {len(claims)} claims…")
-    tags = _tag_claims(
+    _tag_claims(
         llm,
         run,
         vocab,
         claims,
-        max_retries=max_retries,
-        tag_batch_size=tag_batch_size,
-        allow_partial=allow_partial,
+        max_retries=cfg.max_retries_stage2,
+        tag_batch_size=cfg.tag_batch_size,
+        allow_partial=cfg.allow_partial_stage2,
     )
-    run.tags_path.write_text(json.dumps(tags, indent=2))
+
+    # Write claims back to disk with ._tags field populated
+    for claim in claims:
+        claim_dict = claim.to_dict()
+        claim_path = run.claims_dir / f"{claim.claim_id.replace(':', '_')}.json"
+        claim_path.write_text(json.dumps(claim_dict, indent=2))
 
     # Quick stats for the operator
-    total_snag_links = sum(len(t["snag_nodes"]) for t in tags.values())
-    avg_snag = total_snag_links / max(len(tags), 1)
+    n_tagged = sum(1 for c in claims if c.tags)
+    total_snag_links = sum(len(c.tags.get("snag_nodes", [])) for c in claims if c.tags)
+    avg_snag = total_snag_links / max(n_tagged, 1)
     console.print(
-        f"  [green]tagged[/green] {len(tags)} claims "
+        f"  [green]tagged[/green] {n_tagged}/{len(claims)} claims "
         f"(avg {avg_snag:.1f} SNAG nodes per claim)"
     )
 

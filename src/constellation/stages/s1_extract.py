@@ -1,15 +1,15 @@
 """Stage 1: extract paper + claims + argument DAG from each PDF.
 
+See ARCHITECTURE.md Stage 1: Extract paper + claims + argument DAG
+
 Input:  corpus.pdfs()
-Output: run.papers_dir/<paper_id>.json    (paper_schema)
-        run.claims_dir/<paper_id>_NN.json (claim_schema, N per paper)
+Output: run.papers_dir/<paper_id>.json    (paper_schema v0.5)
+        run.claims_dir/<paper_id>_NN.json (claim_schema v0.5, N per paper)
 
 One LLM call per paper, with configured retry rounds if the model's output
-fails JSON parsing, schema validation, or DAG-acyclicity.
-The retry feeds the previous bad output + the error back to the model. By
-default, any per-paper failure fails the stage after successful papers are
-written; set stage1_extract.allow_partial=true in run_config.json for
-exploratory best-effort extraction.
+fails JSON parsing, schema validation, or DAG-acyclicity. The retry feeds the
+previous bad output + the error back to the model. Uses Paper and Claim
+domain objects for validation and serialization.
 """
 from __future__ import annotations
 
@@ -24,6 +24,7 @@ from ..failures import append_stage_failures, clear_stage_failures
 from ..llm import LLM, parse_json_response
 from ..llm_cache import lookup as cache_lookup
 from ..llm_cache import write_success as cache_write_success
+from ..objects import Paper, Claim
 from ..paper_loader import paper_to_user_blocks
 from ..paths import Corpus, Run
 from ..prompt_loader import load_prompt
@@ -55,15 +56,14 @@ def _claim_filename(claim_id: str) -> str:
     return claim_id.replace(":", "_") + ".json"
 
 
-def _stamp_provenance(paper: dict[str, Any], claims: list[dict[str, Any]], model: str) -> None:
-    paper.setdefault("extraction", {})
-    paper["extraction"]["method"] = "llm_single"
-    paper["extraction"]["model"] = model
+def _stamp_provenance(paper: Paper, claims: list[Claim], model: str) -> None:
+    """Stamp LLM provenance metadata on paper and claims."""
+    paper.extraction["method"] = "llm_single"
+    paper.extraction["model"] = model
 
     for c in claims:
-        c.setdefault("extraction", {})
-        c["extraction"].setdefault("method", "llm_single")
-        c["extraction"]["model"] = model
+        c.extraction["method"] = "llm_single"
+        c.extraction["model"] = model
 
 
 def _check_dag_consistency(paper: dict[str, Any], claims: list[dict[str, Any]]) -> None:
@@ -99,25 +99,29 @@ def _check_dag_consistency(paper: dict[str, Any], claims: list[dict[str, Any]]) 
         visit(cid, [])
 
 
-def _validate_extraction(result: Any) -> tuple[dict, list[dict]]:
-    """Run all checks on a candidate extraction. Raises with a fixable message."""
+def _validate_extraction(result: Any) -> tuple[Paper, list[Claim]]:
+    """Parse and validate extraction, converting to domain objects.
+
+    Runs schema validation and DAG consistency checks. Returns Paper and Claim
+    objects (not raw dicts) so invariants are guaranteed.
+    """
     if not isinstance(result, dict) or "paper" not in result or "claims" not in result:
         raise ValueError(
             "Top-level JSON must be an object with exactly two keys: 'paper' and 'claims'."
         )
-    paper = result["paper"]
-    claims = result["claims"]
-    if not isinstance(claims, list):
+    paper_dict = result["paper"]
+    claims_list = result["claims"]
+    if not isinstance(claims_list, list):
         raise ValueError("'claims' must be an array.")
 
     try:
-        validate_paper(paper)
+        validate_paper(paper_dict)
     except ValidationError as e:
         raise ValueError(
             f"paper failed schema validation: {e.message} (at {list(e.absolute_path)})"
         ) from e
 
-    for i, c in enumerate(claims):
+    for i, c in enumerate(claims_list):
         try:
             validate_claim(c)
         except ValidationError as e:
@@ -126,14 +130,19 @@ def _validate_extraction(result: Any) -> tuple[dict, list[dict]]:
                 f"{e.message} (at {list(e.absolute_path)})"
             ) from e
 
-    _check_dag_consistency(paper, claims)
+    _check_dag_consistency(paper_dict, claims_list)
+
+    # Convert to domain objects (validates DAG acyclicity in Paper constructor)
+    paper = Paper.from_dict(paper_dict)
+    claims = [Claim.from_dict(c) for c in claims_list]
+
     return paper, claims
 
 
 def _extract_one_paper(
     llm: LLM, system: str, pdf_path, *, run: Run, max_retries: int
-) -> tuple[dict, list[dict]]:
-    """Extract one paper with retry-on-failure."""
+) -> tuple[Paper, list[Claim]]:
+    """Extract one paper with retry-on-failure, returning domain objects."""
     user_content = paper_to_user_blocks(pdf_path) + [
         {
             "type": "text",
@@ -228,11 +237,13 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow of 
             continue
 
         _stamp_provenance(paper, claims, llm.model)
-        # _validate_extraction already checked schemas + DAG, but provenance
-        # stamping happens after, so re-validate to be safe.
+        # Domain object invariants were validated in Paper/Claim constructors,
+        # but re-validate the serialized form before writing (schemas).
+        paper_dict = paper.to_dict()
+        claims_dicts = [c.to_dict() for c in claims]
         try:
-            validate_paper(paper)
-            for c in claims:
+            validate_paper(paper_dict)
+            for c in claims_dicts:
                 validate_claim(c)
         except ValidationError as e:
             console.print(f"    [red]post-stamp validation failed[/red]: {e.message}")
@@ -245,11 +256,11 @@ def run(corpus: Corpus, run: Run) -> None:  # noqa: A002 (intentional shadow of 
             )
             continue
 
-        paper_id = paper["paper_id"]
-        (run.papers_dir / f"{paper_id}.json").write_text(json.dumps(paper, indent=2))
+        paper_id = paper.paper_id
+        (run.papers_dir / f"{paper_id}.json").write_text(json.dumps(paper_dict, indent=2))
         for c in claims:
-            (run.claims_dir / _claim_filename(c["claim_id"])).write_text(
-                json.dumps(c, indent=2)
+            (run.claims_dir / _claim_filename(c.claim_id)).write_text(
+                json.dumps(c.to_dict(), indent=2)
             )
         successes.append(paper_id)
         console.print(f"    [green]→[/green] {paper_id} ({len(claims)} claims)")

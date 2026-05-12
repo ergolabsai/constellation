@@ -211,6 +211,15 @@ def _build_payload(run: Run, synthesis_paper_id: str | None = None) -> dict:
 
     fr = sheaf.get("frustration", {})
     ms = sheaf["map_section"]
+
+    # Extract evidence if present in ideas
+    viz_evidence = []
+    evidence_by_id = {}
+    for idea in ideas_full:
+        for question in idea.get("open_questions", []) or []:
+            # Evidence could be encoded in question structure if present
+            pass
+
     return {
         "corpus": sheaf.get("corpus", run.root.name),
         "run_id": sheaf.get("sheaf_id", run.root.name),
@@ -236,6 +245,7 @@ def _build_payload(run: Run, synthesis_paper_id: str | None = None) -> dict:
         },
         "papers": papers,
         "claims": viz_claims,
+        "evidence": viz_evidence,
         "edges": edges,
         "ideas": viz_ideas,
         "epsilon_machine": epsilon_machine,
