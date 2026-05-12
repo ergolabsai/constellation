@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_crews_entropy",
-  "paper": "crews2024",
-  "label": "Kadomtsev marginal-stable profile has entropy-gradient interpretation analogous to Schwarzschild-Ledoux",
-  "core_value": 1.0,
-  "context_init": 0.0,
-  "context_label": "interchange-stable marginal profile"
-}

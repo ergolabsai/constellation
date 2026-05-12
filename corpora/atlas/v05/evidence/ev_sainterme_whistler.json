@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_sainterme_whistler",
-  "paper": "sainterme2026",
-  "label": "Global whistler instabilities grow significantly faster than ideal-MHD modes at d_i/L ~ few%",
-  "core_value": 0.0,
-  "context_init": 0.0,
-  "context_label": "rotating cylinder, incompressible Hall-MHD"
-}

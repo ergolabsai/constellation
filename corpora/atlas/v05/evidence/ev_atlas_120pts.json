@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_atlas_120pts",
-  "paper": "atlas2026",
-  "label": "All 120 (m,k) points satisfy |\u03b3|<1e-11 \u03c4_A^-1; worst case (2,0.69): 5.8e-12",
-  "core_value": 1.0,
-  "context_init": 0.0,
-  "context_label": "m\u2208{1..4}, k\u2208[0.1,5]"
-}

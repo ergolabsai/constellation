@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_legolas_bench",
-  "paper": "claes2020",
-  "label": "Legolas reproduces canonical MHD spectra: Parker, interchange, KH, tearing, magneto-thermal",
-  "core_value": 1.0,
-  "context_init": 0.0,
-  "context_label": "broad eigenmode validation"
-}

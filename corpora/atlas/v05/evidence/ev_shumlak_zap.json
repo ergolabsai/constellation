@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_shumlak_zap",
-  "paper": "shumlak2001",
-  "label": "ZaP stable period 15-20\u03bcs (>700\u00d7 growth time) coincident with shear",
-  "core_value": 1.0,
-  "context_init": 0.0,
-  "context_label": "ZaP experimental window"
-}

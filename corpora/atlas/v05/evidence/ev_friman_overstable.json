@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_friman_overstable",
-  "paper": "frieman1960",
-  "label": "Stationary-flow MHD operator is non-Hermitian \u2192 overstability possible",
-  "core_value": 1.0,
-  "context_init": 0.0,
-  "context_label": "displacement vector formalism"
-}

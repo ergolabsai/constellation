@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "constellation/evidence/v0.5",
+  "title": "Evidence",
+  "type": "object",
+  "required": ["evidence_id", "paper_id", "label", "core", "context", "provenance"],
+  "properties": {
+    "evidence_id": { "type": "string" },
+    "paper_id": { "type": "string" },
+    "label": { "type": "string" },
+    "core": {
+      "type": "object",
+      "required": ["dimensions", "locked"],
+      "properties": {
+        "locked": { "const": true },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "value", "scale"],
+            "properties": {
+              "name": { "type": "string" },
+              "value": { "type": "number" },
+              "scale": { "type": "string" },
+              "uncertainty": {}
+            }
+          }
+        }
+      }
+    },
+    "context": { "type": "object" },
+    "provenance": { "type": "object" }
+  }
+}
+

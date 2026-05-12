@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_atlas_kink_zero",
-  "paper": "atlas2026",
-  "label": "|\u03b3_m=1| < 8e-12 \u03c4_A^-1 on RIGID-BELTRAMI-A at <\u03b2>=12.3%",
-  "core_value": 1.0,
-  "context_init": 0.0,
-  "context_label": "rotating helical Z-pinch + H1-H5"
-}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "constellation/idea/v0.5",
+  "title": "Idea",
+  "type": "object",
+  "required": ["idea_id", "title", "scope", "contributing_claims", "contributing_evidence", "tensions_resolved", "remaining_tensions", "open_questions"],
+  "properties": {
+    "idea_id": { "type": "string" },
+    "title": { "type": "string" },
+    "scope": { "type": "object" },
+    "contributing_claims": { "type": "array", "items": { "type": "string" } },
+    "contributing_evidence": { "type": "array", "items": { "type": "string" } },
+    "tensions_resolved": { "type": "array" },
+    "remaining_tensions": { "type": "array" },
+    "open_questions": { "type": "array" },
+    "transitions_out": { "type": "array" }
+  }
+}
+

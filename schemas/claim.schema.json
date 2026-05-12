@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "constellation/claim/v0.5",
+  "title": "Claim",
+  "type": "object",
+  "required": ["claim_id", "paper_id", "label", "stalk_basis", "x_init", "x_final", "home_regime", "weaknesses", "predictions", "rewrite_history", "provenance"],
+  "properties": {
+    "claim_id": { "type": "string" },
+    "paper_id": { "type": "string" },
+    "label": { "type": "string" },
+    "stalk_basis": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "x_init": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "x_final": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "home_regime": { "type": "object" },
+    "weaknesses": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "predictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["observable", "value"],
+        "properties": {
+          "observable": { "type": "string" },
+          "value": { "type": "number" },
+          "scale": { "type": "string" }
+        }
+      }
+    },
+    "rewrite_history": { "type": "array" },
+    "provenance": { "type": "object" }
+  }
+}
+

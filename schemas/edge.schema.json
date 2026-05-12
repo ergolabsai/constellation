@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "constellation/claim-evidence-edge/v0.5",
+  "title": "Claim Evidence Edge",
+  "type": "object",
+  "required": ["edge_id", "claim_id", "evidence_id", "base_prediction", "regime_tag", "edge_stalk", "prediction_rationale", "provenance"],
+  "properties": {
+    "edge_id": { "type": "string" },
+    "claim_id": { "type": "string" },
+    "evidence_id": { "type": "string" },
+    "base_prediction": { "type": "object" },
+    "regime_tag": { "enum": ["in_regime", "out_of_regime"] },
+    "edge_stalk": { "type": "object" },
+    "prediction_rationale": { "type": "string" },
+    "provenance": { "type": "object" }
+  }
+}
+

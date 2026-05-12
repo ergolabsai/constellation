@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "constellation/sheaf/v0.5",
+  "title": "Bipartite Sheaf State",
+  "type": "object",
+  "required": ["sheaf_id", "version", "claim_vertices", "evidence_vertices", "edges", "objective", "remaining_tensions"],
+  "properties": {
+    "sheaf_id": { "type": "string" },
+    "version": { "const": "v0.5_bipartite" },
+    "claim_vertices": { "type": "array", "items": { "type": "string" } },
+    "evidence_vertices": { "type": "array", "items": { "type": "string" } },
+    "edges": { "type": "array" },
+    "objective": { "type": "object" },
+    "remaining_tensions": { "type": "array" }
+  }
+}
+

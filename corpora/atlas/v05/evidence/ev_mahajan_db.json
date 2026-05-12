@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_mahajan_db",
-  "paper": "mahajan1998",
-  "label": "Double-curl Beltrami equilibrium admits non-trivial pressure confining minimum-|B| configuration",
-  "core_value": 1.0,
-  "context_init": 0.0,
-  "context_label": "ideal coupled magnetofluid"
-}

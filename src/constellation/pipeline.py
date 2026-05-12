@@ -1,64 +1,52 @@
-"""Orchestrator: runs pipeline stages in sequence over a corpus.
-
-Each stage reads the prior stages' artifacts from the run directory and
-writes its own. Stages can be re-run individually via --from / --to.
-"""
 from __future__ import annotations
 
-from collections.abc import Callable
-from dataclasses import dataclass
+import shutil
+from pathlib import Path
 
-from rich.console import Console
-
-from .config import ensure_run_config
-from .paths import Corpus, Run
-from .stages import (
-    s1_extract,
-    s2_tag,
-    s3_complex,
-    s4_alternatives,
-    s5_compatibility,
-    s6_map,
-    s7_frustration,
-    s8_consolidate,
-    s9_report,
+from .extract import extract_corpus
+from .report import write_report
+from .sheaf import (
+    build_evidence_comparability,
+    build_sheaf,
+    consolidate_ideas,
+    generate_prediction_edges,
+    optimize_claim_rewrites,
+    write_sheaf_artifacts,
 )
-
-console = Console()
-
-
-@dataclass
-class Stage:
-    n: int
-    name: str
-    fn: Callable[[Corpus, Run], None]
+from .util import Json
 
 
-STAGES: list[Stage] = [
-    Stage(1, "extract", s1_extract.run),
-    Stage(2, "tag", s2_tag.run),
-    Stage(3, "complex", s3_complex.run),
-    Stage(4, "alternatives", s4_alternatives.run),
-    Stage(5, "compatibility", s5_compatibility.run),
-    Stage(6, "map", s6_map.run),
-    Stage(7, "frustration", s7_frustration.run),
-    Stage(8, "consolidate", s8_consolidate.run),
-    Stage(9, "report", s9_report.run),
-]
+def run_pipeline(corpus: Path, output: Path, *, force: bool = False) -> Json:
+    corpus = corpus.resolve()
+    output = output.resolve()
+    if output.exists():
+        if not force:
+            raise FileExistsError(f"output directory already exists: {output}")
+        shutil.rmtree(output)
+    output.mkdir(parents=True)
 
+    papers, claims, evidence = extract_corpus(corpus, output)
+    comparability = build_evidence_comparability(evidence)
+    edges = generate_prediction_edges(claims, evidence)
+    operations = optimize_claim_rewrites(claims, evidence, edges)
+    sheaf = build_sheaf(corpus.name, claims, evidence, edges, operations)
+    ideas = consolidate_ideas(corpus.name, claims, evidence, sheaf)
 
-def run_pipeline(
-    corpus: Corpus,
-    run_obj: Run,
-    *,
-    from_stage: int = 1,
-    to_stage: int = 9,
-) -> None:
-    run_obj.ensure_dirs()
-    ensure_run_config(run_obj, corpus)
-    for stage in STAGES:
-        if not (from_stage <= stage.n <= to_stage):
-            continue
-        console.rule(f"[bold]Stage {stage.n}: {stage.name}[/bold]")
-        stage.fn(corpus, run_obj)
-        console.print(f"[green]done[/green] stage {stage.n}: {stage.name}")
+    write_sheaf_artifacts(output, comparability, edges, sheaf, ideas)
+    for claim in claims:
+        from .util import write_json
+
+        write_json(output / "claims" / f"{claim['claim_id']}.json", claim)
+    write_report(output, papers, claims, evidence, sheaf, ideas)
+
+    return {
+        "output": str(output),
+        "papers": len(papers),
+        "claims": len(claims),
+        "evidence": len(evidence),
+        "edges": len(edges),
+        "ideas": len(ideas),
+        "initial_residual": sheaf["objective"]["initial_residual"],
+        "final_residual": sheaf["objective"]["final_residual"],
+    }
+

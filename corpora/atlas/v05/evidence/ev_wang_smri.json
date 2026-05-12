@@ -1,8 +1,0 @@
-{
-  "evidence_id": "ev_wang_smri",
-  "paper": "wang2022",
-  "label": "Axisymmetric SMRI onset observed at critical Rm in Taylor-Couette liquid metal",
-  "core_value": 0.0,
-  "context_init": 0.0,
-  "context_label": "axisymmetric, liquid-metal, supercritical Rm"
-}
