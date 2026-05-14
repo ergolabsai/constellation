@@ -4,6 +4,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Iterable
 
+from .seeds import atlas_seeded_ideas
 from .util import Json, now_utc, write_json
 
 
@@ -35,11 +36,15 @@ def generate_prediction_edges(claims: list[Json], evidence: list[Json]) -> list[
     for claim in claims:
         for prediction in claim.get("predictions", []):
             observable = prediction["observable"]
+            target_ids = set(prediction.get("evidence_ids", []))
             for ev in evidence_by_observable.get(observable, []):
+                if target_ids and ev["evidence_id"] not in target_ids:
+                    continue
                 edge_id = f"{claim['claim_id']}__{ev['evidence_id']}"
                 if edge_id in seen:
                     continue
                 seen.add(edge_id)
+                tag = prediction.get("regime_tag") or regime_tag(claim, ev)
                 edges.append(
                     {
                         "edge_id": edge_id,
@@ -54,7 +59,7 @@ def generate_prediction_edges(claims: list[Json], evidence: list[Json]) -> list[
                                 }
                             ]
                         },
-                        "regime_tag": regime_tag(claim, ev),
+                        "regime_tag": tag,
                         "edge_stalk": {
                             "dimensions": [
                                 {
@@ -293,6 +298,10 @@ def build_sheaf(
 
 
 def consolidate_ideas(corpus_name: str, claims: list[Json], evidence: list[Json], sheaf: Json) -> list[Json]:
+    seeded_ideas = atlas_seeded_ideas(corpus_name, claims, evidence, sheaf)
+    if seeded_ideas is not None:
+        return seeded_ideas
+
     claim_ids = {c["claim_id"] for c in claims}
     evidence_ids = {ev["evidence_id"] for ev in evidence}
     graph: dict[str, set[str]] = {f"c:{cid}": set() for cid in claim_ids}
@@ -417,7 +426,23 @@ def _open_questions(observables: list[str], remaining: list[Json]) -> list[Json]
             {
                 "question": "Which nonlinear, kinetic, or profile effects explain the observed m=1 stability outside the linear ideal-MHD threshold model?",
                 "priority": "high",
-                "suggested_next_steps": ["theory_extension", "simulation", "corpus_expansion"],
+                "suggested_next_steps": [
+                    _next_work(
+                        "theory",
+                        "Mechanism split",
+                        "Separate nonlinear, kinetic, and profile-shape explanations into distinct claim families before comparing them to m=1 evidence.",
+                    ),
+                    _next_work(
+                        "simulation",
+                        "Profile-effect scan",
+                        "Run m=1 stability scans across the profile features missing from the linear ideal-MHD threshold model.",
+                    ),
+                    _next_work(
+                        "literature",
+                        "Corpus expansion",
+                        "Add papers that test nonlinear and kinetic stabilization mechanisms in sheared Z-pinches.",
+                    ),
+                ],
             }
         )
     if "ideal_mhd_short_scale_valid" in observables:
@@ -425,18 +450,39 @@ def _open_questions(observables: list[str], remaining: list[Json]) -> list[Json]
             {
                 "question": "Where is the practical boundary between ideal-MHD and gyrokinetic descriptions for short-scale Z-pinch modes?",
                 "priority": "medium",
-                "suggested_next_steps": ["benchmark", "simulation"],
+                "suggested_next_steps": [
+                    _next_work(
+                        "benchmark",
+                        "Shared mode benchmark",
+                        "Compare ideal-MHD and gyrokinetic predictions on the same equilibrium and wavelength grid.",
+                    ),
+                    _next_work(
+                        "simulation",
+                        "Short-scale sweep",
+                        "Sweep k rho_i and track where ideal-MHD predictions depart from gyrokinetic evidence.",
+                    ),
+                ],
             }
         )
     if remaining:
         questions.append(
             {
                 "question": "Which remaining residuals need human domain review before consolidation?",
-                "priority": "high",
-                "suggested_next_steps": ["human_review"],
+                "priority": "blocking",
+                "suggested_next_steps": [
+                    _next_work(
+                        "audit",
+                        "Residual review",
+                        "Inspect the highest-residual edges and decide whether the issue is extraction, regime tagging, or a genuine scientific tension.",
+                    )
+                ],
             }
         )
     return questions
+
+
+def _next_work(kind: str, title: str, description: str) -> Json:
+    return {"kind": kind, "title": title, "description": description}
 
 
 def write_sheaf_artifacts(run_dir: Path, comparability: Json, edges: list[Json], sheaf: Json, ideas: list[Json]) -> None:

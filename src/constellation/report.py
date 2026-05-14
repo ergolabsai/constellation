@@ -43,6 +43,8 @@ def write_report(run_dir: Path, papers: list[Json], claims: list[Json], evidence
             lines.append(f"- Remaining tensions: {len(idea['remaining_tensions'])}")
         for question in idea["open_questions"]:
             lines.append(f"- Open question ({question['priority']}): {question['question']}")
+            for step in question.get("suggested_next_steps", []):
+                lines.append(f"  - Next {_step_kind(step)}: {_step_title(step)}")
         lines.append("")
 
     run_dir.joinpath("report.md").write_text("\n".join(lines))
@@ -64,12 +66,13 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
     ]
     data = _viz_data(papers, claims, evidence, sheaf, ideas)
     data_json = json.dumps(data, ensure_ascii=True, separators=(",", ":"))
+    report_title = html.escape(_report_title(sheaf))
     doc = f"""<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Constellation - Ideas</title>
+  <title>{report_title}</title>
   <style>
     :root {{
       --bg: #f8fafc;
@@ -182,6 +185,7 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
       fill-opacity: 0.14;
       stroke-opacity: 0.72;
       stroke-width: 1.4;
+      stroke-linejoin: round;
       cursor: pointer;
       transition: opacity 160ms, fill-opacity 160ms, stroke-width 160ms;
     }}
@@ -198,6 +202,7 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
     }}
     .node {{ cursor: pointer; transition: opacity 160ms; }}
     .node .shape {{ stroke: white; stroke-width: 1.7; }}
+    .node.kumar .shape {{ stroke: #facc15; stroke-width: 2.8; }}
     .node.rewritten .shape {{
       stroke: var(--accent);
       stroke-width: 3;
@@ -271,7 +276,52 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
     }}
     .callout.warn {{ border-left-color: var(--warn); background: #fff7ed; }}
     .callout.bad {{ border-left-color: var(--bad); background: #fef2f2; }}
+    .callout.question.blocking {{ border-left-color: var(--bad); background: #fef2f2; }}
+    .callout.question.high {{ border-left-color: var(--warn); background: #fff7ed; }}
+    .callout.question.medium {{ border-left-color: var(--accent); background: #eff6ff; }}
+    .callout.question.exploratory {{ border-left-color: var(--ok); background: #f0fdf4; }}
     .callout .k {{ color: var(--muted); font-size: 11px; font-weight: 700; }}
+    .priority {{
+      display: inline-flex;
+      align-items: center;
+      min-height: 18px;
+      padding: 1px 6px;
+      margin-right: 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }}
+    .priority.blocking {{ background: #fee2e2; color: #991b1b; }}
+    .priority.high {{ background: #ffedd5; color: #9a3412; }}
+    .priority.medium {{ background: #dbeafe; color: #1d4ed8; }}
+    .priority.exploratory {{ background: #dcfce7; color: #166534; }}
+    .next-work {{
+      margin-top: 8px;
+      display: grid;
+      gap: 6px;
+    }}
+    .next-step {{
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      background: white;
+      padding: 7px 8px;
+    }}
+    .next-step .kind {{
+      display: inline-flex;
+      align-items: center;
+      min-height: 18px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }}
+    .next-step .title {{ margin-left: 6px; font-weight: 750; }}
+    .next-step .desc {{ margin-top: 4px; color: var(--muted); font-size: 11.5px; }}
     .muted {{ color: var(--muted); }}
     .mono {{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }}
     .score-grid {{
@@ -300,7 +350,7 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
 <body>
   <header>
     <div>
-      <h1>Shumlak v0.5 - Ideas Constellation</h1>
+      <h1>{report_title}</h1>
       <div class="muted">Bipartite claim/evidence sheaf with residual-aware rewrites</div>
     </div>
     <div class="meta" id="meta"></div>
@@ -322,8 +372,16 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
           <span><b>claim</b> circle, dashed when rewritten</span>
         </div>
         <div class="shape-line">
+          <svg width="22" height="22" viewBox="-14 -14 28 28"><path d="M 0,-12 L 3.4,-4 L 12,-4 L 5.2,1.8 L 7.4,11 L 0,6 L -7.4,11 L -5.2,1.8 L -12,-4 L -3.4,-4 Z" fill="#eab308" stroke="#facc15" stroke-width="2"/></svg>
+          <span><b>Kumar claim</b> star</span>
+        </div>
+        <div class="shape-line">
           <svg width="22" height="22" viewBox="-12 -12 24 24"><rect x="-9" y="-9" width="18" height="18" rx="2" fill="#64748b" stroke="white" stroke-width="2"/></svg>
           <span><b>evidence</b> square, dashed when context-filled</span>
+        </div>
+        <div class="shape-line">
+          <svg width="22" height="22" viewBox="-14 -14 28 28"><path d="M 0,-12 L 12,0 L 0,12 L -12,0 Z" fill="#eab308" stroke="#facc15" stroke-width="2"/></svg>
+          <span><b>Kumar evidence</b> diamond</span>
         </div>
       </div>
       <h2>Edges</h2>
@@ -350,6 +408,8 @@ const state = {{ focusType: null, focusId: null, scale: 1, tx: 0, ty: 0 }};
 const nodeById = Object.fromEntries([...DATA.claims, ...DATA.evidence].map(n => [n.id, n]));
 const ideaById = Object.fromEntries(DATA.ideas.map(i => [i.id, i]));
 const edgesByNode = Object.fromEntries(Object.keys(nodeById).map(id => [id, []]));
+const STAR_PATH = "M 0,-12 L 3.4,-4 L 12,-4 L 5.2,1.8 L 7.4,11 L 0,6 L -7.4,11 L -5.2,1.8 L -12,-4 L -3.4,-4 Z";
+const DIAMOND_PATH = "M 0,-12 L 12,0 L 0,12 L -12,0 Z";
 for (const edge of DATA.edges) {{
   edgesByNode[edge.source].push(edge);
   edgesByNode[edge.target].push(edge);
@@ -509,10 +569,8 @@ function renderStatic() {{
   }}
 
   for (const node of Object.values(nodeById)) {{
-    const group = el("g", {{"class": `node ${{node.kind}}${{node.rewritten ? " rewritten" : ""}}${{node.context_filled ? " context-filled" : ""}}`, "data-id": node.id}});
-    const shape = node.kind === "claim"
-      ? el("circle", {{"class": "shape", r: 10, fill: node.color}})
-      : el("rect", {{"class": "shape", x: -9, y: -9, width: 18, height: 18, rx: 2, fill: node.color}});
+    const group = el("g", {{"class": `node ${{node.kind}}${{node.is_kumar ? " kumar" : ""}}${{node.rewritten ? " rewritten" : ""}}${{node.context_filled ? " context-filled" : ""}}`, "data-id": node.id}});
+    const shape = nodeShape(node);
     group.appendChild(shape);
     group.addEventListener("click", ev => {{ ev.stopPropagation(); focusNode(node.id); }});
     group.addEventListener("mousemove", ev => showTip(ev, nodeTip(node)));
@@ -531,6 +589,19 @@ function renderStatic() {{
     layers.ideaLabels.appendChild(label);
   }}
   renderPositions();
+}}
+
+function nodeShape(node) {{
+  if (node.kind === "claim" && node.is_kumar) {{
+    return el("path", {{"class": "shape", d: STAR_PATH, fill: node.color}});
+  }}
+  if (node.kind === "evidence" && node.is_kumar) {{
+    return el("path", {{"class": "shape", d: DIAMOND_PATH, fill: node.color}});
+  }}
+  if (node.kind === "claim") {{
+    return el("circle", {{"class": "shape", r: 10, fill: node.color}});
+  }}
+  return el("rect", {{"class": "shape", x: -9, y: -9, width: 18, height: 18, rx: 2, fill: node.color}});
 }}
 
 function renderPositions() {{
@@ -562,21 +633,98 @@ function renderPositions() {{
   for (const label of layers.ideaLabels.querySelectorAll(".idea-label")) {{
     const idea = ideaById[label.dataset.id];
     const nodes = [...idea.claim_ids, ...idea.evidence_ids].map(id => nodeById[id]).filter(Boolean);
-    label.setAttribute("x", avg(nodes, "x"));
-    label.setAttribute("y", Math.min(...nodes.map(n => n.y)) - 36);
+    const point = ideaLabelPoint(nodes);
+    label.setAttribute("x", point.x);
+    label.setAttribute("y", point.y);
   }}
 }}
 
 function hullPath(idea) {{
   const nodes = [...idea.claim_ids, ...idea.evidence_ids].map(id => nodeById[id]).filter(Boolean);
   if (!nodes.length) return "";
-  const pad = 40;
-  const minX = Math.min(...nodes.map(n => n.x)) - pad;
-  const maxX = Math.max(...nodes.map(n => n.x)) + pad;
-  const minY = Math.min(...nodes.map(n => n.y)) - pad;
-  const maxY = Math.max(...nodes.map(n => n.y)) + pad;
-  const r = 26;
-  return `M ${{minX + r}} ${{minY}} L ${{maxX - r}} ${{minY}} Q ${{maxX}} ${{minY}} ${{maxX}} ${{minY + r}} L ${{maxX}} ${{maxY - r}} Q ${{maxX}} ${{maxY}} ${{maxX - r}} ${{maxY}} L ${{minX + r}} ${{maxY}} Q ${{minX}} ${{maxY}} ${{minX}} ${{maxY - r}} L ${{minX}} ${{minY + r}} Q ${{minX}} ${{minY}} ${{minX + r}} ${{minY}} Z`;
+  const points = nodes.map(n => ({{x: n.x, y: n.y}}));
+  const pad = 34;
+  if (points.length === 1) return circleBlob(points[0], pad + 18);
+  const hull = convexHull(points);
+  if (hull.length === 1) return circleBlob(hull[0], pad + 18);
+  if (hull.length === 2) return capsuleBlob(hull[0], hull[1], pad + 14);
+  return smoothClosedPath(inflateHull(hull, pad));
+}}
+
+function circleBlob(point, radius) {{
+  const c = radius * 0.5522847498;
+  return `M ${{point.x}} ${{point.y - radius}} C ${{point.x + c}} ${{point.y - radius}} ${{point.x + radius}} ${{point.y - c}} ${{point.x + radius}} ${{point.y}} C ${{point.x + radius}} ${{point.y + c}} ${{point.x + c}} ${{point.y + radius}} ${{point.x}} ${{point.y + radius}} C ${{point.x - c}} ${{point.y + radius}} ${{point.x - radius}} ${{point.y + c}} ${{point.x - radius}} ${{point.y}} C ${{point.x - radius}} ${{point.y - c}} ${{point.x - c}} ${{point.y - radius}} ${{point.x}} ${{point.y - radius}} Z`;
+}}
+
+function capsuleBlob(a, b, radius) {{
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const length = Math.hypot(dx, dy);
+  if (length < 1) return circleBlob(a, radius);
+  const nx = -dy / length * radius;
+  const ny = dx / length * radius;
+  const p1 = {{x: a.x + nx, y: a.y + ny}};
+  const p2 = {{x: b.x + nx, y: b.y + ny}};
+  const p3 = {{x: b.x - nx, y: b.y - ny}};
+  const p4 = {{x: a.x - nx, y: a.y - ny}};
+  return `M ${{p1.x}} ${{p1.y}} L ${{p2.x}} ${{p2.y}} A ${{radius}} ${{radius}} 0 0 1 ${{p3.x}} ${{p3.y}} L ${{p4.x}} ${{p4.y}} A ${{radius}} ${{radius}} 0 0 1 ${{p1.x}} ${{p1.y}} Z`;
+}}
+
+function convexHull(points) {{
+  const unique = [...new Map(points.map(p => [`${{p.x.toFixed(2)}},${{p.y.toFixed(2)}}`, p])).values()];
+  if (unique.length <= 2) return unique;
+  const sorted = unique.sort((a, b) => a.x - b.x || a.y - b.y);
+  const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const lower = [];
+  for (const p of sorted) {{
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop();
+    lower.push(p);
+  }}
+  const upper = [];
+  for (const p of [...sorted].reverse()) {{
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
+    upper.push(p);
+  }}
+  return lower.slice(0, -1).concat(upper.slice(0, -1));
+}}
+
+function inflateHull(points, pad) {{
+  const cx = avg(points, "x");
+  const cy = avg(points, "y");
+  return points.map(p => {{
+    const dx = p.x - cx;
+    const dy = p.y - cy;
+    const length = Math.max(1, Math.hypot(dx, dy));
+    return {{x: p.x + dx / length * pad, y: p.y + dy / length * pad}};
+  }});
+}}
+
+function smoothClosedPath(points) {{
+  const n = points.length;
+  const tension = 0.78;
+  let path = `M ${{points[0].x}} ${{points[0].y}}`;
+  for (let i = 0; i < n; i++) {{
+    const p0 = points[(i - 1 + n) % n];
+    const p1 = points[i];
+    const p2 = points[(i + 1) % n];
+    const p3 = points[(i + 2) % n];
+    const c1 = {{x: p1.x + (p2.x - p0.x) * tension / 6, y: p1.y + (p2.y - p0.y) * tension / 6}};
+    const c2 = {{x: p2.x - (p3.x - p1.x) * tension / 6, y: p2.y - (p3.y - p1.y) * tension / 6}};
+    path += ` C ${{c1.x}} ${{c1.y}} ${{c2.x}} ${{c2.y}} ${{p2.x}} ${{p2.y}}`;
+  }}
+  return `${{path}} Z`;
+}}
+
+function ideaLabelPoint(nodes) {{
+  if (!nodes.length) return {{x: 0, y: 0}};
+  const center = {{x: avg(nodes, "x"), y: avg(nodes, "y")}};
+  if (nodes.length === 1) return {{x: center.x, y: center.y - 28}};
+  const top = nodes.reduce((best, node) => node.y < best.y ? node : best, nodes[0]);
+  if (center.y - top.y < 24) return {{x: center.x, y: center.y - 20}};
+  return {{
+    x: center.x * 0.65 + top.x * 0.35,
+    y: center.y * 0.65 + top.y * 0.35,
+  }};
 }}
 
 function avg(nodes, key) {{
@@ -699,9 +847,45 @@ function renderIdeaDetail(idea) {{
     <h2>Evidence</h2>
     <div class="pill-row">${{idea.evidence_ids.map(id => pill(nodeById[id])).join("")}}</div>
     ${{idea.remaining_tensions.map(t => `<div class="callout bad"><div class="k">${{escapeHtml(t.edge_id)}}</div>${{escapeHtml(t.interpretation)}}<br><span class="mono">residual=${{metric(t.residual)}}</span></div>`).join("")}}
-    ${{idea.open_questions.map(q => `<div class="callout"><div class="k">Open question - ${{escapeHtml(q.priority)}}</div>${{escapeHtml(q.question)}}<br><span class="muted">${{escapeHtml((q.suggested_next_steps || []).join(", "))}}</span></div>`).join("")}}
+    ${{idea.open_questions.map(questionBlock).join("")}}
   `;
   wirePills();
+}}
+
+function questionBlock(q) {{
+  const priority = q.priority || "medium";
+  return `
+    <div class="callout question ${{priorityClass(priority)}}">
+      <div class="k"><span class="priority ${{priorityClass(priority)}}">${{escapeHtml(priorityLabel(priority))}}</span>Open question</div>
+      ${{escapeHtml(q.question)}}
+      <div class="next-work">
+        ${{(q.suggested_next_steps || []).map(nextStepBlock).join("")}}
+      </div>
+    </div>
+  `;
+}}
+
+function priorityClass(value) {{
+  const normalized = String(value || "medium").toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+  return ["blocking", "high", "medium", "exploratory"].includes(normalized) ? normalized : "medium";
+}}
+
+function priorityLabel(value) {{
+  const normalized = priorityClass(value);
+  return normalized === "blocking" ? "blocking" : normalized;
+}}
+
+function nextStepBlock(step) {{
+  if (typeof step === "string") {{
+    return `<div class="next-step"><span class="kind">next</span><span class="title">${{escapeHtml(step)}}</span></div>`;
+  }}
+  return `
+    <div class="next-step">
+      <span class="kind">${{escapeHtml(step.kind || "next")}}</span>
+      <span class="title">${{escapeHtml(step.title || "Suggested work")}}</span>
+      ${{step.description ? `<div class="desc">${{escapeHtml(step.description)}}</div>` : ""}}
+    </div>
+  `;
 }}
 
 function renderNodeDetail(node) {{
@@ -720,9 +904,26 @@ function renderNodeDetail(node) {{
 }}
 
 function claimState(node) {{
-  const rewrite = node.rewritten ? `<div class="callout"><div class="k">Rewrite</div>in/out strength ${{metric(node.x_in)}} / ${{metric(node.x_out)}}</div>` : "";
-  const weaknesses = (node.weaknesses || []).map(w => `<li>${{escapeHtml(w)}}</li>`).join("");
-  return `${{rewrite}}${{weaknesses ? `<h2>Weaknesses</h2><ul>${{weaknesses}}</ul>` : ""}}`;
+  return `${{rewriteBlock(node)}}${{claimList("Strengths", node.strengths, "No strengths recorded.")}}${{claimList("Weaknesses", node.weaknesses, "No weaknesses recorded.")}}`;
+}}
+
+function rewriteBlock(node) {{
+  if (!node.rewritten) return "";
+  return `
+    <div class="callout">
+      <div class="k">Original claim</div>
+      ${{escapeHtml(node.original_label || node.label)}}
+    </div>
+    <div class="callout">
+      <div class="k">Edited claim</div>
+      ${{escapeHtml(node.edited_label || node.label)}}
+    </div>
+  `;
+}}
+
+function claimList(title, items, fallback) {{
+  const values = Array.isArray(items) && items.length ? items : [fallback];
+  return `<h2>${{escapeHtml(title)}}</h2><ul>${{values.map(item => `<li>${{escapeHtml(item)}}</li>`).join("")}}</ul>`;
 }}
 
 function evidenceState(node) {{
@@ -829,6 +1030,9 @@ def _viz_data(
     paper_labels = {
         paper["paper_id"]: _paper_label(paper) for paper in papers
     }
+    for paper_id, label in paper_labels.items():
+        if _is_kumar_paper(paper_id, label):
+            paper_colors[paper_id] = "#eab308"
     claim_by_id = {claim["claim_id"]: claim for claim in claims}
     evidence_by_id = {ev["evidence_id"]: ev for ev in evidence}
     final_residual_by_edge = {
@@ -844,12 +1048,19 @@ def _viz_data(
                 "short_id": claim["claim_id"],
                 "kind": "claim",
                 "label": claim["label"],
+                "original_label": claim["label"],
+                "edited_label": _edited_claim_label(claim),
                 "paper": paper_id,
                 "paper_label": paper_labels.get(paper_id, paper_id),
                 "color": paper_colors.get(paper_id, "#64748b"),
+                "is_kumar": _is_kumar_paper(paper_id, paper_labels.get(paper_id, "")),
                 "x_in": claim["x_final"][0],
                 "x_out": claim["x_final"][1],
+                "x_init": claim.get("x_init", []),
+                "x_final": claim.get("x_final", []),
                 "rewritten": bool(claim.get("rewrite_history")),
+                "rewrite_history": claim.get("rewrite_history", []),
+                "strengths": claim.get("strengths", _claim_strengths(claim)),
                 "weaknesses": claim.get("weaknesses", []),
             }
         )
@@ -868,6 +1079,7 @@ def _viz_data(
                 "paper": paper_id,
                 "paper_label": paper_labels.get(paper_id, paper_id),
                 "color": paper_colors.get(paper_id, "#64748b"),
+                "is_kumar": _is_kumar_paper(paper_id, paper_labels.get(paper_id, "")),
                 "core": first_dim["value"],
                 "observable": first_dim["name"],
                 "context": "; ".join(
@@ -945,3 +1157,51 @@ def _viz_data(
 def _paper_label(paper: Json) -> str:
     year = f" ({paper['year']})" if paper.get("year") else ""
     return f"{paper.get('title', paper['paper_id'])}{year}"
+
+
+def _report_title(sheaf: Json) -> str:
+    sheaf_id = str(sheaf.get("sheaf_id", "constellation"))
+    corpus = sheaf_id.removesuffix("_v05").replace("_", " ").strip()
+    corpus_name = corpus.title() if corpus else "Constellation"
+    return f"{corpus_name} v0.5 - Ideas Constellation"
+
+
+def _step_kind(step: Json | str) -> str:
+    if isinstance(step, str):
+        return "step"
+    return str(step.get("kind", "step"))
+
+
+def _step_title(step: Json | str) -> str:
+    if isinstance(step, str):
+        return step
+    title = str(step.get("title", "Suggested work"))
+    description = str(step.get("description", "")).strip()
+    return f"{title} - {description}" if description else title
+
+
+def _claim_strengths(claim: Json) -> list[str]:
+    predictions = claim.get("predictions", [])
+    if predictions:
+        return [f"Makes {len(predictions)} explicit prediction(s) against evidence nodes."]
+    return ["Provides a scoped literature claim for review."]
+
+
+def _edited_claim_label(claim: Json) -> str:
+    history = claim.get("rewrite_history", [])
+    if not history:
+        return claim["label"]
+    final_state = claim.get("x_final", [1.0, 1.0])
+    home = claim.get("home_regime", {})
+    framework = home.get("framework") or "its home framework"
+    system = home.get("system") or "its home regime"
+    out_strength = float(final_state[1]) if len(final_state) > 1 else 1.0
+    return (
+        f"{claim['label']} Scoped reading: keep full strength for {system} under "
+        f"{framework}, but treat out-of-regime projections at strength {out_strength:.1f}."
+    )
+
+
+def _is_kumar_paper(paper_id: str, label: str) -> bool:
+    normalized = f"{paper_id} {label}".lower()
+    return "kumar" in normalized or paper_id == "atlas2026"

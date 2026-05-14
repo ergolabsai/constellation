@@ -12,8 +12,34 @@
     "contributing_evidence": { "type": "array", "items": { "type": "string" } },
     "tensions_resolved": { "type": "array" },
     "remaining_tensions": { "type": "array" },
-    "open_questions": { "type": "array" },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question", "priority", "suggested_next_steps"],
+        "properties": {
+          "question": { "type": "string" },
+          "priority": { "type": "string" },
+          "suggested_next_steps": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "type": "string" },
+                {
+                  "type": "object",
+                  "required": ["kind", "title", "description"],
+                  "properties": {
+                    "kind": { "type": "string" },
+                    "title": { "type": "string" },
+                    "description": { "type": "string" }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
     "transitions_out": { "type": "array" }
   }
 }
-
