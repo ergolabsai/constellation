@@ -1,0 +1,55 @@
+{
+  "contributing_claims": [
+    "S_01",
+    "S_02",
+    "AN_02",
+    "CR_01",
+    "Z_01",
+    "A_06"
+  ],
+  "contributing_evidence": [
+    "ev_shumlak_threshold",
+    "ev_shumlak_zap",
+    "ev_angus_m0_scaling",
+    "ev_zhang_neutrons",
+    "ev_crews_entropy"
+  ],
+  "description": "The Shumlak mode family and atlas m=1 theorem can be read as two halves of a joint stability story.",
+  "idea_id": "idea_05_shumlak_m0_complementary",
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "Can a ZaP or FuZE-class device realize a profile satisfying both Shumlak m=0 shear and Atlas m=1 H3 conditions?",
+      "suggested_next_steps": [
+        {
+          "description": "Design a ZaP/FuZE-class discharge target that satisfies Shumlak's m=0 shear threshold and approximates Atlas H3 conditions.",
+          "kind": "experiment",
+          "title": "Joint m=0/m=1 profile target"
+        },
+        {
+          "description": "Run a shared equilibrium through both m=0 shear-stabilization analysis and m=1 Atlas-style spectral analysis.",
+          "kind": "simulation",
+          "title": "Common-profile stability check"
+        },
+        {
+          "description": "Derive whether satisfying the m=0 and m=1 conditions simultaneously creates new higher-m or mixed-mode constraints.",
+          "kind": "theory",
+          "title": "Mode-family coupling"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "deterministic_atlas_seed",
+    "corpus": "atlas"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "seeded v0.5 restriction-rewriting graph",
+    "regime": "The Shumlak mode family and atlas m=1 theorem can be read as two halves of a joint stability story.",
+    "system": "Atlas Z-pinch corpus"
+  },
+  "tensions_resolved": [],
+  "title": "Shumlak's m=0 sheared-flow stabilization is complementary rather than competing",
+  "transitions_out": []
+}

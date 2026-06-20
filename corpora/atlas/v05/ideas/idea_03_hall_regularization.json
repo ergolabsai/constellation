@@ -1,0 +1,52 @@
+{
+  "contributing_claims": [
+    "SH_01",
+    "ML_01",
+    "SE_01",
+    "A_05",
+    "A_02"
+  ],
+  "contributing_evidence": [
+    "ev_shiraishi_dilayer",
+    "ev_sainterme_whistler",
+    "ev_atlas_kink_zero"
+  ],
+  "description": "The ideal-MHD atlas regime becomes a reference point for finite-ion-skin-depth corrections.",
+  "idea_id": "idea_03_hall_regularization",
+  "open_questions": [
+    {
+      "priority": "high",
+      "question": "Does the n^-4 accumulation survive at finite d_i/R, or is it replaced by a Hall-modified spectrum?",
+      "suggested_next_steps": [
+        {
+          "description": "Run a Hall-MHD eigenvalue scan on the Atlas equilibrium for d_i/R from near zero to compact-pinch values and track the spectral accumulation exponent.",
+          "kind": "simulation",
+          "title": "Hall-MHD d_i/R sweep"
+        },
+        {
+          "description": "Derive the inner Hall layer correction near the H3 quartic minimum and match it to the outer ideal-MHD solution.",
+          "kind": "theory",
+          "title": "Matched asymptotic H3 layer"
+        },
+        {
+          "description": "Estimate whether available devices operate at d_i/R large enough for Hall regularization to be a leading-order effect.",
+          "kind": "experiment",
+          "title": "Hall-scale sensitivity check"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "deterministic_atlas_seed",
+    "corpus": "atlas"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "seeded v0.5 restriction-rewriting graph",
+    "regime": "The ideal-MHD atlas regime becomes a reference point for finite-ion-skin-depth corrections.",
+    "system": "Atlas Z-pinch corpus"
+  },
+  "tensions_resolved": [],
+  "title": "Hall corrections at finite d_i/R regularize the H3 singularity over a d_i layer",
+  "transitions_out": []
+}

@@ -1,0 +1,59 @@
+{
+  "claim_id": "AN_01",
+  "home_regime": {
+    "framework": "linear ideal MHD eigenmode analysis",
+    "regime_keywords": [
+      "angus",
+      "shear",
+      "profile"
+    ],
+    "system": "sheared-flow Z-pinch"
+  },
+  "label": "Linear shear flow alone does not stabilize m=1 kink across realistic Z-pinch profile classes",
+  "paper_id": "angus2020",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_angus_m1_persists"
+      ],
+      "observable": "ev_angus_m1_persists",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_kink_zero"
+      ],
+      "observable": "ev_atlas_kink_zero",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "RESEARCH ARTICLE | DECEMBER 17 2020 Eigenmode analysis of the sheared-flow Z-pinch \ue904 J. R. Angus \ue923 ; J. J. Van De Wetering ; M. Dorf ; V. I. Geyko Phys. Plasmas 27, 122108 (2020) https://doi.org/10.1063/5.0029716 \ue929 \ue92d"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Strong modern comparator showing shear-only linear ideal MHD does not stabilize m=1 in tested profiles."
+  ],
+  "weaknesses": [
+    "The tested profiles may omit the Atlas H3 quartic/helical ingredient, so the negative result should be scoped."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

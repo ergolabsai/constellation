@@ -1,0 +1,44 @@
+{
+  "contributing_claims": [
+    "A_02",
+    "A_03",
+    "A_07",
+    "CK_01",
+    "MY_01"
+  ],
+  "contributing_evidence": [
+    "ev_chandra_ck",
+    "ev_mahajan_db",
+    "ev_atlas_h3_value"
+  ],
+  "description": "Evidence about the existence, beta, and structure of Beltrami / double-Beltrami equilibria that admit the H3 quartic Alfven minimum.",
+  "group_id": "beltrami_equilibrium_class",
+  "idea_id": "idea_01_beltrami_equilibrium_class",
+  "open_questions": [
+    {
+      "priority": "high",
+      "question": "Are the implicit-headline claim(s) A_07 actually intended to generalize across this group, or do their authors scope them more narrowly than the propagator assumes?",
+      "suggested_next_steps": [
+        {
+          "description": "Read each implicit-headline claim's source paper and decide whether to add explicit out-of-regime predictions or to mark the claim as scoped only to its home regime.",
+          "kind": "literature",
+          "title": "Scope verification"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas",
+    "group": "beltrami_equilibrium_class"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature; ideal MHD Atlas H1-H5",
+    "regime": "A_02 / A_03 / A_07 / CK_01 / MY_01",
+    "system": "magnetized plasma; rotating helical Z-pinch"
+  },
+  "tensions_resolved": [],
+  "title": "Beltrami / double-Beltrami equilibrium constructions",
+  "transitions_out": []
+}

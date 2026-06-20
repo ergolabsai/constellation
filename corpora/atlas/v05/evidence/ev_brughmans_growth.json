@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "Legolas SARI computation",
+    "regime": "sari, legolas",
+    "system": "rotating plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_brughmans_growth",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 0.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_brughmans_growth",
+  "label": "Non-axisymmetric SARI growth rates are comparable to MRI at high mode numbers",
+  "paper_id": "brughmans2024",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Draft version October 18, 2024 Typeset using LATEX default style in AASTeX631 Parametric Survey of Nonaxisymmetric Accretion Disk Instabilities: Magnetorotational Instability to"
+  }
+}

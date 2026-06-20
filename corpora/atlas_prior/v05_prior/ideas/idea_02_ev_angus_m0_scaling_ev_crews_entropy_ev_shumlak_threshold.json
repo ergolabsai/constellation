@@ -1,0 +1,27 @@
+{
+  "contributing_claims": [
+    "AN_02",
+    "CR_01",
+    "S_01"
+  ],
+  "contributing_evidence": [
+    "ev_angus_m0_scaling",
+    "ev_crews_entropy",
+    "ev_shumlak_threshold"
+  ],
+  "idea_id": "idea_02_ev_angus_m0_scaling_ev_crews_entropy_ev_shumlak_threshold",
+  "open_questions": [],
+  "provenance": {
+    "consolidator": "deterministic_connected_components",
+    "corpus": "atlas_prior"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature; linear and numerical MHD; linear ideal MHD eigenmode analysis",
+    "regime": "AN_02 / CR_01 / S_01",
+    "system": "magnetized plasma; sheared-flow Z-pinch"
+  },
+  "tensions_resolved": [],
+  "title": "Scoped claim-evidence knowledge unit",
+  "transitions_out": []
+}

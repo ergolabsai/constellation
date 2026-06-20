@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
-from .seeds import atlas_seeded_ideas
 from .util import Json, now_utc, write_json
 
 
@@ -160,12 +159,29 @@ def optimize_claim_rewrites(
     evidence: list[Json],
     edges: list[Json],
     *,
+    lambda_fn: Callable[[str], float] | None = None,
     lambda_claim: float = DEFAULT_LAMBDA_CLAIM,
 ) -> list[Json]:
+    """Hill-climb each claim's out-of-regime strength to minimize
+    residual + lambda * rewrite_penalty.
+
+    When ``lambda_fn`` is supplied it is consulted per claim, so the
+    rewrite cost can scale with stature (claims backed by many
+    independent papers cost more to doubt) or be discounted for an
+    incoming contribution. When ``lambda_fn`` is absent, the optimizer
+    falls back to the flat ``lambda_claim`` for every claim -- the old
+    behavior, preserved so non-stature callers keep working.
+    """
     evidence_by_id = {ev["evidence_id"]: ev for ev in evidence}
     edges_by_claim: dict[str, list[Json]] = defaultdict(list)
     for edge in edges:
         edges_by_claim[edge["claim_id"]].append(edge)
+
+    if lambda_fn is None:
+        flat_lambda = float(lambda_claim)
+
+        def lambda_fn(_cid: str) -> float:
+            return flat_lambda
 
     operations: list[Json] = []
     candidate_out_strengths = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
@@ -174,14 +190,15 @@ def optimize_claim_rewrites(
         if not claim_edges:
             continue
 
+        lam = float(lambda_fn(claim["claim_id"]))
         original_state = list(claim["x_final"])
         best_state = original_state
-        best_score = _claim_objective(claim, claim_edges, evidence_by_id, lambda_claim)
+        best_score = _claim_objective(claim, claim_edges, evidence_by_id, lam)
         best_residual = _claim_residual_total(claim, claim_edges, evidence_by_id)
 
         for out_strength in candidate_out_strengths:
             claim["x_final"] = [1.0, out_strength]
-            score = _claim_objective(claim, claim_edges, evidence_by_id, lambda_claim)
+            score = _claim_objective(claim, claim_edges, evidence_by_id, lam)
             if score < best_score - 1e-12:
                 best_score = score
                 best_state = list(claim["x_final"])
@@ -204,6 +221,7 @@ def optimize_claim_rewrites(
                 "initial_residual": initial_residual,
                 "final_residual": best_residual,
                 "objective": best_score,
+                "lambda": lam,
                 "justification": (
                     "Out-of-regime predictions created residuals; narrowing preserves "
                     "in-regime strength while reducing cross-regime tension."
@@ -243,6 +261,11 @@ def build_sheaf(
     *,
     lambda_claim: float = DEFAULT_LAMBDA_CLAIM,
     lambda_context: float = DEFAULT_LAMBDA_CONTEXT,
+    stature: dict[str, int] | None = None,
+    lambda_model: str = "flat",
+    incoming_paper_ids: set[str] | None = None,
+    semantic_edge_ids: set[str] | None = None,
+    claim_hygiene: dict[str, Json] | None = None,
 ) -> Json:
     initial_residuals = residuals(claims, evidence, edges, use_final=False)
     final_residuals = residuals(claims, evidence, edges, use_final=True)
@@ -287,9 +310,14 @@ def build_sheaf(
             "context_fill_distance": 0.0,
             "lambda_claim": lambda_claim,
             "lambda_context": lambda_context,
+            "lambda_model": lambda_model,
         },
         "operations": operations,
         "remaining_tensions": remaining_tensions,
+        "stature": dict(stature) if stature else {},
+        "incoming_paper_ids": sorted(incoming_paper_ids) if incoming_paper_ids else [],
+        "semantic_edge_ids": sorted(semantic_edge_ids) if semantic_edge_ids else [],
+        "claim_hygiene": dict(claim_hygiene) if claim_hygiene else {},
         "provenance": {
             "builder": "constellation.v0.5.standard_library",
             "evidence_core_policy": "locked",
@@ -297,38 +325,26 @@ def build_sheaf(
     }
 
 
-def consolidate_ideas(corpus_name: str, claims: list[Json], evidence: list[Json], sheaf: Json) -> list[Json]:
-    seeded_ideas = atlas_seeded_ideas(corpus_name, claims, evidence, sheaf)
-    if seeded_ideas is not None:
-        return seeded_ideas
+def consolidate_ideas(
+    corpus_name: str,
+    claims: list[Json],
+    evidence: list[Json],
+    sheaf: Json,
+    comparability: dict[str, Json] | None = None,
+) -> list[Json]:
+    """Each comparability group becomes one idea.
 
-    claim_ids = {c["claim_id"] for c in claims}
-    evidence_ids = {ev["evidence_id"] for ev in evidence}
-    graph: dict[str, set[str]] = {f"c:{cid}": set() for cid in claim_ids}
-    graph.update({f"e:{eid}": set() for eid in evidence_ids})
-    for edge in sheaf["edges"]:
-        cnode = f"c:{edge['claim_id']}"
-        enode = f"e:{edge['evidence_id']}"
-        graph[cnode].add(enode)
-        graph[enode].add(cnode)
+    The idea's title and description come from the group registry.
+    Contributing evidence = the group's members. Contributing claims =
+    every claim with at least one edge to one of those evidence nodes.
+    Resolved / remaining tensions are the subset of map operations and
+    surviving residuals that live on edges inside the idea.
 
-    components: list[set[str]] = []
-    seen: set[str] = set()
-    for node in sorted(graph):
-        if node in seen:
-            continue
-        queue = deque([node])
-        seen.add(node)
-        component: set[str] = set()
-        while queue:
-            cur = queue.popleft()
-            component.add(cur)
-            for nxt in graph[cur]:
-                if nxt not in seen:
-                    seen.add(nxt)
-                    queue.append(nxt)
-        components.append(component)
-
+    Claims and evidence not covered by any group fall into a final
+    ``Ungrouped`` idea so the demo always sees them, but they do not
+    drive any tension surface.
+    """
+    comparability = comparability or {}
     claim_by_id = {c["claim_id"]: c for c in claims}
     evidence_by_id = {ev["evidence_id"]: ev for ev in evidence}
     initial_residual_by_edge = {
@@ -337,58 +353,179 @@ def consolidate_ideas(corpus_name: str, claims: list[Json], evidence: list[Json]
     final_residual_by_edge = {
         r["edge_id"]: r["residual_sq"] for r in sheaf["residuals"]["final"]
     }
+    remaining_by_edge = {t["edge_id"]: t for t in sheaf.get("remaining_tensions", [])}
+    operations_by_claim = {op["claim_id"]: op for op in sheaf.get("operations", [])}
+    edges_by_evidence: dict[str, list[Json]] = defaultdict(list)
+    for edge in sheaf["edges"]:
+        edges_by_evidence[edge["evidence_id"]].append(edge)
+
     ideas: list[Json] = []
-    for idx, component in enumerate(components, 1):
-        component_claims = sorted(n[2:] for n in component if n.startswith("c:"))
-        component_evidence = sorted(n[2:] for n in component if n.startswith("e:"))
-        if not component_claims and not component_evidence:
+    covered_evidence: set[str] = set()
+    covered_claims: set[str] = set()
+
+    for idx, (group_name, group) in enumerate(sorted(comparability.items()), 1):
+        members = list(group.get("members", []))
+        idea_evidence = [eid for eid in members if eid in evidence_by_id]
+        if not idea_evidence:
             continue
-        observables = sorted(
-            {
-                dim["name"]
-                for ev_id in component_evidence
-                for dim in evidence_by_id[ev_id]["core"]["dimensions"]
-            }
-        )
-        title = _idea_title(observables)
-        edge_ids = [
-            edge["edge_id"]
-            for edge in sheaf["edges"]
-            if edge["claim_id"] in component_claims and edge["evidence_id"] in component_evidence
-        ]
+
+        idea_claim_set: set[str] = set()
+        idea_edge_ids: list[str] = []
+        for eid in idea_evidence:
+            for edge in edges_by_evidence.get(eid, []):
+                idea_claim_set.add(edge["claim_id"])
+                idea_edge_ids.append(edge["edge_id"])
+        idea_claims = sorted(idea_claim_set)
+
         resolved = [
             {
-                "edge_id": edge["edge_id"],
-                "resolution": f"{edge['claim_id']} narrowed to reduce cross-regime residual.",
+                "edge_id": edge_id,
+                "resolution": (
+                    f"{edge_id.split('__')[0]} narrowed to reduce cross-regime "
+                    "residual within this group."
+                ),
             }
-            for edge in sheaf["edges"]
-            if edge["edge_id"] in edge_ids
-            and any(op["claim_id"] == edge["claim_id"] for op in sheaf["operations"])
-            and initial_residual_by_edge.get(edge["edge_id"], 0.0) > 0.05
-            and final_residual_by_edge.get(edge["edge_id"], 0.0) < 0.1
+            for edge_id in idea_edge_ids
+            if initial_residual_by_edge.get(edge_id, 0.0) > 0.05
+            and final_residual_by_edge.get(edge_id, 0.0) < 0.1
+            and operations_by_claim.get(edge_id.split("__")[0]) is not None
         ]
         remaining = [
-            tension for tension in sheaf["remaining_tensions"] if tension["edge_id"] in edge_ids
+            remaining_by_edge[edge_id]
+            for edge_id in idea_edge_ids
+            if edge_id in remaining_by_edge
         ]
-        idea_id = f"idea_{idx:02d}_{_idea_slug(observables)}"
+
+        idea_id = f"idea_{idx:02d}_{group_name}"
         ideas.append(
             {
                 "idea_id": idea_id,
-                "title": title,
-                "scope": _idea_scope(component_claims, claim_by_id),
-                "contributing_claims": component_claims,
-                "contributing_evidence": component_evidence,
+                "group_id": group_name,
+                "title": group.get("title") or group_name,
+                "description": group.get("description", ""),
+                "scope": _idea_scope(idea_claims, claim_by_id),
+                "contributing_claims": idea_claims,
+                "contributing_evidence": idea_evidence,
                 "tensions_resolved": resolved,
                 "remaining_tensions": remaining,
-                "open_questions": _open_questions(observables, remaining),
+                "open_questions": _group_open_questions(
+                    group, remaining, sheaf.get("claim_hygiene", {}), idea_claims
+                ),
                 "transitions_out": [],
                 "provenance": {
-                    "consolidator": "deterministic_connected_components",
+                    "consolidator": "comparability_group",
                     "corpus": corpus_name,
+                    "group": group_name,
+                },
+            }
+        )
+        covered_evidence.update(idea_evidence)
+        covered_claims.update(idea_claims)
+
+    # Catch-all "Ungrouped" idea for nodes that no comparability group
+    # covers. These appear on the map but never drive a tension surface.
+    ungrouped_evidence = sorted(
+        eid for eid in evidence_by_id if eid not in covered_evidence
+    )
+    ungrouped_claims = sorted(
+        cid for cid in claim_by_id
+        if cid not in covered_claims
+        and not any(
+            edge["claim_id"] == cid and edge["evidence_id"] in covered_evidence
+            for edge in sheaf["edges"]
+        )
+    )
+    if ungrouped_evidence or ungrouped_claims:
+        ideas.append(
+            {
+                "idea_id": f"idea_{len(ideas)+1:02d}_ungrouped",
+                "group_id": "ungrouped",
+                "title": "Ungrouped (no comparability group authored yet)",
+                "description": (
+                    "Claims and evidence not covered by any comparability group. "
+                    "Add a group to the corpus's comparability.json to surface "
+                    "these as a first-class idea with cross-paper accountability."
+                ),
+                "scope": _idea_scope(ungrouped_claims, claim_by_id),
+                "contributing_claims": ungrouped_claims,
+                "contributing_evidence": ungrouped_evidence,
+                "tensions_resolved": [],
+                "remaining_tensions": [],
+                "open_questions": [],
+                "transitions_out": [],
+                "provenance": {
+                    "consolidator": "comparability_group",
+                    "corpus": corpus_name,
+                    "group": "ungrouped",
                 },
             }
         )
     return ideas
+
+
+def _group_open_questions(
+    group: Json,
+    remaining: list[Json],
+    claim_hygiene: dict[str, Json],
+    idea_claims: list[str],
+) -> list[Json]:
+    questions: list[Json] = []
+    implicit_in_idea = [
+        cid for cid in idea_claims
+        if claim_hygiene.get(cid, {}).get("status") == "implicit_headline"
+    ]
+    if remaining:
+        questions.append({
+            "question": (
+                f"Which of the {len(remaining)} surviving tension(s) in this group "
+                "are real disagreements vs. extraction or comparability artifacts?"
+            ),
+            "priority": "blocking",
+            "suggested_next_steps": [
+                _next_work(
+                    "audit",
+                    "Residual edge review",
+                    "Inspect each remaining high-residual edge inside this group "
+                    "against the source PDFs and decide whether the edge, regime "
+                    "tag, or claim scope is wrong.",
+                ),
+            ],
+        })
+    if implicit_in_idea:
+        questions.append({
+            "question": (
+                f"Are the implicit-headline claim(s) {', '.join(implicit_in_idea)} "
+                "actually intended to generalize across this group, or do their "
+                "authors scope them more narrowly than the propagator assumes?"
+            ),
+            "priority": "high",
+            "suggested_next_steps": [
+                _next_work(
+                    "literature",
+                    "Scope verification",
+                    "Read each implicit-headline claim's source paper and decide "
+                    "whether to add explicit out-of-regime predictions or to mark "
+                    "the claim as scoped only to its home regime.",
+                ),
+            ],
+        })
+    if not remaining and not implicit_in_idea:
+        questions.append({
+            "question": (
+                f"The field appears to agree about {group.get('title', 'this group')}. "
+                "What experiment or derivation would actually change this consensus?"
+            ),
+            "priority": "exploratory",
+            "suggested_next_steps": [
+                _next_work(
+                    "experiment",
+                    "Counter-experiment proposal",
+                    "Identify a measurement that, if it landed at a value contrary "
+                    "to the current consensus, would force a rewrite within the group.",
+                ),
+            ],
+        })
+    return questions
 
 
 def _idea_title(observables: list[str]) -> str:

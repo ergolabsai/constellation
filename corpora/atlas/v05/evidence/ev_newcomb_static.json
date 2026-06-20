@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "ideal MHD node counting",
+    "regime": "newcomb, static",
+    "system": "static Z-pinch"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_newcomb_static",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 0.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_newcomb_static",
+  "label": "Static finite-beta Z-pinch has unstable m=1 spectrum",
+  "paper_id": "newcomb1960",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "ANNALS OF PHYSICS: 10, 232-267 (1960) Hydromagnetic Stability of a Diffuse Linear Pinch* WILLIAM A. NEWCOMB Lawrence Radiation Laboratory, University of California,"
+  }
+}

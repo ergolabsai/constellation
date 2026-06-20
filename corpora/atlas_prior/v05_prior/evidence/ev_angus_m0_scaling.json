@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "linear ideal MHD eigenmode analysis",
+    "regime": "angus, shear, profile",
+    "system": "sheared-flow Z-pinch"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_angus_m0_scaling",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 0.85
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_angus_m0_scaling",
+  "label": "m=0 shear-stabilization scaling follows profile-dependent growth-rate scaling",
+  "paper_id": "angus2020",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "RESEARCH ARTICLE | DECEMBER 17 2020 Eigenmode analysis of the sheared-flow Z-pinch \ue904 J. R. Angus \ue923 ; J. J. Van De Wetering ; M. Dorf ; V. I. Geyko Phys. Plasmas 27, 122108 (2020) https://doi.org/10.1063/5.0029716 \ue929 \ue92d"
+  }
+}

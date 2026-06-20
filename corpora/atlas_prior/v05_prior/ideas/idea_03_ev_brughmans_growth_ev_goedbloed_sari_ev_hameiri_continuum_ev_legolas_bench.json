@@ -1,0 +1,32 @@
+{
+  "contributing_claims": [
+    "BR_01",
+    "CL_01",
+    "DJ_01",
+    "GK_01",
+    "GK_02",
+    "H_01",
+    "H_02"
+  ],
+  "contributing_evidence": [
+    "ev_brughmans_growth",
+    "ev_goedbloed_sari",
+    "ev_hameiri_continuum",
+    "ev_legolas_bench"
+  ],
+  "idea_id": "idea_03_ev_brughmans_growth_ev_goedbloed_sari_ev_hameiri_continuum_ev_legolas_bench",
+  "open_questions": [],
+  "provenance": {
+    "consolidator": "deterministic_connected_components",
+    "corpus": "atlas_prior"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "Legolas SARI computation; MHD literature; SARI spectral theory",
+    "regime": "BR_01 / CL_01 / DJ_01 / GK_01 / GK_02 / H_01 / H_02",
+    "system": "magnetized plasma; rotating plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Scoped claim-evidence knowledge unit",
+  "transitions_out": []
+}

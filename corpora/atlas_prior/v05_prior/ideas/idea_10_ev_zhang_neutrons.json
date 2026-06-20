@@ -1,0 +1,23 @@
+{
+  "contributing_claims": [
+    "Z_01"
+  ],
+  "contributing_evidence": [
+    "ev_zhang_neutrons"
+  ],
+  "idea_id": "idea_10_ev_zhang_neutrons",
+  "open_questions": [],
+  "provenance": {
+    "consolidator": "deterministic_connected_components",
+    "corpus": "atlas_prior"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "Z_01",
+    "system": "magnetized plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Scoped claim-evidence knowledge unit",
+  "transitions_out": []
+}

@@ -1,0 +1,46 @@
+{
+  "contributing_claims": [
+    "AN_02",
+    "CR_01",
+    "S_01",
+    "S_02",
+    "Z_01"
+  ],
+  "contributing_evidence": [
+    "ev_angus_m0_scaling",
+    "ev_crews_entropy",
+    "ev_shumlak_threshold",
+    "ev_shumlak_zap",
+    "ev_zhang_neutrons"
+  ],
+  "description": "Evidence about m=0 sausage instability scaling, sheared-flow stabilization thresholds, and downstream confinement outcomes in Z-pinches.",
+  "group_id": "m0_sausage_stabilization",
+  "idea_id": "idea_03_m0_sausage_stabilization",
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "The field appears to agree about m=0 sausage growth and shear-flow stabilization. What experiment or derivation would actually change this consensus?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the current consensus, would force a rewrite within the group.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas",
+    "group": "m0_sausage_stabilization"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature; experiment; linear and numerical MHD; linear ideal MHD eigenmode analysis",
+    "regime": "AN_02 / CR_01 / S_01 / S_02 / Z_01",
+    "system": "ZaP Z-pinch experiment; magnetized plasma; sheared-flow Z-pinch"
+  },
+  "tensions_resolved": [],
+  "title": "m=0 sausage growth and shear-flow stabilization",
+  "transitions_out": []
+}

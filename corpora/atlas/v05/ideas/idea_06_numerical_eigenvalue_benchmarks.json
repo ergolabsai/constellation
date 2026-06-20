@@ -1,0 +1,110 @@
+{
+  "contributing_claims": [
+    "A_01",
+    "A_02",
+    "A_04",
+    "A_05",
+    "CL_01",
+    "DJ_01",
+    "FR_01",
+    "N_01",
+    "N_02"
+  ],
+  "contributing_evidence": [
+    "ev_legolas_bench",
+    "ev_atlas_120pts",
+    "ev_atlas_pseudospec",
+    "ev_atlas_h1_violate",
+    "ev_atlas_h3_violate",
+    "ev_atlas_newcomb_bench"
+  ],
+  "description": "Evidence from code-to-code MHD eigenvalue benchmarks and from violating Kumar's H1-H5 constraints to see the framework break in the predicted way.",
+  "group_id": "numerical_eigenvalue_benchmarks",
+  "idea_id": "idea_06_numerical_eigenvalue_benchmarks",
+  "open_questions": [
+    {
+      "priority": "blocking",
+      "question": "Which of the 2 surviving tension(s) in this group are real disagreements vs. extraction or comparability artifacts?",
+      "suggested_next_steps": [
+        {
+          "description": "Inspect each remaining high-residual edge inside this group against the source PDFs and decide whether the edge, regime tag, or claim scope is wrong.",
+          "kind": "audit",
+          "title": "Residual edge review"
+        }
+      ]
+    },
+    {
+      "priority": "high",
+      "question": "Are the implicit-headline claim(s) A_01, A_02, A_04 actually intended to generalize across this group, or do their authors scope them more narrowly than the propagator assumes?",
+      "suggested_next_steps": [
+        {
+          "description": "Read each implicit-headline claim's source paper and decide whether to add explicit out-of-regime predictions or to mark the claim as scoped only to its home regime.",
+          "kind": "literature",
+          "title": "Scope verification"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas",
+    "group": "numerical_eigenvalue_benchmarks"
+  },
+  "remaining_tensions": [
+    {
+      "claim_id": "CL_01",
+      "edge_id": "CL_01__ev_atlas_h1_violate__semantic",
+      "evidence_id": "ev_atlas_h1_violate",
+      "interpretation": "CL_01 still predicts poorly at ev_atlas_h1_violate after allowed rewrites.",
+      "residual": 1.0
+    },
+    {
+      "claim_id": "CL_01",
+      "edge_id": "CL_01__ev_atlas_h3_violate__semantic",
+      "evidence_id": "ev_atlas_h3_violate",
+      "interpretation": "CL_01 still predicts poorly at ev_atlas_h3_violate after allowed rewrites.",
+      "residual": 1.0
+    }
+  ],
+  "scope": {
+    "framework": "MHD literature; ideal MHD Atlas H1-H5; ideal MHD node counting",
+    "regime": "A_01 / A_02 / A_04 / A_05 / CL_01 / DJ_01 / FR_01 / N_01 / N_02",
+    "system": "magnetized plasma; rotating helical Z-pinch; static Z-pinch"
+  },
+  "tensions_resolved": [
+    {
+      "edge_id": "A_02__ev_legolas_bench__semantic",
+      "resolution": "A_02 narrowed to reduce cross-regime residual within this group."
+    },
+    {
+      "edge_id": "A_02__ev_atlas_120pts__semantic",
+      "resolution": "A_02 narrowed to reduce cross-regime residual within this group."
+    },
+    {
+      "edge_id": "A_02__ev_atlas_pseudospec__semantic",
+      "resolution": "A_02 narrowed to reduce cross-regime residual within this group."
+    },
+    {
+      "edge_id": "A_04__ev_atlas_h1_violate__semantic",
+      "resolution": "A_04 narrowed to reduce cross-regime residual within this group."
+    },
+    {
+      "edge_id": "A_05__ev_atlas_h1_violate__semantic",
+      "resolution": "A_05 narrowed to reduce cross-regime residual within this group."
+    },
+    {
+      "edge_id": "A_04__ev_atlas_h3_violate__semantic",
+      "resolution": "A_04 narrowed to reduce cross-regime residual within this group."
+    },
+    {
+      "edge_id": "A_05__ev_atlas_h3_violate__semantic",
+      "resolution": "A_05 narrowed to reduce cross-regime residual within this group."
+    },
+    {
+      "edge_id": "A_02__ev_atlas_newcomb_bench__semantic",
+      "resolution": "A_02 narrowed to reduce cross-regime residual within this group."
+    }
+  ],
+  "title": "Numerical eigenvalue benchmarks and constraint-violation tests",
+  "transitions_out": []
+}

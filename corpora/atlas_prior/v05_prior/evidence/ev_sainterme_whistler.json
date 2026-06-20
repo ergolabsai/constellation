@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "whistler instability",
+    "regime": "hall, whistler",
+    "system": "Hall-MHD plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_sainterme_whistler",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 0.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_sainterme_whistler",
+  "label": "Global whistler instabilities grow faster than ideal-MHD modes at d_i/L of a few percent",
+  "paper_id": "sainterme2026",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Draft version March 19, 2026 Typeset using LATEX default style in AASTeX7.0.1 Global Non-Axisymmetric Hall Instabilities in a Rotating Plasma"
+  }
+}

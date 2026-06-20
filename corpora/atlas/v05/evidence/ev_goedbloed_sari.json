@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "SARI spectral theory",
+    "regime": "sari, alfven, ma",
+    "system": "rotating plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_goedbloed_sari",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 0.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_goedbloed_sari",
+  "label": "SARI modes fill two-dimensional continua in the eigenfrequency plane at M_A>1",
+  "paper_id": "goedbloed2022",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "The Astrophysical Journal Supplement Series, 259:65 (41pp), 2022 April https://doi.org/10.3847/1538-4365/ac573c \u00a9 2022. The Author(s). Published by the American Astronomical Society. The Super-Alfv\u00e9nic Rotational Instability in Accretion Disks about Black Holes"
+  }
+}

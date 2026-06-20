@@ -1,0 +1,67 @@
+{
+  "claim_id": "N_01",
+  "home_regime": {
+    "framework": "ideal MHD node counting",
+    "regime_keywords": [
+      "newcomb",
+      "static"
+    ],
+    "system": "static Z-pinch"
+  },
+  "label": "Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD",
+  "paper_id": "newcomb1960",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_newcomb_static"
+      ],
+      "observable": "ev_newcomb_static",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_kink_zero"
+      ],
+      "observable": "ev_atlas_kink_zero",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_h3_violate"
+      ],
+      "observable": "ev_atlas_h3_violate",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "ANNALS OF PHYSICS: 10, 232-267 (1960) Hydromagnetic Stability of a Diffuse Linear Pinch* WILLIAM A. NEWCOMB Lawrence Radiation Laboratory, University of California,"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Gives the classic static finite-beta m=1 obstruction that Atlas must explain around."
+  ],
+  "weaknesses": [
+    "It is a static-regime claim; applying it at full strength to rotating helical H3 configurations overreaches."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

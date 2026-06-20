@@ -1,0 +1,357 @@
+{
+  "contributing_claims": [
+    "AN_02",
+    "CR_01",
+    "S_01",
+    "S_02",
+    "Z_01"
+  ],
+  "contributing_evidence": [
+    "ev_angus_m0_scaling",
+    "ev_crews_entropy",
+    "ev_shumlak_threshold",
+    "ev_shumlak_zap",
+    "ev_zhang_neutrons"
+  ],
+  "contributing_papers": [
+    "angus2020",
+    "crews2024",
+    "shumlak1995",
+    "shumlak2001",
+    "zhang2019"
+  ],
+  "description": "Evidence about m=0 sausage instability scaling, sheared-flow stabilization thresholds, and downstream confinement outcomes in Z-pinches.",
+  "group_id": "m0_sausage_stabilization",
+  "idea_id": "subject_03_m0_sausage_stabilization",
+  "ideas": [
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "Z_01"
+      ],
+      "contributing_papers": [
+        "zhang2019"
+      ],
+      "idea_id": "idea_m0_sausage_stabilization_001",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=0 sausage growth and shear-flow stabilization, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "zhang2019"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_zhang_neutrons": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_zhang_neutrons"
+      ],
+      "supports": [],
+      "title": "zhang2019 (Z_01): FuZE experimentally demonstrates sustained microsecond-scale neutron production during a quiescent period"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "CR_01"
+      ],
+      "contributing_papers": [
+        "crews2024"
+      ],
+      "idea_id": "idea_m0_sausage_stabilization_002",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=0 sausage growth and shear-flow stabilization, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "crews2024"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_crews_entropy": 1.0,
+        "ev_shumlak_threshold": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_crews_entropy",
+        "ev_shumlak_threshold"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_shumlak_threshold"
+          ],
+          "idea_id": "idea_m0_sausage_stabilization_004",
+          "papers": [
+            "shumlak1995"
+          ],
+          "title": "shumlak1995 (S_01): Sheared axial flow v'/(kV_A) above about 0.1 stabilizes the m=0 sausage mode in static Z-pinch"
+        }
+      ],
+      "title": "crews2024 (CR_01): Kadomtsev interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "AN_02"
+      ],
+      "contributing_papers": [
+        "angus2020"
+      ],
+      "idea_id": "idea_m0_sausage_stabilization_003",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=0 sausage growth and shear-flow stabilization, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "linear ideal MHD eigenmode analysis"
+        ],
+        "keywords": [
+          "angus",
+          "profile",
+          "shear"
+        ],
+        "systems": [
+          "sheared-flow Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_angus_m0_scaling": 0.85
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_angus_m0_scaling"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_angus_m0_scaling"
+          ],
+          "idea_id": "idea_m0_sausage_stabilization_004",
+          "papers": [
+            "shumlak1995"
+          ],
+          "title": "shumlak1995 (S_01): Sheared axial flow v'/(kV_A) above about 0.1 stabilizes the m=0 sausage mode in static Z-pinch"
+        }
+      ],
+      "title": "angus2020 (AN_02): Required shear for m=0 stabilization scales with profile-dependent shear-free growth; m=1 needs a different mechanism"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "S_01"
+      ],
+      "contributing_papers": [
+        "shumlak1995"
+      ],
+      "idea_id": "idea_m0_sausage_stabilization_004",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=0 sausage growth and shear-flow stabilization, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "linear and numerical MHD"
+        ],
+        "keywords": [
+          "m=0",
+          "shear",
+          "shumlak"
+        ],
+        "systems": [
+          "sheared-flow Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_angus_m0_scaling": 0.85,
+        "ev_shumlak_threshold": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_angus_m0_scaling",
+        "ev_shumlak_threshold"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_shumlak_threshold"
+          ],
+          "idea_id": "idea_m0_sausage_stabilization_002",
+          "papers": [
+            "crews2024"
+          ],
+          "title": "crews2024 (CR_01): Kadomtsev interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux"
+        },
+        {
+          "at": [
+            "ev_angus_m0_scaling"
+          ],
+          "idea_id": "idea_m0_sausage_stabilization_003",
+          "papers": [
+            "angus2020"
+          ],
+          "title": "angus2020 (AN_02): Required shear for m=0 stabilization scales with profile-dependent shear-free growth; m=1 needs a different mechanism"
+        }
+      ],
+      "title": "shumlak1995 (S_01): Sheared axial flow v'/(kV_A) above about 0.1 stabilizes the m=0 sausage mode in static Z-pinch"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "S_02"
+      ],
+      "contributing_papers": [
+        "shumlak2001"
+      ],
+      "idea_id": "idea_m0_sausage_stabilization_005",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=0 sausage growth and shear-flow stabilization, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "experiment"
+        ],
+        "keywords": [
+          "quiescent",
+          "shear",
+          "zap"
+        ],
+        "systems": [
+          "ZaP Z-pinch experiment"
+        ]
+      },
+      "stance": {
+        "ev_shumlak_zap": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_shumlak_zap"
+      ],
+      "supports": [],
+      "title": "shumlak2001 (S_02): ZaP experiment observes a long stable period coincident with sheared sub-Alfvenic flow"
+    }
+  ],
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "What experiment or derivation, if it landed at a contrary value, would force a rewrite within m=0 sausage growth and shear-flow stabilization?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the field's consensus inside m=0 sausage growth and shear-flow stabilization, would force a rewrite. Document the device that could perform it and the parameter range it should sweep.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one.",
+          "kind": "literature",
+          "title": "Adjacent-regime survey"
+        },
+        {
+          "description": "Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface.",
+          "kind": "audit",
+          "title": "Foundational assumption audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "subjects_with_lifecycle_ideas",
+    "group": "m0_sausage_stabilization"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature; experiment; linear and numerical MHD; linear ideal MHD eigenmode analysis",
+    "regime": "angus, crews2024, m=0, profile, quiescent, shear, shumlak, zap, zhang2019",
+    "system": "ZaP Z-pinch experiment; magnetized plasma; sheared-flow Z-pinch"
+  },
+  "tensions": [],
+  "tensions_resolved": [],
+  "title": "m=0 sausage growth and shear-flow stabilization"
+}

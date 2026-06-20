@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas Prior v0.5 - Ideas Constellation</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --border: #dbe2ea;
+      --text: #172033;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --warn: #d97706;
+      --bad: #dc2626;
+      --ok: #16a34a;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      font-size: 13px;
+      line-height: 1.4;
+      overflow: hidden;
+    }
+    header {
+      height: 58px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    h1 { margin: 0; font-size: 16px; font-weight: 700; }
+    h2 {
+      margin: 16px 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h3 { margin: 0 0 6px; font-size: 14px; line-height: 1.25; }
+    button {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 9px;
+      font: inherit;
+      cursor: pointer;
+    }
+    button:hover { border-color: #94a3b8; background: #f8fafc; }
+    .meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+    .meta b { color: var(--text); }
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 430px;
+      height: calc(100vh - 58px);
+      min-height: 0;
+    }
+    #stage { position: relative; min-height: 0; overflow: hidden; }
+    #graph-svg { width: 100%; height: 100%; display: block; background: var(--bg); cursor: grab; }
+    #graph-svg:active { cursor: grabbing; }
+    #side {
+      border-left: 1px solid var(--border);
+      background: var(--panel);
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px 16px 20px;
+    }
+    .toolbar {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      z-index: 10;
+      display: flex;
+      gap: 6px;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .status-indicator {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 10;
+      font: 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--muted);
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.92);
+      pointer-events: none;
+    }
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+      max-width: 300px;
+      background: #111827;
+      color: white;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.35;
+      box-shadow: var(--shadow);
+      z-index: 4;
+    }
+    .tooltip .id { color: #93c5fd; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+    .edge {
+      fill: none;
+      stroke-linecap: round;
+      transition: opacity 160ms, stroke-width 160ms;
+    }
+    .edge.zero { stroke: #cbd5e1; stroke-width: 1.25; opacity: 0.72; }
+    .edge.tiny { stroke: #94a3b8; stroke-width: 1.5; opacity: 0.78; }
+    .edge.mild { stroke: var(--warn); stroke-width: 2.6; opacity: 0.9; }
+    .edge.high { stroke: var(--bad); stroke-width: 3.2; opacity: 0.95; }
+    .edge.semantic { stroke-dasharray: 5 3; }
+    .edge.dimmed, .node.dimmed, .label.dimmed, .idea-hull.dimmed, .idea-label.dimmed,
+    .assertion-hull.dimmed, .assertion-label.dimmed { opacity: 0.12; }
+    .idea-hull {
+      fill-opacity: 0.14;
+      stroke-opacity: 0.72;
+      stroke-width: 1.4;
+      stroke-linejoin: round;
+      cursor: pointer;
+      transition: opacity 160ms, fill-opacity 160ms, stroke-width 160ms;
+    }
+    .idea-hull.focused { fill-opacity: 0.24; stroke-width: 3; }
+    .assertion-hull {
+      fill-opacity: 0.16;
+      stroke-opacity: 0.85;
+      stroke-width: 1.6;
+      stroke-linejoin: round;
+      stroke-dasharray: 5 3;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 180ms;
+    }
+    .assertion-hull.expanded { opacity: 1; pointer-events: auto; cursor: pointer; }
+    .assertion-hull.inner-focused { fill-opacity: 0.32; stroke-width: 2.6; }
+    .assertion-hull.inner-dimmed { opacity: 0.18; }
+    .assertion-hull.established { fill: var(--ok); stroke: var(--ok); }
+    .assertion-hull.contested { fill: var(--bad); stroke: var(--bad); }
+    .assertion-hull.novel { fill: var(--accent); stroke: var(--accent); }
+    .assertion-label {
+      pointer-events: none;
+      font-size: 9.5px;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: white;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+      letter-spacing: 0.4px;
+      opacity: 0;
+      transition: opacity 180ms;
+    }
+    .assertion-label.expanded { opacity: 1; }
+    .assertion-label.established { fill: var(--ok); }
+    .assertion-label.contested { fill: var(--bad); }
+    .assertion-label.novel { fill: var(--accent); }
+    .idea-label {
+      pointer-events: none;
+      font-size: 11px;
+      font-weight: 800;
+      fill: #0f172a;
+      paint-order: stroke;
+      stroke: white;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+    .node { cursor: pointer; transition: opacity 160ms; }
+    .node .shape { stroke: white; stroke-width: 1.7; }
+    .node.kumar .shape { stroke: #facc15; stroke-width: 2.8; }
+    .node.rewritten .shape {
+      stroke: var(--accent);
+      stroke-width: 3;
+      stroke-dasharray: 4 2;
+    }
+    .node.context-filled .shape {
+      stroke: var(--warn);
+      stroke-width: 3;
+      stroke-dasharray: 4 2;
+    }
+    .node.selected .shape {
+      stroke: #0f172a;
+      stroke-width: 4;
+      stroke-dasharray: none;
+    }
+    .label {
+      pointer-events: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      fill: #1e293b;
+      text-anchor: middle;
+      paint-order: stroke;
+      stroke: white;
+      stroke-width: 3px;
+      stroke-linejoin: round;
+    }
+    .legend-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 10px;
+      margin: 6px 0;
+      background: white;
+      cursor: pointer;
+      transition: border 120ms, background 120ms, transform 120ms;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .legend-card:hover { background: #f8fafc; transform: translateY(-1px); }
+    .legend-card.active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+    .legend-row { display: flex; gap: 8px; align-items: flex-start; }
+    .swatch { flex: 0 0 14px; width: 14px; height: 14px; border-radius: 4px; margin-top: 2px; }
+    .legend-title { font-weight: 700; font-size: 12px; line-height: 1.25; }
+    .legend-sub { color: var(--muted); font-size: 11px; margin-top: 2px; }
+    .legend-card > .legend-row > div { min-width: 0; flex: 1; }
+    .paper-row { display: flex; align-items: center; gap: 7px; font-size: 12px; margin: 5px 0; }
+    .paper-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 10px; }
+    .shape-legend, .edge-legend { display: grid; gap: 7px; }
+    .shape-line, .edge-line { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+    .shape-line b, .edge-line b { color: var(--text); }
+    .detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .detail p { margin: 6px 0; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 4px; margin: 7px 0; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      max-width: 100%;
+      padding: 3px 7px;
+      border-radius: 999px;
+      color: white;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+    }
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: #eff6ff;
+      padding: 8px 10px;
+      border-radius: 0 6px 6px 0;
+      margin: 7px 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      max-height: 240px;
+      overflow-y: auto;
+      cursor: zoom-in;
+      transition: max-height 200ms;
+    }
+    .callout.expanded { max-height: none; cursor: zoom-out; }
+    .callout.warn { border-left-color: var(--warn); background: #fff7ed; }
+    .callout.bad { border-left-color: var(--bad); background: #fef2f2; }
+    .callout.question.blocking { border-left-color: var(--bad); background: #fef2f2; }
+    .callout.question.high { border-left-color: var(--warn); background: #fff7ed; }
+    .callout.question.medium { border-left-color: var(--accent); background: #eff6ff; }
+    .callout.question.exploratory { border-left-color: var(--ok); background: #f0fdf4; }
+    .callout .k { color: var(--muted); font-size: 11px; font-weight: 700; }
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      min-height: 18px;
+      padding: 1px 6px;
+      margin-right: 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .priority.blocking { background: #fee2e2; color: #991b1b; }
+    .priority.high { background: #ffedd5; color: #9a3412; }
+    .priority.medium { background: #dbeafe; color: #1d4ed8; }
+    .priority.exploratory { background: #dcfce7; color: #166534; }
+    .next-work {
+      margin-top: 8px;
+      display: grid;
+      gap: 6px;
+    }
+    .next-step {
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      background: white;
+      padding: 7px 8px;
+    }
+    .next-step .kind {
+      display: inline-flex;
+      align-items: center;
+      min-height: 18px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .next-step .title { margin-left: 6px; font-weight: 750; }
+    .next-step .desc { margin-top: 4px; color: var(--muted); font-size: 11.5px; }
+    .muted { color: var(--muted); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .score {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      background: #fbfdff;
+    }
+    .score .v { font-size: 18px; font-weight: 800; }
+    .score .k { color: var(--muted); font-size: 11px; }
+    @media (max-width: 920px) {
+      body { overflow: auto; }
+      header { height: auto; align-items: flex-start; }
+      main { display: block; height: auto; }
+      #stage { height: 68vh; min-height: 520px; }
+      #side { border-left: 0; border-top: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Atlas Prior v0.5 - Ideas Constellation</h1>
+      <div class="muted">Bipartite claim/evidence sheaf with residual-aware rewrites</div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </header>
+  <main>
+    <section id="stage">
+      <svg id="graph-svg" role="img" aria-label="Claim and evidence constellation"></svg>
+      <div class="toolbar">
+        <button id="zoom-out-btn" type="button" title="Zoom out" onclick="window.stepZoom && window.stepZoom(0.8);">−</button>
+        <button id="zoom-in-btn" type="button" title="Zoom in" onclick="window.stepZoom && window.stepZoom(1.25);">+</button>
+        <button id="fit-btn" type="button" title="Fit graph" onclick="window.fitGraph && window.fitGraph(true);">Fit</button>
+        <button id="clear-btn" type="button" title="Clear focus" onclick="window.clearFocus && window.clearFocus();">Clear</button>
+      </div>
+      <div class="status-indicator" id="status-indicator">init…</div>
+      <div class="tooltip" id="tooltip"></div>
+    </section>
+    <aside id="side">
+      <h2>Legend</h2>
+      <div class="shape-legend">
+        <div class="shape-line">
+          <svg width="22" height="22" viewBox="-12 -12 24 24"><circle r="9" fill="#64748b" stroke="white" stroke-width="2"/></svg>
+          <span><b>claim</b> circle, dashed when rewritten</span>
+        </div>
+        <div class="shape-line">
+          <svg width="22" height="22" viewBox="-14 -14 28 28"><path d="M 0,-12 L 3.4,-4 L 12,-4 L 5.2,1.8 L 7.4,11 L 0,6 L -7.4,11 L -5.2,1.8 L -12,-4 L -3.4,-4 Z" fill="#eab308" stroke="#facc15" stroke-width="2"/></svg>
+          <span><b>Kumar claim</b> star</span>
+        </div>
+        <div class="shape-line">
+          <svg width="22" height="22" viewBox="-12 -12 24 24"><rect x="-9" y="-9" width="18" height="18" rx="2" fill="#64748b" stroke="white" stroke-width="2"/></svg>
+          <span><b>evidence</b> square, dashed when context-filled</span>
+        </div>
+        <div class="shape-line">
+          <svg width="22" height="22" viewBox="-14 -14 28 28"><path d="M 0,-12 L 12,0 L 0,12 L -12,0 Z" fill="#eab308" stroke="#facc15" stroke-width="2"/></svg>
+          <span><b>Kumar evidence</b> diamond</span>
+        </div>
+      </div>
+      <h2>Edges</h2>
+      <div class="edge-legend">
+        <div class="edge-line"><svg width="42" height="12"><line x1="2" y1="6" x2="40" y2="6" stroke="#cbd5e1" stroke-width="2"/></svg><span><b>agreement</b> residual near 0</span></div>
+        <div class="edge-line"><svg width="42" height="12"><line x1="2" y1="6" x2="40" y2="6" stroke="#d97706" stroke-width="3"/></svg><span><b>mild tension</b> residual below 0.5</span></div>
+        <div class="edge-line"><svg width="42" height="12"><line x1="2" y1="6" x2="40" y2="6" stroke="#dc2626" stroke-width="4"/></svg><span><b>strong tension</b> residual 0.5 or above</span></div>
+        <div class="edge-line"><svg width="42" height="12"><line x1="2" y1="6" x2="40" y2="6" stroke="#475569" stroke-width="2" stroke-dasharray="5 3"/></svg><span><b>semantic</b> cross-paper propagation</span></div>
+      </div>
+      <h2>Ideas (visible when a subject is selected)</h2>
+      <div class="edge-legend">
+        <div class="edge-line"><svg width="42" height="14"><rect x="2" y="2" width="38" height="10" fill="#16a34a" fill-opacity="0.18" stroke="#16a34a" stroke-width="1.6" stroke-dasharray="5 3" rx="2"/></svg><span><b>established</b> backed and uncontested</span></div>
+        <div class="edge-line"><svg width="42" height="14"><rect x="2" y="2" width="38" height="10" fill="#dc2626" fill-opacity="0.18" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 3" rx="2"/></svg><span><b>contested</b> contradicts another idea</span></div>
+        <div class="edge-line"><svg width="42" height="14"><rect x="2" y="2" width="38" height="10" fill="#2563eb" fill-opacity="0.18" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="5 3" rx="2"/></svg><span><b>novel</b> incoming, awaits replication</span></div>
+      </div>
+      <div class="score-grid" id="score-grid"></div>
+      <h2>Papers</h2>
+      <div id="papers"></div>
+      <h2>Subjects</h2>
+      <div class="muted" style="font-size: 11px; margin-bottom: 6px;">Click a subject to expand its ideas.</div>
+      <div id="ideas"></div>
+      <div id="detail" class="detail"></div>
+    </aside>
+  </main>
+  <script>
+const DATA = {"claims":[{"id":"AN_01","short_id":"AN_01","kind":"claim","label":"Linear shear flow alone does not stabilize m=1 kink across realistic Z-pinch profile classes","original_label":"Linear shear flow alone does not stabilize m=1 kink across realistic Z-pinch profile classes","edited_label":"Linear shear flow alone does not stabilize m=1 kink across realistic Z-pinch profile classes","paper":"angus2020","paper_label":"Angus et al. 2020 (2020)","color":"#2563eb","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Strong modern comparator showing shear-only linear ideal MHD does not stabilize m=1 in tested profiles."],"weaknesses":["The tested profiles may omit the Atlas H3 quartic/helical ingredient, so the negative result should be scoped."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_bondeson_toroidal","ev_brughmans_growth","ev_goedbloed_sari","ev_newcomb_static"],"contradicting_targets":[],"consistent_targets":["ev_bondeson_toroidal","ev_brughmans_growth","ev_goedbloed_sari","ev_newcomb_static"]}},{"id":"AN_02","short_id":"AN_02","kind":"claim","label":"Required shear for m=0 stabilization scales with profile-dependent shear-free growth; m=1 needs a different mechanism","original_label":"Required shear for m=0 stabilization scales with profile-dependent shear-free growth; m=1 needs a different mechanism","edited_label":"Required shear for m=0 stabilization scales with profile-dependent shear-free growth; m=1 needs a different mechanism","paper":"angus2020","paper_label":"Angus et al. 2020 (2020)","color":"#2563eb","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Separates m=0 shear scaling from the unresolved m=1 mechanism."],"weaknesses":["The scaling is model/profile dependent and should not be treated as a universal threshold."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_crews_entropy","ev_shumlak_threshold","ev_shumlak_zap","ev_zhang_neutrons"],"contradicting_targets":[],"consistent_targets":["ev_crews_entropy","ev_shumlak_threshold","ev_shumlak_zap","ev_zhang_neutrons"]}},{"id":"BR_01","short_id":"BR_01","kind":"claim","label":"Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI","original_label":"Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI","edited_label":"Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI","paper":"brughmans2024","paper_label":"Brughmans et al. 2024 (2024)","color":"#16a34a","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Numerically confirms non-axisymmetric SARI behavior with a spectral code."],"weaknesses":["It is primarily evidence for the unstable side of the boundary, not for Atlas stability below it."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_newcomb_static"],"contradicting_targets":[],"consistent_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_newcomb_static"]}},{"id":"B_01","short_id":"B_01","kind":"claim","label":"In toroidal or cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure","original_label":"In toroidal or cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure","edited_label":"In toroidal or cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure","paper":"bondeson1989","paper_label":"Bondeson-Iacono 1989 (1989)","color":"#dc2626","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Strong historical comparator showing rotation can mitigate kink without eliminating it."],"weaknesses":["The studied geometries do not include the full Atlas H3 helical structure, so full-strength projection is too broad."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m1_persists","ev_brughmans_growth","ev_goedbloed_sari","ev_newcomb_static"],"contradicting_targets":[],"consistent_targets":["ev_angus_m1_persists","ev_brughmans_growth","ev_goedbloed_sari","ev_newcomb_static"]}},{"id":"CK_01","short_id":"CK_01","kind":"claim","label":"Force-free curl H = alpha H fields admit poloidal and toroidal eigenfunction solutions","original_label":"Force-free curl H = alpha H fields admit poloidal and toroidal eigenfunction solutions","edited_label":"Force-free curl H = alpha H fields admit poloidal and toroidal eigenfunction solutions","paper":"chandrasekhar1957","paper_label":"Chandrasekhar-Kendall 1957 (1957)","color":"#d97706","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Supplies force-free eigenfunction foundations for Beltrami-style construction."],"weaknesses":["Force-free basis results are foundational, not direct stability evidence for Atlas."],"stature":2,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_mahajan_db"],"contradicting_targets":[],"consistent_targets":["ev_mahajan_db"]}},{"id":"CL_01","short_id":"CL_01","kind":"claim","label":"Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow","original_label":"Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow","edited_label":"Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow","paper":"claes2020","paper_label":"Claes et al. 2020 (Legolas) (2020)","color":"#7c3aed","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Provides numerical infrastructure for full-spectrum MHD checks."],"weaknesses":["Benchmark capability is indirect unless the Atlas equilibrium is actually run through the code."],"stature":2,"hygiene":{"status":"not_applicable","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":[],"contradicting_targets":[],"consistent_targets":[]}},{"id":"CR_01","short_id":"CR_01","kind":"claim","label":"Kadomtsev interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux","original_label":"Kadomtsev interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux","edited_label":"Kadomtsev interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux","paper":"crews2024","paper_label":"Crews et al. 2024 (2024)","color":"#0891b2","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Connects interchange criteria to an entropy-gradient interpretation that may clarify mode families."],"weaknesses":["The analogy may not transfer cleanly to helical flow with H3 without further derivation."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m0_scaling","ev_shumlak_zap","ev_zhang_neutrons"],"contradicting_targets":[],"consistent_targets":["ev_angus_m0_scaling","ev_shumlak_zap","ev_zhang_neutrons"]}},{"id":"DJ_01","short_id":"DJ_01","kind":"claim","label":"Legolas extension with viscosity and Hall current is benchmarked against historic results","original_label":"Legolas extension with viscosity and Hall current is benchmarked against historic results","edited_label":"Legolas extension with viscosity and Hall current is benchmarked against historic results","paper":"dejonghe2022","paper_label":"De Jonghe et al. 2022 (2022)","color":"#be185d","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Extends numerical tooling toward viscosity and Hall current effects."],"weaknesses":["Tool validation is not a substitute for a targeted Atlas-profile computation."],"stature":1,"hygiene":{"status":"not_applicable","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":[],"contradicting_targets":[],"consistent_targets":[]}},{"id":"FR_01","short_id":"FR_01","kind":"claim","label":"Linear MHD stability with stationary flow is governed by a non-Hermitian operator","original_label":"Linear MHD stability with stationary flow is governed by a non-Hermitian operator","edited_label":"Linear MHD stability with stationary flow is governed by a non-Hermitian operator","paper":"frieman1960","paper_label":"Frieman-Rotenberg 1960 (1960)","color":"#475569","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Establishes that stationary flow creates non-Hermitian MHD stability structure."],"weaknesses":["Overstability possibility is broad and does not by itself determine the Atlas H3 stability boundary."],"stature":2,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_hameiri_continuum"],"contradicting_targets":[],"consistent_targets":["ev_hameiri_continuum"]}},{"id":"GK_01","short_id":"GK_01","kind":"claim","label":"Super-Alfvenic Rotational Instability emerges from overlap of Doppler-shifted Alfven continua","original_label":"Super-Alfvenic Rotational Instability emerges from overlap of Doppler-shifted Alfven continua","edited_label":"Super-Alfvenic Rotational Instability emerges from overlap of Doppler-shifted Alfven continua","paper":"goedbloed2022","paper_label":"Goedbloed-Keppens 2022 (2022)","color":"#0d9488","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Explains the SARI mechanism through continuum overlap."],"weaknesses":["It describes the super-Alfvenic instability mechanism, not the sub-Alfvenic exclusion side by itself."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_newcomb_static"],"contradicting_targets":[],"consistent_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_newcomb_static"]}},{"id":"GK_02","short_id":"GK_02","kind":"claim","label":"At M_A >= 1 continuum overlap opens uncontrolled SARI spectrum","original_label":"At M_A >= 1 continuum overlap opens uncontrolled SARI spectrum","edited_label":"At M_A >= 1 continuum overlap opens uncontrolled SARI spectrum","paper":"goedbloed2022","paper_label":"Goedbloed-Keppens 2022 (2022)","color":"#0d9488","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Defines M_A >= 1 as a natural operating boundary for Atlas."],"weaknesses":["The transition near M_A=1 still needs width and robustness analysis."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_newcomb_static"],"contradicting_targets":[],"consistent_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_newcomb_static"]}},{"id":"H_01","short_id":"H_01","kind":"claim","label":"Sufficient stability conditions for rotating screw-pinch follow from circle theorems and spectral bounds","original_label":"Sufficient stability conditions for rotating screw-pinch follow from circle theorems and spectral bounds","edited_label":"Sufficient stability conditions for rotating screw-pinch follow from circle theorems and spectral bounds","paper":"hameiri1981","paper_label":"Hameiri 1981 (1981)","color":"#9333ea","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Connects rotating screw-pinch stability to spectral bounds and circle-theorem style constraints."],"weaknesses":["Sufficient conditions may be conservative and may not map exactly to the Atlas H1-H5 formulation."],"stature":1,"hygiene":{"status":"not_applicable","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":[],"contradicting_targets":[],"consistent_targets":[]}},{"id":"H_02","short_id":"H_02","kind":"claim","label":"Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua","original_label":"Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua","edited_label":"Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua","paper":"hameiri1985","paper_label":"Hameiri 1985 (1985)","color":"#ca8a04","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Identifies Doppler-shifted continua as central to ideal MHD with flow."],"weaknesses":["Continuum structure alone does not decide whether the sub-Alfvenic Atlas regime is stable."],"stature":3,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_friman_overstable"],"contradicting_targets":[],"consistent_targets":["ev_friman_overstable"]}},{"id":"ML_01","short_id":"ML_01","kind":"claim","label":"Hall MHD waves are fundamentally distinct from MHD waves at d_i scales","original_label":"Hall MHD waves are fundamentally distinct from MHD waves at d_i scales","edited_label":"Hall MHD waves are fundamentally distinct from MHD waves at d_i scales","paper":"mahajan2024","paper_label":"Mahajan-Sharma-Lingam 2024 (2024)","color":"#0284c7","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Flags that Hall-scale waves can differ qualitatively from ideal-MHD waves."],"weaknesses":["It is a regime warning rather than direct evidence against the Atlas asymptotic theorem."],"stature":1,"hygiene":{"status":"not_applicable","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":[],"contradicting_targets":[],"consistent_targets":[]}},{"id":"MY_01","short_id":"MY_01","kind":"claim","label":"Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure","original_label":"Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure","edited_label":"Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure","paper":"mahajan1998","paper_label":"Mahajan-Yoshida 1998 (1998)","color":"#e11d48","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Supports the existence of double-Beltrami equilibria with flow and pressure."],"weaknesses":["Equilibrium existence does not automatically imply spectral stability."],"stature":2,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_chandra_ck"],"contradicting_targets":[],"consistent_targets":["ev_chandra_ck"]}},{"id":"N_01","short_id":"N_01","kind":"claim","label":"Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD","original_label":"Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD","edited_label":"Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD","paper":"newcomb1960","paper_label":"Newcomb 1960 (1960)","color":"#65a30d","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Gives the classic static finite-beta m=1 obstruction that Atlas must explain around."],"weaknesses":["It is a static-regime claim; applying it at full strength to rotating helical H3 configurations overreaches."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_goedbloed_sari"],"contradicting_targets":[],"consistent_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_goedbloed_sari"]}},{"id":"N_02","short_id":"N_02","kind":"claim","label":"Number of unstable eigenvalues equals number of interior nodes of the marginal mode","original_label":"Number of unstable eigenvalues equals number of interior nodes of the marginal mode","edited_label":"Number of unstable eigenvalues equals number of interior nodes of the marginal mode","paper":"newcomb1960","paper_label":"Newcomb 1960 (1960)","color":"#65a30d","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Provides a precise node-counting diagnostic rather than only a qualitative instability statement."],"weaknesses":["The diagnostic is not automatically valid for the non-self-adjoint flow operator without additional machinery."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_goedbloed_sari"],"contradicting_targets":[],"consistent_targets":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_goedbloed_sari"]}},{"id":"SE_01","short_id":"SE_01","kind":"claim","label":"In the Hall regime, global whistler instabilities grow significantly faster than ideal-MHD modes","original_label":"In the Hall regime, global whistler instabilities grow significantly faster than ideal-MHD modes","edited_label":"In the Hall regime, global whistler instabilities grow significantly faster than ideal-MHD modes","paper":"sainterme2026","paper_label":"Sainterme-Ebrahimi 2026 (2026)","color":"#2563eb","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Adds a concrete Hall-regime instability channel to test against Atlas-stable profiles."],"weaknesses":["Whistler instability evidence may apply only outside the precise Atlas parameter regime."],"stature":1,"hygiene":{"status":"not_applicable","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":[],"contradicting_targets":[],"consistent_targets":[]}},{"id":"SH_01","short_id":"SH_01","kind":"claim","label":"Hall effect regularizes the Alfven singularity over a layer of thickness about d_i","original_label":"Hall effect regularizes the Alfven singularity over a layer of thickness about d_i","edited_label":"Hall effect regularizes the Alfven singularity over a layer of thickness about d_i","paper":"shiraishi2005","paper_label":"Shiraishi et al. 2005 (2005)","color":"#dc2626","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Shows Hall terms regularize the ideal-MHD singular layer at finite d_i."],"weaknesses":["That regularization may alter, not merely preserve, the Atlas ideal-MHD spectrum."],"stature":1,"hygiene":{"status":"not_applicable","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":[],"contradicting_targets":[],"consistent_targets":[]}},{"id":"S_01","short_id":"S_01","kind":"claim","label":"Sheared axial flow v'/(kV_A) above about 0.1 stabilizes the m=0 sausage mode in static Z-pinch","original_label":"Sheared axial flow v'/(kV_A) above about 0.1 stabilizes the m=0 sausage mode in static Z-pinch","edited_label":"Sheared axial flow v'/(kV_A) above about 0.1 stabilizes the m=0 sausage mode in static Z-pinch","paper":"shumlak1995","paper_label":"Shumlak-Hartman 1995 (1995)","color":"#16a34a","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Gives a concrete m=0 shear threshold that is useful for mode-family separation."],"weaknesses":["It addresses m=0 sausage stabilization, not the m=1 kink closure claimed by Atlas."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_crews_entropy","ev_shumlak_zap","ev_zhang_neutrons"],"contradicting_targets":[],"consistent_targets":["ev_crews_entropy","ev_shumlak_zap","ev_zhang_neutrons"]}},{"id":"S_02","short_id":"S_02","kind":"claim","label":"ZaP experiment observes a long stable period coincident with sheared sub-Alfvenic flow","original_label":"ZaP experiment observes a long stable period coincident with sheared sub-Alfvenic flow","edited_label":"ZaP experiment observes a long stable period coincident with sheared sub-Alfvenic flow","paper":"shumlak2001","paper_label":"Shumlak 2001 (ZaP) (2001)","color":"#d97706","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Anchors the graph in ZaP experimental quiescence rather than only theory."],"weaknesses":["Observed quiescence and shear coincidence do not by themselves prove the Atlas H3 mechanism."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m0_scaling","ev_crews_entropy","ev_shumlak_threshold","ev_zhang_neutrons"],"contradicting_targets":[],"consistent_targets":["ev_angus_m0_scaling","ev_crews_entropy","ev_shumlak_threshold","ev_zhang_neutrons"]}},{"id":"W_01","short_id":"W_01","kind":"claim","label":"Axisymmetric SMRI is directly observed in a liquid-metal Taylor-Couette experiment","original_label":"Axisymmetric SMRI is directly observed in a liquid-metal Taylor-Couette experiment","edited_label":"Axisymmetric SMRI is directly observed in a liquid-metal Taylor-Couette experiment","paper":"wang2022","paper_label":"Wang et al. 2022 (SMRI exp) (2022)","color":"#7c3aed","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Provides experimental support that rotation-driven MHD instabilities can be observed in the lab."],"weaknesses":["SMRI is axisymmetric and not the same non-axisymmetric SARI/kink regime as Atlas."],"stature":1,"hygiene":{"status":"not_applicable","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":[],"contradicting_targets":[],"consistent_targets":[]}},{"id":"Z_01","short_id":"Z_01","kind":"claim","label":"FuZE experimentally demonstrates sustained microsecond-scale neutron production during a quiescent period","original_label":"FuZE experimentally demonstrates sustained microsecond-scale neutron production during a quiescent period","edited_label":"FuZE experimentally demonstrates sustained microsecond-scale neutron production during a quiescent period","paper":"zhang2019","paper_label":"Zhang et al. 2019 (FuZE) (2019)","color":"#0891b2","is_kumar":false,"x_in":1.0,"x_out":1.0,"x_init":[1.0,1.0],"x_final":[1.0,1.0],"rewritten":false,"rewrite_history":[],"strengths":["Adds FuZE operational evidence for quiescent, neutron-producing Z-pinch plasmas."],"weaknesses":["Neutron production and quiescence do not identify the exact m=1 stabilization mechanism."],"stature":5,"hygiene":{"status":"consensus_aligned","groups_touched":[],"groups_fully_addressed":[],"propagated_targets":["ev_angus_m0_scaling","ev_crews_entropy","ev_shumlak_threshold","ev_shumlak_zap"],"contradicting_targets":[],"consistent_targets":["ev_angus_m0_scaling","ev_crews_entropy","ev_shumlak_threshold","ev_shumlak_zap"]}}],"evidence":[{"id":"ev_angus_m0_scaling","short_id":"E_01","kind":"evidence","label":"m=0 shear-stabilization scaling follows profile-dependent growth-rate scaling","paper":"angus2020","paper_label":"Angus et al. 2020 (2020)","color":"#2563eb","is_kumar":false,"core":0.85,"observable":"ev_angus_m0_scaling","context":"sheared-flow Z-pinch; linear ideal MHD eigenmode analysis; angus, shear, profile","context_filled":false},{"id":"ev_angus_m1_persists","short_id":"E_02","kind":"evidence","label":"m=1 kink remains unstable at all tested shear levels on realistic profiles","paper":"angus2020","paper_label":"Angus et al. 2020 (2020)","color":"#2563eb","is_kumar":false,"core":0.0,"observable":"ev_angus_m1_persists","context":"sheared-flow Z-pinch; linear ideal MHD eigenmode analysis; angus, shear, profile","context_filled":false},{"id":"ev_bondeson_toroidal","short_id":"E_03","kind":"evidence","label":"Toroidal rotation mitigates but does not eliminate kink in the cylindrical analogue","paper":"bondeson1989","paper_label":"Bondeson-Iacono 1989 (1989)","color":"#dc2626","is_kumar":false,"core":0.0,"observable":"ev_bondeson_toroidal","context":"magnetized plasma; MHD literature; bondeson1989","context_filled":false},{"id":"ev_brughmans_growth","short_id":"E_04","kind":"evidence","label":"Non-axisymmetric SARI growth rates are comparable to MRI at high mode numbers","paper":"brughmans2024","paper_label":"Brughmans et al. 2024 (2024)","color":"#16a34a","is_kumar":false,"core":0.0,"observable":"ev_brughmans_growth","context":"rotating plasma; Legolas SARI computation; sari, legolas","context_filled":false},{"id":"ev_chandra_ck","short_id":"E_05","kind":"evidence","label":"Force-free curl H=alpha H is solvable in a poloidal and toroidal basis","paper":"chandrasekhar1957","paper_label":"Chandrasekhar-Kendall 1957 (1957)","color":"#d97706","is_kumar":false,"core":1.0,"observable":"ev_chandra_ck","context":"magnetized plasma; MHD literature; chandrasekhar1957","context_filled":false},{"id":"ev_crews_entropy","short_id":"E_06","kind":"evidence","label":"Kadomtsev marginal-stable profile has an entropy-gradient interpretation","paper":"crews2024","paper_label":"Crews et al. 2024 (2024)","color":"#0891b2","is_kumar":false,"core":1.0,"observable":"ev_crews_entropy","context":"magnetized plasma; MHD literature; crews2024","context_filled":false},{"id":"ev_friman_overstable","short_id":"E_07","kind":"evidence","label":"Stationary-flow MHD operator is non-Hermitian, so overstability is possible","paper":"frieman1960","paper_label":"Frieman-Rotenberg 1960 (1960)","color":"#475569","is_kumar":false,"core":1.0,"observable":"ev_friman_overstable","context":"magnetized plasma; MHD literature; frieman1960","context_filled":false},{"id":"ev_goedbloed_sari","short_id":"E_08","kind":"evidence","label":"SARI modes fill two-dimensional continua in the eigenfrequency plane at M_A>1","paper":"goedbloed2022","paper_label":"Goedbloed-Keppens 2022 (2022)","color":"#0d9488","is_kumar":false,"core":0.0,"observable":"ev_goedbloed_sari","context":"rotating plasma; SARI spectral theory; sari, alfven, ma","context_filled":false},{"id":"ev_hameiri_continuum","short_id":"E_09","kind":"evidence","label":"Ideal MHD with flow has Doppler-shifted Alfven continua governing essential spectrum","paper":"hameiri1985","paper_label":"Hameiri 1985 (1985)","color":"#ca8a04","is_kumar":false,"core":1.0,"observable":"ev_hameiri_continuum","context":"magnetized plasma; MHD literature; hameiri1985","context_filled":false},{"id":"ev_legolas_bench","short_id":"E_10","kind":"evidence","label":"Legolas reproduces canonical MHD spectra across benchmark problems","paper":"claes2020","paper_label":"Claes et al. 2020 (Legolas) (2020)","color":"#7c3aed","is_kumar":false,"core":1.0,"observable":"ev_legolas_bench","context":"magnetized plasma; MHD literature; claes2020","context_filled":false},{"id":"ev_mahajan_db","short_id":"E_11","kind":"evidence","label":"Double-curl Beltrami equilibrium admits non-trivial pressure and minimum-|B| confinement","paper":"mahajan1998","paper_label":"Mahajan-Yoshida 1998 (1998)","color":"#e11d48","is_kumar":false,"core":1.0,"observable":"ev_mahajan_db","context":"magnetized plasma; MHD literature; mahajan1998","context_filled":false},{"id":"ev_newcomb_static","short_id":"E_12","kind":"evidence","label":"Static finite-beta Z-pinch has unstable m=1 spectrum","paper":"newcomb1960","paper_label":"Newcomb 1960 (1960)","color":"#65a30d","is_kumar":false,"core":0.0,"observable":"ev_newcomb_static","context":"static Z-pinch; ideal MHD node counting; newcomb, static","context_filled":false},{"id":"ev_sainterme_whistler","short_id":"E_13","kind":"evidence","label":"Global whistler instabilities grow faster than ideal-MHD modes at d_i/L of a few percent","paper":"sainterme2026","paper_label":"Sainterme-Ebrahimi 2026 (2026)","color":"#2563eb","is_kumar":false,"core":0.0,"observable":"ev_sainterme_whistler","context":"Hall-MHD plasma; whistler instability; hall, whistler","context_filled":false},{"id":"ev_shiraishi_dilayer","short_id":"E_14","kind":"evidence","label":"Hall-MHD solutions converge to ideal MHD outside a d_i-scale neighborhood of the singularity","paper":"shiraishi2005","paper_label":"Shiraishi et al. 2005 (2005)","color":"#dc2626","is_kumar":false,"core":1.0,"observable":"ev_shiraishi_dilayer","context":"Hall-MHD singular layer; Hall MHD; hall, di","context_filled":false},{"id":"ev_shumlak_threshold","short_id":"E_15","kind":"evidence","label":"m=0 stabilization at v'/(kV_A) around 0.1 is demonstrated numerically","paper":"shumlak1995","paper_label":"Shumlak-Hartman 1995 (1995)","color":"#16a34a","is_kumar":false,"core":1.0,"observable":"ev_shumlak_threshold","context":"sheared-flow Z-pinch; linear and numerical MHD; shumlak, m=0, shear","context_filled":false},{"id":"ev_shumlak_zap","short_id":"E_16","kind":"evidence","label":"ZaP stable period of 15-20 microseconds is coincident with shear","paper":"shumlak2001","paper_label":"Shumlak 2001 (ZaP) (2001)","color":"#d97706","is_kumar":false,"core":1.0,"observable":"ev_shumlak_zap","context":"ZaP Z-pinch experiment; experiment; zap, quiescent, shear","context_filled":false},{"id":"ev_wang_smri","short_id":"E_17","kind":"evidence","label":"Axisymmetric SMRI onset is observed at critical magnetic Reynolds number","paper":"wang2022","paper_label":"Wang et al. 2022 (SMRI exp) (2022)","color":"#7c3aed","is_kumar":false,"core":0.0,"observable":"ev_wang_smri","context":"magnetized plasma; MHD literature; wang2022","context_filled":false},{"id":"ev_zhang_neutrons","short_id":"E_18","kind":"evidence","label":"FuZE sustains neutron emission during the quiescent period with density-squared scaling","paper":"zhang2019","paper_label":"Zhang et al. 2019 (FuZE) (2019)","color":"#0891b2","is_kumar":false,"core":1.0,"observable":"ev_zhang_neutrons","context":"magnetized plasma; MHD literature; zhang2019","context_filled":false}],"edges":[{"edge_id":"Z_01__ev_zhang_neutrons","source":"Z_01","target":"ev_zhang_neutrons","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_zhang_neutrons","semantic":false},{"edge_id":"CR_01__ev_crews_entropy","source":"CR_01","target":"ev_crews_entropy","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_crews_entropy","semantic":false},{"edge_id":"CR_01__ev_shumlak_threshold","source":"CR_01","target":"ev_shumlak_threshold","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shumlak_threshold","semantic":false},{"edge_id":"CL_01__ev_legolas_bench","source":"CL_01","target":"ev_legolas_bench","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_legolas_bench","semantic":false},{"edge_id":"CL_01__ev_brughmans_growth","source":"CL_01","target":"ev_brughmans_growth","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_brughmans_growth","semantic":false},{"edge_id":"DJ_01__ev_legolas_bench","source":"DJ_01","target":"ev_legolas_bench","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_legolas_bench","semantic":false},{"edge_id":"ML_01__ev_sainterme_whistler","source":"ML_01","target":"ev_sainterme_whistler","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_sainterme_whistler","semantic":false},{"edge_id":"BR_01__ev_brughmans_growth","source":"BR_01","target":"ev_brughmans_growth","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_brughmans_growth","semantic":false},{"edge_id":"BR_01__ev_goedbloed_sari","source":"BR_01","target":"ev_goedbloed_sari","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_goedbloed_sari","semantic":false},{"edge_id":"SE_01__ev_sainterme_whistler","source":"SE_01","target":"ev_sainterme_whistler","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_sainterme_whistler","semantic":false},{"edge_id":"GK_01__ev_goedbloed_sari","source":"GK_01","target":"ev_goedbloed_sari","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_goedbloed_sari","semantic":false},{"edge_id":"GK_02__ev_goedbloed_sari","source":"GK_02","target":"ev_goedbloed_sari","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_goedbloed_sari","semantic":false},{"edge_id":"W_01__ev_wang_smri","source":"W_01","target":"ev_wang_smri","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_wang_smri","semantic":false},{"edge_id":"AN_01__ev_angus_m1_persists","source":"AN_01","target":"ev_angus_m1_persists","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_angus_m1_persists","semantic":false},{"edge_id":"AN_02__ev_angus_m0_scaling","source":"AN_02","target":"ev_angus_m0_scaling","in_regime":true,"base_pred":0.85,"actual":0.85,"predicted":0.85,"strength":1.0,"residual":0.0,"observable":"ev_angus_m0_scaling","semantic":false},{"edge_id":"B_01__ev_bondeson_toroidal","source":"B_01","target":"ev_bondeson_toroidal","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_bondeson_toroidal","semantic":false},{"edge_id":"CK_01__ev_chandra_ck","source":"CK_01","target":"ev_chandra_ck","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_chandra_ck","semantic":false},{"edge_id":"FR_01__ev_friman_overstable","source":"FR_01","target":"ev_friman_overstable","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_friman_overstable","semantic":false},{"edge_id":"H_01__ev_hameiri_continuum","source":"H_01","target":"ev_hameiri_continuum","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_hameiri_continuum","semantic":false},{"edge_id":"H_02__ev_hameiri_continuum","source":"H_02","target":"ev_hameiri_continuum","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_hameiri_continuum","semantic":false},{"edge_id":"H_02__ev_goedbloed_sari","source":"H_02","target":"ev_goedbloed_sari","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_goedbloed_sari","semantic":false},{"edge_id":"MY_01__ev_mahajan_db","source":"MY_01","target":"ev_mahajan_db","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_mahajan_db","semantic":false},{"edge_id":"N_01__ev_newcomb_static","source":"N_01","target":"ev_newcomb_static","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_newcomb_static","semantic":false},{"edge_id":"N_02__ev_newcomb_static","source":"N_02","target":"ev_newcomb_static","in_regime":true,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_newcomb_static","semantic":false},{"edge_id":"SH_01__ev_shiraishi_dilayer","source":"SH_01","target":"ev_shiraishi_dilayer","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shiraishi_dilayer","semantic":false},{"edge_id":"S_01__ev_shumlak_threshold","source":"S_01","target":"ev_shumlak_threshold","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shumlak_threshold","semantic":false},{"edge_id":"S_01__ev_angus_m0_scaling","source":"S_01","target":"ev_angus_m0_scaling","in_regime":false,"base_pred":0.85,"actual":0.85,"predicted":0.85,"strength":1.0,"residual":0.0,"observable":"ev_angus_m0_scaling","semantic":false},{"edge_id":"S_02__ev_shumlak_zap","source":"S_02","target":"ev_shumlak_zap","in_regime":true,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shumlak_zap","semantic":false},{"edge_id":"Z_01__ev_angus_m0_scaling__semantic","source":"Z_01","target":"ev_angus_m0_scaling","in_regime":false,"base_pred":1.0,"actual":0.85,"predicted":1.0,"strength":1.0,"residual":0.022500000000000006,"observable":"ev_angus_m0_scaling","semantic":true},{"edge_id":"Z_01__ev_crews_entropy__semantic","source":"Z_01","target":"ev_crews_entropy","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_crews_entropy","semantic":true},{"edge_id":"Z_01__ev_shumlak_threshold__semantic","source":"Z_01","target":"ev_shumlak_threshold","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shumlak_threshold","semantic":true},{"edge_id":"Z_01__ev_shumlak_zap__semantic","source":"Z_01","target":"ev_shumlak_zap","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shumlak_zap","semantic":true},{"edge_id":"CR_01__ev_angus_m0_scaling__semantic","source":"CR_01","target":"ev_angus_m0_scaling","in_regime":false,"base_pred":1.0,"actual":0.85,"predicted":1.0,"strength":1.0,"residual":0.022500000000000006,"observable":"ev_angus_m0_scaling","semantic":true},{"edge_id":"CR_01__ev_shumlak_zap__semantic","source":"CR_01","target":"ev_shumlak_zap","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shumlak_zap","semantic":true},{"edge_id":"CR_01__ev_zhang_neutrons__semantic","source":"CR_01","target":"ev_zhang_neutrons","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_zhang_neutrons","semantic":true},{"edge_id":"BR_01__ev_angus_m1_persists__semantic","source":"BR_01","target":"ev_angus_m1_persists","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_angus_m1_persists","semantic":true},{"edge_id":"BR_01__ev_bondeson_toroidal__semantic","source":"BR_01","target":"ev_bondeson_toroidal","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_bondeson_toroidal","semantic":true},{"edge_id":"BR_01__ev_newcomb_static__semantic","source":"BR_01","target":"ev_newcomb_static","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_newcomb_static","semantic":true},{"edge_id":"GK_01__ev_angus_m1_persists__semantic","source":"GK_01","target":"ev_angus_m1_persists","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_angus_m1_persists","semantic":true},{"edge_id":"GK_01__ev_bondeson_toroidal__semantic","source":"GK_01","target":"ev_bondeson_toroidal","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_bondeson_toroidal","semantic":true},{"edge_id":"GK_01__ev_newcomb_static__semantic","source":"GK_01","target":"ev_newcomb_static","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_newcomb_static","semantic":true},{"edge_id":"GK_01__ev_brughmans_growth__semantic","source":"GK_01","target":"ev_brughmans_growth","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_brughmans_growth","semantic":true},{"edge_id":"GK_02__ev_angus_m1_persists__semantic","source":"GK_02","target":"ev_angus_m1_persists","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_angus_m1_persists","semantic":true},{"edge_id":"GK_02__ev_bondeson_toroidal__semantic","source":"GK_02","target":"ev_bondeson_toroidal","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_bondeson_toroidal","semantic":true},{"edge_id":"GK_02__ev_newcomb_static__semantic","source":"GK_02","target":"ev_newcomb_static","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_newcomb_static","semantic":true},{"edge_id":"GK_02__ev_brughmans_growth__semantic","source":"GK_02","target":"ev_brughmans_growth","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_brughmans_growth","semantic":true},{"edge_id":"AN_01__ev_bondeson_toroidal__semantic","source":"AN_01","target":"ev_bondeson_toroidal","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_bondeson_toroidal","semantic":true},{"edge_id":"AN_01__ev_newcomb_static__semantic","source":"AN_01","target":"ev_newcomb_static","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_newcomb_static","semantic":true},{"edge_id":"AN_01__ev_goedbloed_sari__semantic","source":"AN_01","target":"ev_goedbloed_sari","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_goedbloed_sari","semantic":true},{"edge_id":"AN_01__ev_brughmans_growth__semantic","source":"AN_01","target":"ev_brughmans_growth","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_brughmans_growth","semantic":true},{"edge_id":"AN_02__ev_crews_entropy__semantic","source":"AN_02","target":"ev_crews_entropy","in_regime":false,"base_pred":0.85,"actual":1.0,"predicted":0.85,"strength":1.0,"residual":0.022500000000000006,"observable":"ev_crews_entropy","semantic":true},{"edge_id":"AN_02__ev_shumlak_threshold__semantic","source":"AN_02","target":"ev_shumlak_threshold","in_regime":false,"base_pred":0.85,"actual":1.0,"predicted":0.85,"strength":1.0,"residual":0.022500000000000006,"observable":"ev_shumlak_threshold","semantic":true},{"edge_id":"AN_02__ev_shumlak_zap__semantic","source":"AN_02","target":"ev_shumlak_zap","in_regime":false,"base_pred":0.85,"actual":1.0,"predicted":0.85,"strength":1.0,"residual":0.022500000000000006,"observable":"ev_shumlak_zap","semantic":true},{"edge_id":"AN_02__ev_zhang_neutrons__semantic","source":"AN_02","target":"ev_zhang_neutrons","in_regime":false,"base_pred":0.85,"actual":1.0,"predicted":0.85,"strength":1.0,"residual":0.022500000000000006,"observable":"ev_zhang_neutrons","semantic":true},{"edge_id":"B_01__ev_angus_m1_persists__semantic","source":"B_01","target":"ev_angus_m1_persists","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_angus_m1_persists","semantic":true},{"edge_id":"B_01__ev_newcomb_static__semantic","source":"B_01","target":"ev_newcomb_static","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_newcomb_static","semantic":true},{"edge_id":"B_01__ev_goedbloed_sari__semantic","source":"B_01","target":"ev_goedbloed_sari","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_goedbloed_sari","semantic":true},{"edge_id":"B_01__ev_brughmans_growth__semantic","source":"B_01","target":"ev_brughmans_growth","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_brughmans_growth","semantic":true},{"edge_id":"CK_01__ev_mahajan_db__semantic","source":"CK_01","target":"ev_mahajan_db","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_mahajan_db","semantic":true},{"edge_id":"FR_01__ev_hameiri_continuum__semantic","source":"FR_01","target":"ev_hameiri_continuum","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_hameiri_continuum","semantic":true},{"edge_id":"H_02__ev_friman_overstable__semantic","source":"H_02","target":"ev_friman_overstable","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_friman_overstable","semantic":true},{"edge_id":"MY_01__ev_chandra_ck__semantic","source":"MY_01","target":"ev_chandra_ck","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_chandra_ck","semantic":true},{"edge_id":"N_01__ev_angus_m1_persists__semantic","source":"N_01","target":"ev_angus_m1_persists","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_angus_m1_persists","semantic":true},{"edge_id":"N_01__ev_bondeson_toroidal__semantic","source":"N_01","target":"ev_bondeson_toroidal","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_bondeson_toroidal","semantic":true},{"edge_id":"N_01__ev_goedbloed_sari__semantic","source":"N_01","target":"ev_goedbloed_sari","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_goedbloed_sari","semantic":true},{"edge_id":"N_01__ev_brughmans_growth__semantic","source":"N_01","target":"ev_brughmans_growth","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_brughmans_growth","semantic":true},{"edge_id":"N_02__ev_angus_m1_persists__semantic","source":"N_02","target":"ev_angus_m1_persists","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_angus_m1_persists","semantic":true},{"edge_id":"N_02__ev_bondeson_toroidal__semantic","source":"N_02","target":"ev_bondeson_toroidal","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_bondeson_toroidal","semantic":true},{"edge_id":"N_02__ev_goedbloed_sari__semantic","source":"N_02","target":"ev_goedbloed_sari","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_goedbloed_sari","semantic":true},{"edge_id":"N_02__ev_brughmans_growth__semantic","source":"N_02","target":"ev_brughmans_growth","in_regime":false,"base_pred":0.0,"actual":0.0,"predicted":0.0,"strength":1.0,"residual":0.0,"observable":"ev_brughmans_growth","semantic":true},{"edge_id":"S_01__ev_crews_entropy__semantic","source":"S_01","target":"ev_crews_entropy","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_crews_entropy","semantic":true},{"edge_id":"S_01__ev_shumlak_zap__semantic","source":"S_01","target":"ev_shumlak_zap","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shumlak_zap","semantic":true},{"edge_id":"S_01__ev_zhang_neutrons__semantic","source":"S_01","target":"ev_zhang_neutrons","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_zhang_neutrons","semantic":true},{"edge_id":"S_02__ev_angus_m0_scaling__semantic","source":"S_02","target":"ev_angus_m0_scaling","in_regime":false,"base_pred":1.0,"actual":0.85,"predicted":1.0,"strength":1.0,"residual":0.022500000000000006,"observable":"ev_angus_m0_scaling","semantic":true},{"edge_id":"S_02__ev_crews_entropy__semantic","source":"S_02","target":"ev_crews_entropy","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_crews_entropy","semantic":true},{"edge_id":"S_02__ev_shumlak_threshold__semantic","source":"S_02","target":"ev_shumlak_threshold","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_shumlak_threshold","semantic":true},{"edge_id":"S_02__ev_zhang_neutrons__semantic","source":"S_02","target":"ev_zhang_neutrons","in_regime":false,"base_pred":1.0,"actual":1.0,"predicted":1.0,"strength":1.0,"residual":0.0,"observable":"ev_zhang_neutrons","semantic":true}],"ideas":[{"id":"subject_01_beltrami_equilibrium_class","label":"Beltrami / double-Beltrami equilibrium constructions","color":"#2563eb","claim_ids":["CK_01","MY_01"],"evidence_ids":["ev_chandra_ck","ev_mahajan_db"],"member_ids":["CK_01","MY_01","ev_chandra_ck","ev_mahajan_db"],"scope":{"system":"magnetized plasma","framework":"MHD literature","regime":"chandrasekhar1957, mahajan1998"},"remaining_tensions":[],"tensions_resolved":[],"open_questions":[{"question":"What experiment or derivation, if it landed at a contrary value, would force a rewrite within Beltrami / double-Beltrami equilibrium constructions?","priority":"exploratory","suggested_next_steps":[{"kind":"experiment","title":"Counter-experiment proposal","description":"Identify a measurement that, if it landed at a value contrary to the field's consensus inside Beltrami / double-Beltrami equilibrium constructions, would force a rewrite. Document the device that could perform it and the parameter range it should sweep."},{"kind":"literature","title":"Adjacent-regime survey","description":"Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one."},{"kind":"audit","title":"Foundational assumption audit","description":"Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface."}]}],"ideas":[{"id":"idea_beltrami_equilibrium_class_001","title":"chandrasekhar1957 (CK_01): Force-free curl H = alpha H fields admit poloidal and toroidal eigenfunction solutions","status":"established","paper":"chandrasekhar1957","claim_ids":["CK_01"],"evidence_ids":["ev_chandra_ck"],"member_ids":["CK_01","ev_chandra_ck"],"contests":[],"supports":[]},{"id":"idea_beltrami_equilibrium_class_002","title":"mahajan1998 (MY_01): Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure","status":"established","paper":"mahajan1998","claim_ids":["MY_01"],"evidence_ids":["ev_mahajan_db"],"member_ids":["MY_01","ev_mahajan_db"],"contests":[],"supports":[]}],"tensions":[]},{"id":"subject_02_continuum_spectrum_alfven_minimum","label":"Continuum spectrum near the Alfven minimum","color":"#0891b2","claim_ids":["FR_01","H_01","H_02"],"evidence_ids":["ev_friman_overstable","ev_hameiri_continuum"],"member_ids":["FR_01","H_01","H_02","ev_friman_overstable","ev_hameiri_continuum"],"scope":{"system":"magnetized plasma","framework":"MHD literature","regime":"frieman1960, hameiri1981, hameiri1985"},"remaining_tensions":[],"tensions_resolved":[],"open_questions":[{"question":"What experiment or derivation, if it landed at a contrary value, would force a rewrite within Continuum spectrum near the Alfven minimum?","priority":"exploratory","suggested_next_steps":[{"kind":"experiment","title":"Counter-experiment proposal","description":"Identify a measurement that, if it landed at a value contrary to the field's consensus inside Continuum spectrum near the Alfven minimum, would force a rewrite. Document the device that could perform it and the parameter range it should sweep."},{"kind":"literature","title":"Adjacent-regime survey","description":"Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one."},{"kind":"audit","title":"Foundational assumption audit","description":"Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface."}]}],"ideas":[{"id":"idea_continuum_spectrum_alfven_minimum_001","title":"frieman1960 (FR_01): Linear MHD stability with stationary flow is governed by a non-Hermitian operator","status":"established","paper":"frieman1960","claim_ids":["FR_01"],"evidence_ids":["ev_friman_overstable"],"member_ids":["FR_01","ev_friman_overstable"],"contests":[],"supports":[]},{"id":"idea_continuum_spectrum_alfven_minimum_002","title":"hameiri1981 (H_01): Sufficient stability conditions for rotating screw-pinch follow from circle theorems and spectral bounds","status":"established","paper":"hameiri1981","claim_ids":["H_01"],"evidence_ids":["ev_hameiri_continuum"],"member_ids":["H_01","ev_hameiri_continuum"],"contests":[],"supports":["idea_continuum_spectrum_alfven_minimum_003"]},{"id":"idea_continuum_spectrum_alfven_minimum_003","title":"hameiri1985 (H_02): Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua","status":"established","paper":"hameiri1985","claim_ids":["H_02"],"evidence_ids":["ev_hameiri_continuum"],"member_ids":["H_02","ev_hameiri_continuum"],"contests":[],"supports":["idea_continuum_spectrum_alfven_minimum_002"]}],"tensions":[]},{"id":"subject_03_m0_sausage_stabilization","label":"m=0 sausage growth and shear-flow stabilization","color":"#16a34a","claim_ids":["AN_02","CR_01","S_01","S_02","Z_01"],"evidence_ids":["ev_angus_m0_scaling","ev_crews_entropy","ev_shumlak_threshold","ev_shumlak_zap","ev_zhang_neutrons"],"member_ids":["AN_02","CR_01","S_01","S_02","Z_01","ev_angus_m0_scaling","ev_crews_entropy","ev_shumlak_threshold","ev_shumlak_zap","ev_zhang_neutrons"],"scope":{"system":"ZaP Z-pinch experiment; magnetized plasma; sheared-flow Z-pinch","framework":"MHD literature; experiment; linear and numerical MHD; linear ideal MHD eigenmode analysis","regime":"angus, crews2024, m=0, profile, quiescent, shear, shumlak, zap, zhang2019"},"remaining_tensions":[],"tensions_resolved":[],"open_questions":[{"question":"What experiment or derivation, if it landed at a contrary value, would force a rewrite within m=0 sausage growth and shear-flow stabilization?","priority":"exploratory","suggested_next_steps":[{"kind":"experiment","title":"Counter-experiment proposal","description":"Identify a measurement that, if it landed at a value contrary to the field's consensus inside m=0 sausage growth and shear-flow stabilization, would force a rewrite. Document the device that could perform it and the parameter range it should sweep."},{"kind":"literature","title":"Adjacent-regime survey","description":"Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one."},{"kind":"audit","title":"Foundational assumption audit","description":"Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface."}]}],"ideas":[{"id":"idea_m0_sausage_stabilization_001","title":"zhang2019 (Z_01): FuZE experimentally demonstrates sustained microsecond-scale neutron production during a quiescent period","status":"established","paper":"zhang2019","claim_ids":["Z_01"],"evidence_ids":["ev_zhang_neutrons"],"member_ids":["Z_01","ev_zhang_neutrons"],"contests":[],"supports":[]},{"id":"idea_m0_sausage_stabilization_002","title":"crews2024 (CR_01): Kadomtsev interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux","status":"established","paper":"crews2024","claim_ids":["CR_01"],"evidence_ids":["ev_crews_entropy","ev_shumlak_threshold"],"member_ids":["CR_01","ev_crews_entropy","ev_shumlak_threshold"],"contests":[],"supports":["idea_m0_sausage_stabilization_004"]},{"id":"idea_m0_sausage_stabilization_003","title":"angus2020 (AN_02): Required shear for m=0 stabilization scales with profile-dependent shear-free growth; m=1 needs a different mechanism","status":"established","paper":"angus2020","claim_ids":["AN_02"],"evidence_ids":["ev_angus_m0_scaling"],"member_ids":["AN_02","ev_angus_m0_scaling"],"contests":[],"supports":["idea_m0_sausage_stabilization_004"]},{"id":"idea_m0_sausage_stabilization_004","title":"shumlak1995 (S_01): Sheared axial flow v'/(kV_A) above about 0.1 stabilizes the m=0 sausage mode in static Z-pinch","status":"established","paper":"shumlak1995","claim_ids":["S_01"],"evidence_ids":["ev_angus_m0_scaling","ev_shumlak_threshold"],"member_ids":["S_01","ev_angus_m0_scaling","ev_shumlak_threshold"],"contests":[],"supports":["idea_m0_sausage_stabilization_002","idea_m0_sausage_stabilization_003"]},{"id":"idea_m0_sausage_stabilization_005","title":"shumlak2001 (S_02): ZaP experiment observes a long stable period coincident with sheared sub-Alfvenic flow","status":"established","paper":"shumlak2001","claim_ids":["S_02"],"evidence_ids":["ev_shumlak_zap"],"member_ids":["S_02","ev_shumlak_zap"],"contests":[],"supports":[]}],"tensions":[]},{"id":"subject_04_m1_stability_outcome","label":"m=1 kink stability in helical / rotating Z-pinches","color":"#d97706","claim_ids":["AN_01","BR_01","B_01","CL_01","GK_01","GK_02","H_02","N_01","N_02"],"evidence_ids":["ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_goedbloed_sari","ev_newcomb_static"],"member_ids":["AN_01","BR_01","B_01","CL_01","GK_01","GK_02","H_02","N_01","N_02","ev_angus_m1_persists","ev_bondeson_toroidal","ev_brughmans_growth","ev_goedbloed_sari","ev_newcomb_static"],"scope":{"system":"magnetized plasma; rotating plasma; sheared-flow Z-pinch; static Z-pinch","framework":"Legolas SARI computation; MHD literature; SARI spectral theory; ideal MHD node counting; linear ideal MHD eigenmode analysis","regime":"alfven, angus, bondeson1989, claes2020, hameiri1985, legolas, ma, newcomb, profile, sari, shear, static"},"remaining_tensions":[],"tensions_resolved":[],"open_questions":[{"question":"What experiment or derivation, if it landed at a contrary value, would force a rewrite within m=1 kink stability in helical / rotating Z-pinches?","priority":"exploratory","suggested_next_steps":[{"kind":"experiment","title":"Counter-experiment proposal","description":"Identify a measurement that, if it landed at a value contrary to the field's consensus inside m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document the device that could perform it and the parameter range it should sweep."},{"kind":"literature","title":"Adjacent-regime survey","description":"Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one."},{"kind":"audit","title":"Foundational assumption audit","description":"Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface."}]}],"ideas":[{"id":"idea_m1_stability_outcome_001","title":"claes2020 (CL_01): Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow","status":"established","paper":"claes2020","claim_ids":["CL_01"],"evidence_ids":["ev_brughmans_growth"],"member_ids":["CL_01","ev_brughmans_growth"],"contests":[],"supports":["idea_m1_stability_outcome_002"]},{"id":"idea_m1_stability_outcome_002","title":"brughmans2024 (BR_01): Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI","status":"established","paper":"brughmans2024","claim_ids":["BR_01"],"evidence_ids":["ev_brughmans_growth","ev_goedbloed_sari"],"member_ids":["BR_01","ev_brughmans_growth","ev_goedbloed_sari"],"contests":[],"supports":["idea_m1_stability_outcome_001","idea_m1_stability_outcome_003","idea_m1_stability_outcome_006"]},{"id":"idea_m1_stability_outcome_003","title":"goedbloed2022 (GK_01, GK_02): Super-Alfvenic Rotational Instability emerges from overlap of Doppler-shifted Alfven continua","status":"established","paper":"goedbloed2022","claim_ids":["GK_01","GK_02"],"evidence_ids":["ev_goedbloed_sari"],"member_ids":["GK_01","GK_02","ev_goedbloed_sari"],"contests":[],"supports":["idea_m1_stability_outcome_002","idea_m1_stability_outcome_006"]},{"id":"idea_m1_stability_outcome_004","title":"angus2020 (AN_01): Linear shear flow alone does not stabilize m=1 kink across realistic Z-pinch profile classes","status":"established","paper":"angus2020","claim_ids":["AN_01"],"evidence_ids":["ev_angus_m1_persists"],"member_ids":["AN_01","ev_angus_m1_persists"],"contests":[],"supports":[]},{"id":"idea_m1_stability_outcome_005","title":"bondeson1989 (B_01): In toroidal or cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure","status":"established","paper":"bondeson1989","claim_ids":["B_01"],"evidence_ids":["ev_bondeson_toroidal"],"member_ids":["B_01","ev_bondeson_toroidal"],"contests":[],"supports":[]},{"id":"idea_m1_stability_outcome_006","title":"hameiri1985 (H_02): Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua","status":"established","paper":"hameiri1985","claim_ids":["H_02"],"evidence_ids":["ev_goedbloed_sari"],"member_ids":["H_02","ev_goedbloed_sari"],"contests":[],"supports":["idea_m1_stability_outcome_002","idea_m1_stability_outcome_003"]},{"id":"idea_m1_stability_outcome_007","title":"newcomb1960 (N_01, N_02): Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD","status":"established","paper":"newcomb1960","claim_ids":["N_01","N_02"],"evidence_ids":["ev_newcomb_static"],"member_ids":["N_01","N_02","ev_newcomb_static"],"contests":[],"supports":[]}],"tensions":[]},{"id":"subject_05_numerical_eigenvalue_benchmarks","label":"Numerical eigenvalue benchmarks and constraint-violation tests","color":"#7c3aed","claim_ids":["CL_01","DJ_01"],"evidence_ids":["ev_legolas_bench"],"member_ids":["CL_01","DJ_01","ev_legolas_bench"],"scope":{"system":"magnetized plasma","framework":"MHD literature","regime":"claes2020, dejonghe2022"},"remaining_tensions":[],"tensions_resolved":[],"open_questions":[{"question":"What experiment or derivation, if it landed at a contrary value, would force a rewrite within Numerical eigenvalue benchmarks and constraint-violation tests?","priority":"exploratory","suggested_next_steps":[{"kind":"experiment","title":"Counter-experiment proposal","description":"Identify a measurement that, if it landed at a value contrary to the field's consensus inside Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document the device that could perform it and the parameter range it should sweep."},{"kind":"literature","title":"Adjacent-regime survey","description":"Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one."},{"kind":"audit","title":"Foundational assumption audit","description":"Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface."}]}],"ideas":[{"id":"idea_numerical_eigenvalue_benchmarks_001","title":"claes2020 (CL_01): Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow","status":"established","paper":"claes2020","claim_ids":["CL_01"],"evidence_ids":["ev_legolas_bench"],"member_ids":["CL_01","ev_legolas_bench"],"contests":[],"supports":["idea_numerical_eigenvalue_benchmarks_002"]},{"id":"idea_numerical_eigenvalue_benchmarks_002","title":"dejonghe2022 (DJ_01): Legolas extension with viscosity and Hall current is benchmarked against historic results","status":"established","paper":"dejonghe2022","claim_ids":["DJ_01"],"evidence_ids":["ev_legolas_bench"],"member_ids":["DJ_01","ev_legolas_bench"],"contests":[],"supports":["idea_numerical_eigenvalue_benchmarks_001"]}],"tensions":[]},{"id":"subject_06_ungrouped","label":"Ungrouped (no comparability group authored yet)","color":"#be185d","claim_ids":["ML_01","SE_01","SH_01","W_01"],"evidence_ids":["ev_sainterme_whistler","ev_shiraishi_dilayer","ev_wang_smri"],"member_ids":["ML_01","SE_01","SH_01","W_01","ev_sainterme_whistler","ev_shiraishi_dilayer","ev_wang_smri"],"scope":{"system":"","framework":"","regime":"ungrouped"},"remaining_tensions":[],"tensions_resolved":[],"open_questions":[],"ideas":[],"tensions":[]}],"papers":[{"id":"angus2020","label":"Angus et al. 2020 (2020)","color":"#2563eb"},{"id":"bondeson1989","label":"Bondeson-Iacono 1989 (1989)","color":"#dc2626"},{"id":"brughmans2024","label":"Brughmans et al. 2024 (2024)","color":"#16a34a"},{"id":"chandrasekhar1957","label":"Chandrasekhar-Kendall 1957 (1957)","color":"#d97706"},{"id":"claes2020","label":"Claes et al. 2020 (Legolas) (2020)","color":"#7c3aed"},{"id":"crews2024","label":"Crews et al. 2024 (2024)","color":"#0891b2"},{"id":"dejonghe2022","label":"De Jonghe et al. 2022 (2022)","color":"#be185d"},{"id":"frieman1960","label":"Frieman-Rotenberg 1960 (1960)","color":"#475569"},{"id":"goedbloed2022","label":"Goedbloed-Keppens 2022 (2022)","color":"#0d9488"},{"id":"hameiri1981","label":"Hameiri 1981 (1981)","color":"#9333ea"},{"id":"hameiri1985","label":"Hameiri 1985 (1985)","color":"#ca8a04"},{"id":"mahajan1998","label":"Mahajan-Yoshida 1998 (1998)","color":"#e11d48"},{"id":"mahajan2024","label":"Mahajan-Sharma-Lingam 2024 (2024)","color":"#0284c7"},{"id":"newcomb1960","label":"Newcomb 1960 (1960)","color":"#65a30d"},{"id":"sainterme2026","label":"Sainterme-Ebrahimi 2026 (2026)","color":"#2563eb"},{"id":"shiraishi2005","label":"Shiraishi et al. 2005 (2005)","color":"#dc2626"},{"id":"shumlak1995","label":"Shumlak-Hartman 1995 (1995)","color":"#16a34a"},{"id":"shumlak2001","label":"Shumlak 2001 (ZaP) (2001)","color":"#d97706"},{"id":"wang2022","label":"Wang et al. 2022 (SMRI exp) (2022)","color":"#7c3aed"},{"id":"zhang2019","label":"Zhang et al. 2019 (FuZE) (2019)","color":"#0891b2"}],"metrics":{"initial_residual":0.15750000000000003,"final_residual":0.15750000000000003,"claim_rewrite_distance":0}};
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("graph-svg");
+const tooltip = document.getElementById("tooltip");
+const state = { focusType: null, focusId: null, innerIdeaId: null, scale: 1, tx: 0, ty: 0 };
+const nodeById = Object.fromEntries([...DATA.claims, ...DATA.evidence].map(n => [n.id, n]));
+const ideaById = Object.fromEntries(DATA.ideas.map(i => [i.id, i]));
+const edgesByNode = Object.fromEntries(Object.keys(nodeById).map(id => [id, []]));
+const STAR_PATH = "M 0,-12 L 3.4,-4 L 12,-4 L 5.2,1.8 L 7.4,11 L 0,6 L -7.4,11 L -5.2,1.8 L -12,-4 L -3.4,-4 Z";
+const DIAMOND_PATH = "M 0,-12 L 12,0 L 0,12 L -12,0 Z";
+for (const edge of DATA.edges) {
+  edgesByNode[edge.source].push(edge);
+  edgesByNode[edge.target].push(edge);
+}
+
+const layers = {
+  root: el("g"),
+  hulls: el("g"),
+  assertionHulls: el("g"),
+  edges: el("g"),
+  nodes: el("g"),
+  labels: el("g"),
+  ideaLabels: el("g"),
+  assertionLabels: el("g"),
+};
+svg.appendChild(layers.root);
+layers.root.append(
+  layers.hulls,
+  layers.assertionHulls,
+  layers.edges,
+  layers.nodes,
+  layers.labels,
+  layers.ideaLabels,
+  layers.assertionLabels,
+);
+
+function el(name, attrs={}) {
+  const node = document.createElementNS(SVG_NS, name);
+  for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+  return node;
+}
+
+function escapeHtml(value) {
+  const map = {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
+  return String(value ?? "").replace(/[&<>"']/g, ch => map[ch]);
+}
+
+function metric(value) {
+  return Number(value).toFixed(3).replace(/\.000$/, "");
+}
+
+function showInitError(err) {
+  console.error("constellation init error:", err);
+  const banner = document.createElement("div");
+  banner.style.cssText = "position:fixed;top:0;left:0;right:0;background:#fef2f2;border-bottom:2px solid #dc2626;color:#991b1b;padding:8px 14px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace;z-index:999;white-space:pre-wrap;max-height:40vh;overflow:auto;";
+  banner.textContent = "Constellation render error: " + (err && err.message || err) + "\n\n" + (err && err.stack || "");
+  document.body.appendChild(banner);
+}
+
+function wireControls() {
+  // Wire UI controls first so they always work even if layout/render
+  // later throws. This was a real bug in the previous init order --
+  // a thrown exception in fitGraph() left every button disconnected.
+  window.addEventListener("resize", () => {
+    try { layoutNodes(); renderPositions(); fitGraph(false); } catch (e) { console.error(e); }
+  });
+  document.getElementById("fit-btn").addEventListener("click", () => fitGraph(true));
+  document.getElementById("clear-btn").addEventListener("click", clearFocus);
+  document.getElementById("zoom-in-btn").addEventListener("click", () => stepZoom(1.25));
+  document.getElementById("zoom-out-btn").addEventListener("click", () => stepZoom(0.8));
+  svg.addEventListener("click", ev => {
+    if (dragState.moved) { dragState.moved = false; return; }
+    if (isBackgroundTarget(ev.target)) clearFocus();
+  });
+  // Wheel on svg AND parent stage as a fallback for sandboxed embeds.
+  svg.addEventListener("wheel", onWheel, { passive: false });
+  document.getElementById("stage").addEventListener("wheel", onWheel, { passive: false });
+  // Pointer events first (universal), mouse events as a fallback.
+  svg.addEventListener("pointerdown", onSvgPointerDown);
+  window.addEventListener("pointermove", onSvgPointerMove);
+  window.addEventListener("pointerup", onSvgPointerUp);
+  window.addEventListener("pointercancel", onSvgPointerUp);
+  svg.addEventListener("mousedown", onSvgMouseDown);
+  window.addEventListener("mousemove", onSvgMouseMove);
+  window.addEventListener("mouseup", onSvgMouseUp);
+}
+
+function setStatus(text) {
+  const el = document.getElementById("status-indicator");
+  if (el) el.textContent = text;
+}
+
+function init() {
+  // Expose key handlers on window so inline onclick attrs work even if
+  // addEventListener fails for some reason.
+  window.stepZoom = stepZoom;
+  window.fitGraph = fitGraph;
+  window.clearFocus = clearFocus;
+  window.fitToSubject = fitToSubject;
+  try { wireControls(); } catch (e) { showInitError(e); }
+  try { layoutNodes(); } catch (e) { showInitError(e); return; }
+  try { renderStatic(); } catch (e) { showInitError(e); return; }
+  try { renderSide(); } catch (e) { showInitError(e); return; }
+  try { applyFocus(); } catch (e) { showInitError(e); }
+  try { fitGraph(false); } catch (e) { showInitError(e); }
+  setStatus(`init OK · scale ${state.scale.toFixed(2)}`);
+}
+
+function layoutNodes() {
+  const rect = svg.getBoundingClientRect();
+  const width = Math.max(720, rect.width || 1000);
+  const height = Math.max(520, rect.height || 720);
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const radiusX = Math.max(180, width * 0.28);
+  const radiusY = Math.max(120, height * 0.2);
+  const memberships = {};
+  DATA.ideas.forEach((idea, i) => {
+    const angle = -Math.PI / 2 + (i / Math.max(DATA.ideas.length, 1)) * Math.PI * 2;
+    idea.cx = centerX + Math.cos(angle) * radiusX;
+    idea.cy = centerY + Math.sin(angle) * radiusY;
+    [...idea.claim_ids, ...idea.evidence_ids].forEach(id => {
+      if (!memberships[id]) memberships[id] = [];
+      memberships[id].push(idea.id);
+    });
+  });
+
+  for (const node of Object.values(nodeById)) {
+    const ids = memberships[node.id] || [];
+    if (ids.length) {
+      node.cx = ids.reduce((sum, id) => sum + ideaById[id].cx, 0) / ids.length;
+      node.cy = ids.reduce((sum, id) => sum + ideaById[id].cy, 0) / ids.length;
+    } else {
+      node.cx = centerX;
+      node.cy = centerY;
+    }
+  }
+
+  for (const idea of DATA.ideas) {
+    const claimIds = idea.claim_ids.filter(id => nodeById[id]);
+    const evidenceIds = idea.evidence_ids.filter(id => nodeById[id]);
+    claimIds.forEach((id, idx) => {
+      const spread = (idx - (claimIds.length - 1) / 2) * 62;
+      nodeById[id].x = nodeById[id].cx + spread;
+      nodeById[id].y = nodeById[id].cy - 58 - Math.abs(spread) * 0.08;
+    });
+    evidenceIds.forEach((id, idx) => {
+      const spread = (idx - (evidenceIds.length - 1) / 2) * 66;
+      nodeById[id].x = nodeById[id].cx + spread;
+      nodeById[id].y = nodeById[id].cy + 58 + Math.abs(spread) * 0.08;
+    });
+  }
+
+  // Belt-and-suspenders: any node that didn't get placed by the
+  // subject-membership loop (orphan claim or evidence) gets parked at
+  // the canvas center so downstream Math.min / Math.max can't see NaN.
+  for (const node of Object.values(nodeById)) {
+    if (!isFinite(node.x) || !isFinite(node.y)) {
+      node.x = centerX;
+      node.y = centerY;
+      node.cx = centerX;
+      node.cy = centerY;
+    }
+  }
+
+  relaxLayout();
+}
+
+function relaxLayout() {
+  const nodes = Object.values(nodeById);
+  for (let tick = 0; tick < 120; tick++) {
+    for (const node of nodes) {
+      node.vx = (node.vx || 0) * 0.76 + (node.cx - node.x) * 0.004;
+      node.vy = (node.vy || 0) * 0.76 + (node.cy - node.y) * 0.004;
+    }
+    for (const edge of DATA.edges) {
+      const a = nodeById[edge.source];
+      const b = nodeById[edge.target];
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.max(1, Math.hypot(dx, dy));
+      const desired = 95;
+      const force = (dist - desired) * 0.0025;
+      const fx = dx / dist * force;
+      const fy = dy / dist * force;
+      a.vx += fx; a.vy += fy;
+      b.vx -= fx; b.vy -= fy;
+    }
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.max(1, Math.hypot(dx, dy));
+        const min = 34;
+        if (dist < min) {
+          const push = (min - dist) * 0.028;
+          const fx = dx / dist * push;
+          const fy = dy / dist * push;
+          a.vx -= fx; a.vy -= fy;
+          b.vx += fx; b.vy += fy;
+        }
+      }
+    }
+    for (const node of nodes) {
+      node.x += node.vx || 0;
+      node.y += node.vy || 0;
+    }
+  }
+}
+
+function renderStatic() {
+  layers.hulls.textContent = "";
+  layers.assertionHulls.textContent = "";
+  layers.edges.textContent = "";
+  layers.nodes.textContent = "";
+  layers.labels.textContent = "";
+  layers.ideaLabels.textContent = "";
+  layers.assertionLabels.textContent = "";
+
+  for (const idea of DATA.ideas) {
+    const path = el("path", {"class": "idea-hull", fill: idea.color, stroke: idea.color, "data-id": idea.id});
+    path.addEventListener("click", ev => { ev.stopPropagation(); focusIdea(idea.id); });
+    path.addEventListener("mousemove", ev => showTip(ev, `<div class="id">${escapeHtml(idea.id)}</div><b>${escapeHtml(idea.label)}</b>`));
+    path.addEventListener("mouseleave", hideTip);
+    layers.hulls.appendChild(path);
+  }
+
+  // Inner idea hulls -- one per idea inside the subject, colored by
+  // lifecycle status. Only drawn when a subject has 2+ ideas (otherwise
+  // there's nothing to distinguish visually).
+  for (const subject of DATA.ideas) {
+    const nested = (subject.ideas || []).filter(i => i.member_ids && i.member_ids.length);
+    if (nested.length < 2) continue;
+    for (const ni of nested) {
+      const status = ni.status || "established";
+      const path = el("path", {
+        "class": `assertion-hull ${status}`,
+        "data-subject": subject.id,
+        "data-idea": ni.id,
+      });
+      const tipHtml = (
+        `<div class="id">${escapeHtml(ni.id)} · ${escapeHtml(status.toUpperCase())}</div>` +
+        `<b>${escapeHtml(ni.title || "")}</b><br>` +
+        `paper: ${escapeHtml(ni.paper || "")}` +
+        (ni.contests && ni.contests.length ? `<br>contests ${ni.contests.length} idea(s)` : "") +
+        (ni.supports && ni.supports.length ? `<br>supported by ${ni.supports.length} idea(s)` : "")
+      );
+      path.addEventListener("mousemove", ev => showTip(ev, tipHtml));
+      path.addEventListener("mouseleave", hideTip);
+      path.addEventListener("click", ev => {
+        ev.stopPropagation();
+        focusInnerIdea(subject.id, ni.id);
+      });
+      layers.assertionHulls.appendChild(path);
+
+      const label = el("text", {
+        "class": `assertion-label ${status}`,
+        "data-subject": subject.id,
+        "data-idea": ni.id,
+        "text-anchor": "middle",
+      });
+      label.textContent = status.toUpperCase() + " · " + (ni.paper || "");
+      layers.assertionLabels.appendChild(label);
+    }
+  }
+
+  for (const edge of DATA.edges) {
+    const cls = `edge ${edgeClass(edge.residual)}${edge.semantic ? " semantic" : ""}`;
+    const path = el("path", {"class": cls, "data-source": edge.source, "data-target": edge.target});
+    path.addEventListener("mousemove", ev => showTip(ev, edgeTip(edge)));
+    path.addEventListener("mouseleave", hideTip);
+    layers.edges.appendChild(path);
+  }
+
+  for (const node of Object.values(nodeById)) {
+    const group = el("g", {"class": `node ${node.kind}${node.is_kumar ? " kumar" : ""}${node.rewritten ? " rewritten" : ""}${node.context_filled ? " context-filled" : ""}`, "data-id": node.id});
+    const shape = nodeShape(node);
+    group.appendChild(shape);
+    group.addEventListener("click", ev => { ev.stopPropagation(); focusNode(node.id); });
+    group.addEventListener("mousemove", ev => showTip(ev, nodeTip(node)));
+    group.addEventListener("mouseleave", hideTip);
+    layers.nodes.appendChild(group);
+
+    const label = el("text", {"class": "label", "data-id": node.id, dy: 24});
+    label.textContent = node.short_id || node.id;
+    layers.labels.appendChild(label);
+  }
+
+  for (let i = 0; i < DATA.ideas.length; i++) {
+    const idea = DATA.ideas[i];
+    const label = el("text", {"class": "idea-label", "data-id": idea.id, "text-anchor": "middle"});
+    label.textContent = `Subject ${i + 1}`;
+    layers.ideaLabels.appendChild(label);
+  }
+  renderPositions();
+}
+
+function nodeShape(node) {
+  if (node.kind === "claim" && node.is_kumar) {
+    return el("path", {"class": "shape", d: STAR_PATH, fill: node.color});
+  }
+  if (node.kind === "evidence" && node.is_kumar) {
+    return el("path", {"class": "shape", d: DIAMOND_PATH, fill: node.color});
+  }
+  if (node.kind === "claim") {
+    return el("circle", {"class": "shape", r: 10, fill: node.color});
+  }
+  return el("rect", {"class": "shape", x: -9, y: -9, width: 18, height: 18, rx: 2, fill: node.color});
+}
+
+function renderPositions() {
+  for (const path of layers.hulls.querySelectorAll(".idea-hull")) {
+    const idea = ideaById[path.dataset.id];
+    path.setAttribute("d", hullPath(idea));
+  }
+  for (const path of layers.assertionHulls.querySelectorAll(".assertion-hull")) {
+    const subject = ideaById[path.dataset.subject];
+    if (!subject || !subject.ideas) continue;
+    const ni = subject.ideas.find(x => x.id === path.dataset.idea);
+    if (!ni) continue;
+    const nodes = (ni.member_ids || []).map(id => nodeById[id]).filter(Boolean);
+    path.setAttribute("d", assertionHullPath(nodes));
+  }
+  for (const label of layers.assertionLabels.querySelectorAll(".assertion-label")) {
+    const subject = ideaById[label.dataset.subject];
+    if (!subject || !subject.ideas) continue;
+    const ni = subject.ideas.find(x => x.id === label.dataset.idea);
+    if (!ni) continue;
+    const nodes = (ni.member_ids || []).map(id => nodeById[id]).filter(Boolean);
+    const center = nodes.length ? {x: avg(nodes, "x"), y: avg(nodes, "y")} : {x: 0, y: 0};
+    label.setAttribute("x", center.x);
+    label.setAttribute("y", center.y - 32);
+  }
+  for (const path of layers.edges.querySelectorAll(".edge")) {
+    const a = nodeById[path.dataset.source];
+    const b = nodeById[path.dataset.target];
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const curve = Math.min(26, Math.hypot(dx, dy) * 0.12);
+    const nx = -dy / Math.max(1, Math.hypot(dx, dy)) * curve;
+    const ny = dx / Math.max(1, Math.hypot(dx, dy)) * curve;
+    path.setAttribute("d", `M ${a.x} ${a.y} Q ${mx + nx} ${my + ny} ${b.x} ${b.y}`);
+  }
+  for (const group of layers.nodes.querySelectorAll(".node")) {
+    const node = nodeById[group.dataset.id];
+    group.setAttribute("transform", `translate(${node.x},${node.y})`);
+  }
+  for (const label of layers.labels.querySelectorAll(".label")) {
+    const node = nodeById[label.dataset.id];
+    label.setAttribute("x", node.x);
+    label.setAttribute("y", node.y);
+  }
+  for (const label of layers.ideaLabels.querySelectorAll(".idea-label")) {
+    const idea = ideaById[label.dataset.id];
+    const nodes = [...idea.claim_ids, ...idea.evidence_ids].map(id => nodeById[id]).filter(Boolean);
+    const point = ideaLabelPoint(nodes);
+    label.setAttribute("x", point.x);
+    label.setAttribute("y", point.y);
+  }
+}
+
+function hullPath(idea) {
+  const nodes = [...idea.claim_ids, ...idea.evidence_ids].map(id => nodeById[id]).filter(Boolean);
+  if (!nodes.length) return "";
+  const points = nodes.map(n => ({x: n.x, y: n.y}));
+  const pad = 34;
+  if (points.length === 1) return circleBlob(points[0], pad + 18);
+  const hull = convexHull(points);
+  if (hull.length === 1) return circleBlob(hull[0], pad + 18);
+  if (hull.length === 2) return pairBlob(hull[0], hull[1], pad + 18);
+  return smoothClosedPath(inflateHull(hull, pad));
+}
+
+function assertionHullPath(nodes) {
+  if (!nodes.length) return "";
+  const points = nodes.map(n => ({x: n.x, y: n.y}));
+  const pad = 18;
+  if (points.length === 1) return circleBlob(points[0], pad + 12);
+  const hull = convexHull(points);
+  if (hull.length === 1) return circleBlob(hull[0], pad + 12);
+  if (hull.length === 2) return pairBlob(hull[0], hull[1], pad + 12);
+  return smoothClosedPath(inflateHull(hull, pad));
+}
+
+function pairBlob(a, b, pad) {
+  // Circle that comfortably contains both endpoints. Much cleaner than
+  // the elongated capsule when a hull has only two members.
+  const cx = (a.x + b.x) / 2;
+  const cy = (a.y + b.y) / 2;
+  const r = Math.hypot(b.x - a.x, b.y - a.y) / 2 + pad;
+  return circleBlob({x: cx, y: cy}, r);
+}
+
+function assertionLabelPoint(nodes, direction) {
+  if (!nodes.length) return {x: 0, y: 0};
+  const center = {x: avg(nodes, "x"), y: avg(nodes, "y")};
+  const offset = direction === "positive" ? -34 : 34;
+  return {x: center.x, y: center.y + offset};
+}
+
+
+function circleBlob(point, radius) {
+  const c = radius * 0.5522847498;
+  return `M ${point.x} ${point.y - radius} C ${point.x + c} ${point.y - radius} ${point.x + radius} ${point.y - c} ${point.x + radius} ${point.y} C ${point.x + radius} ${point.y + c} ${point.x + c} ${point.y + radius} ${point.x} ${point.y + radius} C ${point.x - c} ${point.y + radius} ${point.x - radius} ${point.y + c} ${point.x - radius} ${point.y} C ${point.x - radius} ${point.y - c} ${point.x - c} ${point.y - radius} ${point.x} ${point.y - radius} Z`;
+}
+
+function capsuleBlob(a, b, radius) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const length = Math.hypot(dx, dy);
+  if (length < 1) return circleBlob(a, radius);
+  const nx = -dy / length * radius;
+  const ny = dx / length * radius;
+  const p1 = {x: a.x + nx, y: a.y + ny};
+  const p2 = {x: b.x + nx, y: b.y + ny};
+  const p3 = {x: b.x - nx, y: b.y - ny};
+  const p4 = {x: a.x - nx, y: a.y - ny};
+  return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y} A ${radius} ${radius} 0 0 1 ${p3.x} ${p3.y} L ${p4.x} ${p4.y} A ${radius} ${radius} 0 0 1 ${p1.x} ${p1.y} Z`;
+}
+
+function convexHull(points) {
+  const unique = [...new Map(points.map(p => [`${p.x.toFixed(2)},${p.y.toFixed(2)}`, p])).values()];
+  if (unique.length <= 2) return unique;
+  const sorted = unique.sort((a, b) => a.x - b.x || a.y - b.y);
+  const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const lower = [];
+  for (const p of sorted) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop();
+    lower.push(p);
+  }
+  const upper = [];
+  for (const p of [...sorted].reverse()) {
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
+    upper.push(p);
+  }
+  return lower.slice(0, -1).concat(upper.slice(0, -1));
+}
+
+function inflateHull(points, pad) {
+  const cx = avg(points, "x");
+  const cy = avg(points, "y");
+  return points.map(p => {
+    const dx = p.x - cx;
+    const dy = p.y - cy;
+    const length = Math.max(1, Math.hypot(dx, dy));
+    return {x: p.x + dx / length * pad, y: p.y + dy / length * pad};
+  });
+}
+
+function smoothClosedPath(points) {
+  const n = points.length;
+  const tension = 0.78;
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < n; i++) {
+    const p0 = points[(i - 1 + n) % n];
+    const p1 = points[i];
+    const p2 = points[(i + 1) % n];
+    const p3 = points[(i + 2) % n];
+    const c1 = {x: p1.x + (p2.x - p0.x) * tension / 6, y: p1.y + (p2.y - p0.y) * tension / 6};
+    const c2 = {x: p2.x - (p3.x - p1.x) * tension / 6, y: p2.y - (p3.y - p1.y) * tension / 6};
+    path += ` C ${c1.x} ${c1.y} ${c2.x} ${c2.y} ${p2.x} ${p2.y}`;
+  }
+  return `${path} Z`;
+}
+
+function ideaLabelPoint(nodes) {
+  if (!nodes.length) return {x: 0, y: 0};
+  const center = {x: avg(nodes, "x"), y: avg(nodes, "y")};
+  if (nodes.length === 1) return {x: center.x, y: center.y - 28};
+  const top = nodes.reduce((best, node) => node.y < best.y ? node : best, nodes[0]);
+  if (center.y - top.y < 24) return {x: center.x, y: center.y - 20};
+  return {
+    x: center.x * 0.65 + top.x * 0.35,
+    y: center.y * 0.65 + top.y * 0.35,
+  };
+}
+
+function avg(nodes, key) {
+  return nodes.reduce((sum, n) => sum + n[key], 0) / Math.max(1, nodes.length);
+}
+
+function renderSide() {
+  const ideaCount = DATA.ideas.reduce((n, s) => n + (s.ideas ? s.ideas.length : 0), 0);
+  document.getElementById("meta").innerHTML = `
+    <span><b>${DATA.claims.length}</b> claims</span>
+    <span><b>${DATA.evidence.length}</b> evidence</span>
+    <span><b>${DATA.edges.length}</b> edges</span>
+    <span><b>${DATA.ideas.length}</b> subjects</span>
+    <span><b>${ideaCount}</b> ideas</span>
+  `;
+  document.getElementById("score-grid").innerHTML = `
+    <div class="score"><div class="v">${metric(DATA.metrics.initial_residual)}</div><div class="k">initial residual</div></div>
+    <div class="score"><div class="v">${metric(DATA.metrics.final_residual)}</div><div class="k">final residual</div></div>
+    <div class="score"><div class="v">${metric(DATA.metrics.claim_rewrite_distance)}</div><div class="k">rewrite distance</div></div>
+  `;
+  document.getElementById("papers").innerHTML = DATA.papers.map(p => `
+    <div class="paper-row"><span class="paper-dot" style="background:${p.color}"></span><span>${escapeHtml(p.label)}</span></div>
+  `).join("");
+  document.getElementById("ideas").innerHTML = DATA.ideas.map((subject, i) => {
+    const nested = subject.ideas || [];
+    const counts = { established: 0, contested: 0, novel: 0 };
+    for (const ni of nested) {
+      counts[ni.status] = (counts[ni.status] || 0) + 1;
+    }
+    const breakdown = [
+      counts.novel ? `<span style="color:var(--accent)"><b>${counts.novel}</b> novel</span>` : "",
+      counts.contested ? `<span style="color:var(--bad)"><b>${counts.contested}</b> contested</span>` : "",
+      counts.established ? `<span style="color:var(--ok)"><b>${counts.established}</b> established</span>` : "",
+    ].filter(Boolean).join(" · ");
+    return `
+    <div class="legend-card" data-id="${subject.id}">
+      <div class="legend-row">
+        <span class="swatch" style="background:${subject.color}"></span>
+        <div>
+          <div class="legend-title">Subject ${i + 1} - ${escapeHtml(subject.label)}</div>
+          <div class="legend-sub">${nested.length} idea${nested.length === 1 ? "" : "s"}${breakdown ? " · " + breakdown : ""}</div>
+        </div>
+      </div>
+    </div>
+  `;}).join("");
+  for (const card of document.querySelectorAll(".legend-card")) {
+    card.addEventListener("click", () => focusIdea(card.dataset.id));
+  }
+  // Delegate callout expand-on-click for any callout in the detail panel
+  // (which is re-rendered on focus changes, so use event delegation).
+  document.getElementById("detail").addEventListener("click", ev => {
+    const callout = ev.target.closest(".callout");
+    if (callout) callout.classList.toggle("expanded");
+  });
+  renderDefaultDetail();
+}
+
+function renderDefaultDetail() {
+  const high = DATA.edges.filter(e => e.residual >= 0.5).length;
+  const mild = DATA.edges.filter(e => e.residual > 0 && e.residual < 0.5).length;
+  const zero = DATA.edges.filter(e => e.residual === 0).length;
+  document.getElementById("detail").innerHTML = `
+    <h3>Reading the graph</h3>
+    <p class="muted">Claims are circles, evidence pieces are squares. Outer hulls are <b>subjects</b> (one per comparability group). Edges show where a claim predicts at an evidence piece. Color shows residual after rewriting.</p>
+    <div class="callout"><div class="k">Residual edge summary</div>${zero} agreement, ${mild} mild tension, ${high} strong tension.</div>
+    <p class="muted">Click a Subject card on the right (or its hull) to expand its <b>ideas</b> with lifecycle status.</p>
+  `;
+}
+
+function focusIdea(id) {
+  if (state.focusType === "idea" && state.focusId === id && !state.innerIdeaId) return clearFocus();
+  state.focusType = "idea";
+  state.focusId = id;
+  state.innerIdeaId = null;
+  expandSubject(id);
+  renderIdeaDetail(ideaById[id]);
+  applyFocus();
+  fitToSubject(id);
+}
+
+function focusInnerIdea(subjectId, innerIdeaId) {
+  // If subject isn't yet focused (e.g., user clicks a hull from a
+  // partially-focused state), bring it up first.
+  if (state.focusType !== "idea" || state.focusId !== subjectId) {
+    state.focusType = "idea";
+    state.focusId = subjectId;
+    expandSubject(subjectId);
+  }
+  // Toggle off if clicked twice in a row.
+  if (state.innerIdeaId === innerIdeaId) {
+    state.innerIdeaId = null;
+    renderIdeaDetail(ideaById[subjectId]);
+    applyFocus();
+    return;
+  }
+  state.innerIdeaId = innerIdeaId;
+  renderInnerIdeaDetail(subjectId, innerIdeaId);
+  applyFocus();
+}
+
+function focusNode(id) {
+  if (state.focusType === "node" && state.focusId === id) return clearFocus();
+  state.focusType = "node";
+  state.focusId = id;
+  renderNodeDetail(nodeById[id]);
+  applyFocus();
+}
+
+function clearFocus() {
+  const wasFocused = !!state.focusType;
+  state.focusType = null;
+  state.focusId = null;
+  state.innerIdeaId = null;
+  collapseSubjects();
+  renderDefaultDetail();
+  applyFocus();
+  if (wasFocused) fitGraph(true);
+}
+
+function applyFocus() {
+  const active = activeSet();
+  for (const card of document.querySelectorAll(".legend-card")) {
+    card.classList.toggle("active", state.focusType === "idea" && card.dataset.id === state.focusId);
+  }
+  for (const path of layers.hulls.querySelectorAll(".idea-hull")) {
+    const activeIdea = state.focusType === "idea" && path.dataset.id === state.focusId;
+    const related = state.focusType === "node" && ideaById[path.dataset.id].member_ids.includes(state.focusId);
+    path.classList.toggle("focused", activeIdea);
+    path.classList.toggle("dimmed", !!state.focusType && !activeIdea && !related);
+  }
+  for (const path of layers.assertionHulls.querySelectorAll(".assertion-hull")) {
+    // Inner idea hulls are hidden by default. They expand only when their
+    // parent subject is the focused subject -- progressive disclosure.
+    const expand = state.focusType === "idea" && path.dataset.subject === state.focusId;
+    path.classList.toggle("expanded", expand);
+    const isInnerFocus = expand && state.innerIdeaId === path.dataset.idea;
+    const isOtherInner = expand && state.innerIdeaId && !isInnerFocus;
+    path.classList.toggle("inner-focused", isInnerFocus);
+    path.classList.toggle("inner-dimmed", isOtherInner);
+  }
+  for (const label of layers.assertionLabels.querySelectorAll(".assertion-label")) {
+    const expand = state.focusType === "idea" && label.dataset.subject === state.focusId;
+    label.classList.toggle("expanded", expand);
+    const isInnerFocus = expand && state.innerIdeaId === label.dataset.idea;
+    const isOtherInner = expand && state.innerIdeaId && !isInnerFocus;
+    label.classList.toggle("inner-focused", isInnerFocus);
+    label.classList.toggle("inner-dimmed", isOtherInner);
+  }
+  for (const label of layers.ideaLabels.querySelectorAll(".idea-label")) {
+    const related = !state.focusType || (state.focusType === "idea" && label.dataset.id === state.focusId) || (state.focusType === "node" && ideaById[label.dataset.id].member_ids.includes(state.focusId));
+    label.classList.toggle("dimmed", !related);
+  }
+  for (const node of layers.nodes.querySelectorAll(".node")) {
+    const on = !state.focusType || active.has(node.dataset.id);
+    node.classList.toggle("dimmed", !on);
+    node.classList.toggle("selected", state.focusType === "node" && node.dataset.id === state.focusId);
+  }
+  for (const label of layers.labels.querySelectorAll(".label")) {
+    const on = !state.focusType || active.has(label.dataset.id);
+    label.classList.toggle("dimmed", !on);
+  }
+  for (const edge of layers.edges.querySelectorAll(".edge")) {
+    const on = !state.focusType || (active.has(edge.dataset.source) && active.has(edge.dataset.target));
+    edge.classList.toggle("dimmed", !on);
+  }
+}
+
+function activeSet() {
+  if (!state.focusType) return new Set(Object.keys(nodeById));
+  if (state.focusType === "idea") {
+    if (state.innerIdeaId) {
+      const subject = ideaById[state.focusId];
+      const inner = ((subject && subject.ideas) || []).find(i => i.id === state.innerIdeaId);
+      if (inner && inner.member_ids) return new Set(inner.member_ids);
+    }
+    return new Set(ideaById[state.focusId].member_ids);
+  }
+  const set = new Set([state.focusId]);
+  for (const edge of edgesByNode[state.focusId] || []) {
+    set.add(edge.source === state.focusId ? edge.target : edge.source);
+  }
+  return set;
+}
+
+function renderInnerIdeaDetail(subjectId, innerIdeaId) {
+  const subject = ideaById[subjectId];
+  if (!subject) return;
+  const ni = (subject.ideas || []).find(i => i.id === innerIdeaId);
+  if (!ni) return;
+  const status = ni.status || "established";
+  const statusClass = status === "contested" ? "high" : status === "novel" ? "blocking" : "exploratory";
+  const memberPills = (ni.member_ids || []).map(id => pill(nodeById[id])).join("");
+  document.getElementById("detail").innerHTML = `
+    <h3>${escapeHtml(subject.label)}</h3>
+    <p class="muted">Idea inside this subject:</p>
+    <div class="callout">
+      <div class="k"><span class="priority ${statusClass}">${status.toUpperCase()}</span>${escapeHtml(ni.paper || "")}</div>
+      <div>${escapeHtml(ni.title || ni.id)}</div>
+    </div>
+    <h2>Claims and evidence in this idea</h2>
+    <div class="pill-row">${memberPills}</div>
+    ${(ni.contests || []).length ? `<h2>Contests</h2><div class="pill-row">${(ni.contests || []).map(cid => { const t = ideaById[subjectId] && (ideaById[subjectId].ideas || []).find(x => x.id === cid); return t ? `<span class="pill" style="background:var(--bad)">${escapeHtml(t.paper || cid)}</span>` : ""; }).join("")}</div>` : ""}
+    ${(ni.supports || []).length ? `<h2>Supported by</h2><div class="pill-row">${(ni.supports || []).map(sid => { const t = ideaById[subjectId] && (ideaById[subjectId].ideas || []).find(x => x.id === sid); return t ? `<span class="pill" style="background:var(--ok)">${escapeHtml(t.paper || sid)}</span>` : ""; }).join("")}</div>` : ""}
+    <p class="muted" style="margin-top:14px;">Click the same idea hull again or click elsewhere in the subject to return to the subject view.</p>
+  `;
+  wirePills();
+}
+
+function renderIdeaDetail(subject) {
+  const nested = subject.ideas || [];
+  const statusBlock = ni => {
+    const cls = ni.status || "established";
+    const contests = (ni.contests || []).length;
+    const supports = (ni.supports || []).length;
+    return `
+      <div class="callout ${cls === "contested" ? "bad" : cls === "novel" ? "" : ""}">
+        <div class="k"><span class="priority ${cls === "contested" ? "high" : cls === "novel" ? "blocking" : "exploratory"}">${cls.toUpperCase()}</span>${escapeHtml(ni.paper || "")}</div>
+        <div>${escapeHtml(ni.title || ni.id)}</div>
+        <div class="muted" style="margin-top:4px;font-size:11px;">
+          ${ni.claim_ids ? ni.claim_ids.length : 0} claim(s) ·
+          ${ni.evidence_ids ? ni.evidence_ids.length : 0} evidence ·
+          ${contests} contests · ${supports} supports
+        </div>
+      </div>
+    `;
+  };
+  document.getElementById("detail").innerHTML = `
+    <h3>${escapeHtml(subject.label)}</h3>
+    <p class="muted">${escapeHtml(subject.scope.system || "")}<br>${escapeHtml(subject.scope.framework || "")}</p>
+    <h2>Ideas in this subject</h2>
+    ${nested.length ? nested.map(statusBlock).join("") : "<p class='muted'>No ideas yet (ungrouped subject).</p>"}
+    <h2>All claims</h2>
+    <div class="pill-row">${subject.claim_ids.map(id => pill(nodeById[id])).join("")}</div>
+    <h2>All evidence</h2>
+    <div class="pill-row">${subject.evidence_ids.map(id => pill(nodeById[id])).join("")}</div>
+    ${subject.open_questions.map(questionBlock).join("")}
+  `;
+  wirePills();
+}
+
+function questionBlock(q) {
+  const priority = q.priority || "medium";
+  return `
+    <div class="callout question ${priorityClass(priority)}">
+      <div class="k"><span class="priority ${priorityClass(priority)}">${escapeHtml(priorityLabel(priority))}</span>Open question</div>
+      ${escapeHtml(q.question)}
+      <div class="next-work">
+        ${(q.suggested_next_steps || []).map(nextStepBlock).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function priorityClass(value) {
+  const normalized = String(value || "medium").toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+  return ["blocking", "high", "medium", "exploratory"].includes(normalized) ? normalized : "medium";
+}
+
+function priorityLabel(value) {
+  const normalized = priorityClass(value);
+  return normalized === "blocking" ? "blocking" : normalized;
+}
+
+function nextStepBlock(step) {
+  if (typeof step === "string") {
+    return `<div class="next-step"><span class="kind">next</span><span class="title">${escapeHtml(step)}</span></div>`;
+  }
+  return `
+    <div class="next-step">
+      <span class="kind">${escapeHtml(step.kind || "next")}</span>
+      <span class="title">${escapeHtml(step.title || "Suggested work")}</span>
+      ${step.description ? `<div class="desc">${escapeHtml(step.description)}</div>` : ""}
+    </div>
+  `;
+}
+
+function renderNodeDetail(node) {
+  const edges = edgesByNode[node.id] || [];
+  document.getElementById("detail").innerHTML = `
+    <h3><span class="mono">${escapeHtml(node.id)}</span></h3>
+    <p>${escapeHtml(node.label)}</p>
+    <p class="muted">${escapeHtml(node.paper_label)}</p>
+    ${node.kind === "claim" ? claimState(node) : evidenceState(node)}
+    <h2>Connected edges</h2>
+    ${edges.map(edge => {
+      const other = edge.source === node.id ? edge.target : edge.source;
+      return `<div class="callout ${edge.residual >= 0.5 ? "bad" : edge.residual > 0 ? "warn" : ""}"><div class="k">${escapeHtml(edge.edge_id)}</div><span class="mono">${escapeHtml(other)}</span><br>residual=${metric(edge.residual)}; predicted=${metric(edge.predicted)}; actual=${metric(edge.actual)}</div>`;
+    }).join("")}
+  `;
+}
+
+function claimState(node) {
+  return `${hygieneBlock(node)}${rewriteBlock(node)}${claimList("Strengths", node.strengths, "No strengths recorded.")}${claimList("Weaknesses", node.weaknesses, "No weaknesses recorded.")}`;
+}
+
+function hygieneBlock(node) {
+  const h = node.hygiene || {};
+  const status = h.status || "not_applicable";
+  if (status === "not_applicable" && !node.stature) return "";
+  let body = "";
+  if (status === "implicit_headline") {
+    const targets = (h.contradicting_targets || []).map(t => `<span class="mono">${escapeHtml(t)}</span>`).join(", ");
+    body = `<div class="callout bad"><div class="k">Implicit headline</div>This claim's home stance propagated to comparable evidence in other papers and CONTRADICTS them at: ${targets || "(none)"}. Structural suspect.</div>`;
+  } else if (status === "consensus_aligned") {
+    const targets = (h.propagated_targets || []).map(t => `<span class="mono">${escapeHtml(t)}</span>`).join(", ");
+    body = `<div class="callout"><div class="k">Consensus-aligned</div>Propagated to comparable evidence in other papers and agreed at full strength: ${targets || "(none)"}.</div>`;
+  } else if (status === "scoped_explicit") {
+    body = `<div class="callout"><div class="k">Scope-aware</div>Explicitly addresses every member of its comparability group(s).</div>`;
+  }
+  if (node.stature !== undefined) {
+    body += `<div class="callout"><div class="k">Stature</div>Backed by <b>${node.stature}</b> independent paper(s) at full strength.</div>`;
+  }
+  return body;
+}
+
+function rewriteBlock(node) {
+  if (!node.rewritten) return "";
+  return `
+    <div class="callout">
+      <div class="k">Original claim</div>
+      ${escapeHtml(node.original_label || node.label)}
+    </div>
+    <div class="callout">
+      <div class="k">Edited claim</div>
+      ${escapeHtml(node.edited_label || node.label)}
+    </div>
+  `;
+}
+
+function claimList(title, items, fallback) {
+  const values = Array.isArray(items) && items.length ? items : [fallback];
+  return `<h2>${escapeHtml(title)}</h2><ul>${values.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function evidenceState(node) {
+  return `<div class="callout"><div class="k">Evidence core</div>${escapeHtml(node.observable)} = <span class="mono">${metric(node.core)}</span><br><span class="muted">${escapeHtml(node.context)}</span></div>`;
+}
+
+function pill(node) {
+  if (!node) return "";
+  return `<span class="pill" data-node="${node.id}" title="${escapeHtml(node.id)}" style="background:${node.color}">${escapeHtml(node.short_id || node.id)}</span>`;
+}
+
+function wirePills() {
+  for (const item of document.querySelectorAll(".pill[data-node]")) {
+    item.addEventListener("click", () => focusNode(item.dataset.node));
+  }
+}
+
+function edgeClass(residual) {
+  if (residual >= 0.5) return "high";
+  if (residual >= 0.05) return "mild";
+  if (residual > 0) return "tiny";
+  return "zero";
+}
+
+function nodeTip(node) {
+  return `<div class="id">${escapeHtml(node.id)}</div><b>${escapeHtml(node.label)}</b><br><span>${escapeHtml(node.paper_label)}</span>`;
+}
+
+function edgeTip(edge) {
+  return `<div class="id">${escapeHtml(edge.edge_id)}</div><b>${escapeHtml(edge.source)} -> ${escapeHtml(edge.target)}</b><br>residual=${metric(edge.residual)}; predicted=${metric(edge.predicted)}; actual=${metric(edge.actual)}`;
+}
+
+function showTip(ev, content) {
+  tooltip.innerHTML = content;
+  tooltip.style.opacity = "1";
+  const rect = document.getElementById("stage").getBoundingClientRect();
+  tooltip.style.left = Math.min(rect.width - 320, ev.clientX - rect.left + 14) + "px";
+  tooltip.style.top = Math.max(8, ev.clientY - rect.top + 14) + "px";
+}
+
+function hideTip() {
+  tooltip.style.opacity = "0";
+}
+
+function fitGraph(animate = true) {
+  const nodes = Object.values(nodeById);
+  if (!nodes.length) return;
+  const minX = Math.min(...nodes.map(n => n.x)) - 90;
+  const maxX = Math.max(...nodes.map(n => n.x)) + 90;
+  const minY = Math.min(...nodes.map(n => n.y)) - 90;
+  const maxY = Math.max(...nodes.map(n => n.y)) + 90;
+  fitToBox(minX, maxX, minY, maxY, { animate, maxScale: 1.4 });
+}
+
+function fitToSubject(subjectId, animate = true) {
+  const subject = ideaById[subjectId];
+  if (!subject || !subject.member_ids) return;
+  const nodes = subject.member_ids.map(id => nodeById[id]).filter(Boolean);
+  if (!nodes.length) return;
+  const pad = 70;
+  const minX = Math.min(...nodes.map(n => n.x)) - pad;
+  const maxX = Math.max(...nodes.map(n => n.x)) + pad;
+  const minY = Math.min(...nodes.map(n => n.y)) - pad;
+  const maxY = Math.max(...nodes.map(n => n.y)) + pad;
+  fitToBox(minX, maxX, minY, maxY, { animate, maxScale: 3.0 });
+}
+
+// --- expand-on-focus ---
+// When a subject is focused, scale its members outward from the subject
+// center so they spread apart. Save originals so clearFocus can collapse
+// them back to the tight global layout.
+const SPREAD_FACTOR = 2.6;
+const savedPositions = {};
+
+function expandSubject(subjectId) {
+  // Always collapse any previously expanded subject before expanding a new one.
+  collapseSubjects();
+  const subject = ideaById[subjectId];
+  if (!subject || !subject.member_ids) return;
+  const members = subject.member_ids.map(id => nodeById[id]).filter(Boolean);
+  if (members.length < 2) return;
+  const cx = members.reduce((s, n) => s + n.x, 0) / members.length;
+  const cy = members.reduce((s, n) => s + n.y, 0) / members.length;
+  for (const node of members) {
+    savedPositions[node.id] = { x: node.x, y: node.y };
+    node.x = cx + (node.x - cx) * SPREAD_FACTOR;
+    node.y = cy + (node.y - cy) * SPREAD_FACTOR;
+  }
+  renderPositions();
+}
+
+function collapseSubjects() {
+  let touched = false;
+  for (const [id, pos] of Object.entries(savedPositions)) {
+    const node = nodeById[id];
+    if (node) { node.x = pos.x; node.y = pos.y; touched = true; }
+    delete savedPositions[id];
+  }
+  if (touched) renderPositions();
+}
+
+function fitToBox(minX, maxX, minY, maxY, opts = {}) {
+  const animate = opts.animate !== false;
+  const maxScale = opts.maxScale || 3.0;
+  const rect = svg.getBoundingClientRect();
+  const dx = Math.max(50, maxX - minX);
+  const dy = Math.max(50, maxY - minY);
+  const targetScale = Math.min(rect.width / dx, rect.height / dy, maxScale);
+  const targetTx = (rect.width - (minX + maxX) * targetScale) / 2;
+  const targetTy = (rect.height - (minY + maxY) * targetScale) / 2;
+  if (animate) {
+    animateTransform(targetScale, targetTx, targetTy);
+  } else {
+    state.scale = targetScale;
+    state.tx = targetTx;
+    state.ty = targetTy;
+    applyTransform();
+  }
+}
+
+let animationFrame = null;
+function animateTransform(scale, tx, ty, duration = 360) {
+  if (animationFrame) cancelAnimationFrame(animationFrame);
+  const s0 = state.scale, x0 = state.tx, y0 = state.ty;
+  const t0 = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  function step(now) {
+    const u = Math.min(1, (now - t0) / duration);
+    const e = ease(u);
+    state.scale = s0 + (scale - s0) * e;
+    state.tx = x0 + (tx - x0) * e;
+    state.ty = y0 + (ty - y0) * e;
+    applyTransform();
+    if (u < 1) animationFrame = requestAnimationFrame(step);
+    else animationFrame = null;
+  }
+  animationFrame = requestAnimationFrame(step);
+}
+
+function applyTransform() {
+  layers.root.setAttribute("transform", `translate(${state.tx},${state.ty}) scale(${state.scale})`);
+  const el = document.getElementById("status-indicator");
+  if (el) el.textContent = `scale ${state.scale.toFixed(2)}` + (state.focusType === "idea" ? ` · subject ${state.focusId}` : "");
+}
+
+function stepZoom(factor) {
+  if (animationFrame) { cancelAnimationFrame(animationFrame); animationFrame = null; }
+  const next = Math.max(0.4, Math.min(5.0, state.scale * factor));
+  const rect = svg.getBoundingClientRect();
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  state.tx = cx - (cx - state.tx) * (next / state.scale);
+  state.ty = cy - (cy - state.ty) * (next / state.scale);
+  state.scale = next;
+  applyTransform();
+}
+
+function onWheel(ev) {
+  ev.preventDefault();
+  if (animationFrame) { cancelAnimationFrame(animationFrame); animationFrame = null; }
+  const factor = ev.deltaY < 0 ? 1.08 : 0.92;
+  const next = Math.max(0.4, Math.min(5.0, state.scale * factor));
+  const rect = svg.getBoundingClientRect();
+  const mx = ev.clientX - rect.left;
+  const my = ev.clientY - rect.top;
+  state.tx = mx - (mx - state.tx) * (next / state.scale);
+  state.ty = my - (my - state.ty) * (next / state.scale);
+  state.scale = next;
+  applyTransform();
+}
+
+// --- drag-to-pan ---
+const dragState = { active: false, startX: 0, startY: 0, baseTx: 0, baseTy: 0, moved: false };
+
+function isBackgroundTarget(el) {
+  // pan when clicking on raw svg, the root <g>, or the hulls layer
+  // (never start a pan on a node, label, edge, or interactive hull).
+  if (!el) return false;
+  if (el === svg) return true;
+  const tag = el.tagName;
+  if (tag === "g") return true;
+  if (el.classList && el.classList.contains("idea-hull")) return false;  // hulls click-focus
+  return false;
+}
+
+function onSvgMouseDown(ev) {
+  if (ev.button !== 0) return;
+  if (!isBackgroundTarget(ev.target)) return;
+  if (animationFrame) { cancelAnimationFrame(animationFrame); animationFrame = null; }
+  dragState.active = true;
+  dragState.moved = false;
+  dragState.startX = ev.clientX;
+  dragState.startY = ev.clientY;
+  dragState.baseTx = state.tx;
+  dragState.baseTy = state.ty;
+  svg.style.cursor = "grabbing";
+}
+
+function onSvgMouseMove(ev) {
+  if (!dragState.active) return;
+  const dx = ev.clientX - dragState.startX;
+  const dy = ev.clientY - dragState.startY;
+  if (Math.abs(dx) + Math.abs(dy) > 3) dragState.moved = true;
+  state.tx = dragState.baseTx + dx;
+  state.ty = dragState.baseTy + dy;
+  applyTransform();
+}
+
+function onSvgMouseUp() {
+  if (!dragState.active) return;
+  dragState.active = false;
+  svg.style.cursor = "";
+}
+
+// Pointer-event versions (cover trackpad / pen / mobile).
+function onSvgPointerDown(ev) {
+  if (ev.pointerType === "mouse" && ev.button !== 0) return;
+  if (!isBackgroundTarget(ev.target)) return;
+  if (animationFrame) { cancelAnimationFrame(animationFrame); animationFrame = null; }
+  try { svg.setPointerCapture && svg.setPointerCapture(ev.pointerId); } catch (_) {}
+  dragState.active = true;
+  dragState.moved = false;
+  dragState.startX = ev.clientX;
+  dragState.startY = ev.clientY;
+  dragState.baseTx = state.tx;
+  dragState.baseTy = state.ty;
+  svg.style.cursor = "grabbing";
+}
+
+function onSvgPointerMove(ev) {
+  if (!dragState.active) return;
+  const dx = ev.clientX - dragState.startX;
+  const dy = ev.clientY - dragState.startY;
+  if (Math.abs(dx) + Math.abs(dy) > 3) dragState.moved = true;
+  state.tx = dragState.baseTx + dx;
+  state.ty = dragState.baseTy + dy;
+  applyTransform();
+}
+
+function onSvgPointerUp() {
+  if (!dragState.active) return;
+  dragState.active = false;
+  svg.style.cursor = "";
+}
+
+init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{
+  "operations": [
+    {
+      "claim_id": "A_01",
+      "distance": 1.0,
+      "final_residual": 0.0,
+      "from": [
+        1.0,
+        1.0
+      ],
+      "initial_residual": 5.0,
+      "justification": "Out-of-regime predictions created residuals; narrowing preserves in-regime strength while reducing cross-regime tension.",
+      "lambda": 0.3,
+      "objective": 0.3,
+      "operation": "narrow_out_of_regime_strength",
+      "to": [
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "claim_id": "A_04",
+      "distance": 1.0,
+      "final_residual": 0.0,
+      "from": [
+        1.0,
+        1.0
+      ],
+      "initial_residual": 5.0,
+      "justification": "Out-of-regime predictions created residuals; narrowing preserves in-regime strength while reducing cross-regime tension.",
+      "lambda": 0.3,
+      "objective": 0.3,
+      "operation": "narrow_out_of_regime_strength",
+      "to": [
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "claim_id": "A_06",
+      "distance": 1.0,
+      "final_residual": 0.0,
+      "from": [
+        1.0,
+        1.0
+      ],
+      "initial_residual": 5.0,
+      "justification": "Out-of-regime predictions created residuals; narrowing preserves in-regime strength while reducing cross-regime tension.",
+      "lambda": 0.3,
+      "objective": 0.3,
+      "operation": "narrow_out_of_regime_strength",
+      "to": [
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "claim_id": "A_07",
+      "distance": 1.0,
+      "final_residual": 0.0,
+      "from": [
+        1.0,
+        1.0
+      ],
+      "initial_residual": 5.0,
+      "justification": "Out-of-regime predictions created residuals; narrowing preserves in-regime strength while reducing cross-regime tension.",
+      "lambda": 0.3,
+      "objective": 0.3,
+      "operation": "narrow_out_of_regime_strength",
+      "to": [
+        1.0,
+        0.0
+      ]
+    }
+  ]
+}

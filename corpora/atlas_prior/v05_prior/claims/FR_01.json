@@ -1,0 +1,57 @@
+{
+  "claim_id": "FR_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "frieman1960"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Linear MHD stability with stationary flow is governed by a non-Hermitian operator",
+  "paper_id": "frieman1960",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_friman_overstable"
+      ],
+      "observable": "ev_friman_overstable",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_pseudospec"
+      ],
+      "observable": "ev_atlas_pseudospec",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "REVIEWS OF MODERN PHYSICS VOLUME 32, NUMBER 4 OCTOB ER, 1960 On . .\u2014..yc romagnetic Sta &i. ity o1': Stationary :~ qui. .i aria* E. FRIEMAN AND MANUEL ROTENIIERGt"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Establishes that stationary flow creates non-Hermitian MHD stability structure."
+  ],
+  "weaknesses": [
+    "Overstability possibility is broad and does not by itself determine the Atlas H3 stability boundary."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

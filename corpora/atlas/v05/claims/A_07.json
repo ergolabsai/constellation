@@ -1,0 +1,96 @@
+{
+  "claim_id": "A_07",
+  "home_regime": {
+    "framework": "ideal MHD Atlas H1-H5",
+    "regime_keywords": [
+      "atlas",
+      "h3",
+      "rigid-beltrami"
+    ],
+    "system": "rotating helical Z-pinch"
+  },
+  "label": "RIGID-BELTRAMI-A double-Beltrami equilibrium achieves beta=12.3% with all H1-H5 satisfied",
+  "paper_id": "atlas2026",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_atlas_h3_value"
+      ],
+      "observable": "ev_atlas_h3_value",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_kink_zero"
+      ],
+      "observable": "ev_atlas_kink_zero",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_chandra_ck"
+      ],
+      "observable": "ev_chandra_ck",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_mahajan_db"
+      ],
+      "observable": "ev_mahajan_db",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.72,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Global m = 1 Stabilization of a Rotating Helical Z-pinch at Finite Pressure A. Kumar,1 J. C. Turner,2 A. Stepanov,2 T. Karminskaya,2 J. Flygare,2 J. Dadras,2 and C. Rea1 1 Plasma Science and Fusion Center, Massachusetts Institute of Technology, Cambridge, MA 02139, USA 2"
+  },
+  "rewrite_history": [
+    {
+      "claim_id": "A_07",
+      "distance": 1.0,
+      "final_residual": 0.0,
+      "from": [
+        1.0,
+        1.0
+      ],
+      "initial_residual": 5.0,
+      "justification": "Out-of-regime predictions created residuals; narrowing preserves in-regime strength while reducing cross-regime tension.",
+      "lambda": 0.3,
+      "objective": 0.3,
+      "operation": "narrow_out_of_regime_strength",
+      "to": [
+        1.0,
+        0.0
+      ]
+    }
+  ],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Provides a concrete RIGID-BELTRAMI-A equilibrium with beta and H1-H5 checks."
+  ],
+  "weaknesses": [
+    "Constructive equilibrium evidence still needs experimental realizability and robustness checks."
+  ],
+  "x_final": [
+    1.0,
+    0.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

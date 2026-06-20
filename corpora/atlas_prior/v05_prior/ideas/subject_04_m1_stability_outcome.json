@@ -1,0 +1,500 @@
+{
+  "contributing_claims": [
+    "AN_01",
+    "BR_01",
+    "B_01",
+    "CL_01",
+    "GK_01",
+    "GK_02",
+    "H_02",
+    "N_01",
+    "N_02"
+  ],
+  "contributing_evidence": [
+    "ev_angus_m1_persists",
+    "ev_bondeson_toroidal",
+    "ev_brughmans_growth",
+    "ev_goedbloed_sari",
+    "ev_newcomb_static"
+  ],
+  "contributing_papers": [
+    "angus2020",
+    "bondeson1989",
+    "brughmans2024",
+    "claes2020",
+    "goedbloed2022",
+    "hameiri1985",
+    "newcomb1960"
+  ],
+  "description": "Evidence reporting whether the m=1 kink mode is stable in helical or rotating Z-pinch settings at moderate Mach-Alfven number. Value 1 = stable, 0 = unstable / persists.",
+  "group_id": "m1_stability_outcome",
+  "idea_id": "subject_04_m1_stability_outcome",
+  "ideas": [
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "CL_01"
+      ],
+      "contributing_papers": [
+        "claes2020"
+      ],
+      "idea_id": "idea_m1_stability_outcome_001",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "claes2020"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_brughmans_growth": 0.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_brughmans_growth"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_brughmans_growth"
+          ],
+          "idea_id": "idea_m1_stability_outcome_002",
+          "papers": [
+            "brughmans2024"
+          ],
+          "title": "brughmans2024 (BR_01): Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI"
+        }
+      ],
+      "title": "claes2020 (CL_01): Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "BR_01"
+      ],
+      "contributing_papers": [
+        "brughmans2024"
+      ],
+      "idea_id": "idea_m1_stability_outcome_002",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "Legolas SARI computation"
+        ],
+        "keywords": [
+          "legolas",
+          "sari"
+        ],
+        "systems": [
+          "rotating plasma"
+        ]
+      },
+      "stance": {
+        "ev_brughmans_growth": 0.0,
+        "ev_goedbloed_sari": 0.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_brughmans_growth",
+        "ev_goedbloed_sari"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_brughmans_growth"
+          ],
+          "idea_id": "idea_m1_stability_outcome_001",
+          "papers": [
+            "claes2020"
+          ],
+          "title": "claes2020 (CL_01): Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow"
+        },
+        {
+          "at": [
+            "ev_goedbloed_sari"
+          ],
+          "idea_id": "idea_m1_stability_outcome_003",
+          "papers": [
+            "goedbloed2022"
+          ],
+          "title": "goedbloed2022 (GK_01, GK_02): Super-Alfvenic Rotational Instability emerges from overlap of Doppler-shifted Alfven continua"
+        },
+        {
+          "at": [
+            "ev_goedbloed_sari"
+          ],
+          "idea_id": "idea_m1_stability_outcome_006",
+          "papers": [
+            "hameiri1985"
+          ],
+          "title": "hameiri1985 (H_02): Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua"
+        }
+      ],
+      "title": "brughmans2024 (BR_01): Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "GK_01",
+        "GK_02"
+      ],
+      "contributing_papers": [
+        "goedbloed2022"
+      ],
+      "idea_id": "idea_m1_stability_outcome_003",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "SARI spectral theory"
+        ],
+        "keywords": [
+          "alfven",
+          "ma",
+          "sari"
+        ],
+        "systems": [
+          "rotating plasma"
+        ]
+      },
+      "stance": {
+        "ev_goedbloed_sari": 0.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_goedbloed_sari"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_goedbloed_sari"
+          ],
+          "idea_id": "idea_m1_stability_outcome_002",
+          "papers": [
+            "brughmans2024"
+          ],
+          "title": "brughmans2024 (BR_01): Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI"
+        },
+        {
+          "at": [
+            "ev_goedbloed_sari"
+          ],
+          "idea_id": "idea_m1_stability_outcome_006",
+          "papers": [
+            "hameiri1985"
+          ],
+          "title": "hameiri1985 (H_02): Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua"
+        }
+      ],
+      "title": "goedbloed2022 (GK_01, GK_02): Super-Alfvenic Rotational Instability emerges from overlap of Doppler-shifted Alfven continua"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "AN_01"
+      ],
+      "contributing_papers": [
+        "angus2020"
+      ],
+      "idea_id": "idea_m1_stability_outcome_004",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "linear ideal MHD eigenmode analysis"
+        ],
+        "keywords": [
+          "angus",
+          "profile",
+          "shear"
+        ],
+        "systems": [
+          "sheared-flow Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_angus_m1_persists": 0.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_angus_m1_persists"
+      ],
+      "supports": [],
+      "title": "angus2020 (AN_01): Linear shear flow alone does not stabilize m=1 kink across realistic Z-pinch profile classes"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "B_01"
+      ],
+      "contributing_papers": [
+        "bondeson1989"
+      ],
+      "idea_id": "idea_m1_stability_outcome_005",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "bondeson1989"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_bondeson_toroidal": 0.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_bondeson_toroidal"
+      ],
+      "supports": [],
+      "title": "bondeson1989 (B_01): In toroidal or cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "H_02"
+      ],
+      "contributing_papers": [
+        "hameiri1985"
+      ],
+      "idea_id": "idea_m1_stability_outcome_006",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "hameiri1985"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_goedbloed_sari": 0.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_goedbloed_sari"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_goedbloed_sari"
+          ],
+          "idea_id": "idea_m1_stability_outcome_002",
+          "papers": [
+            "brughmans2024"
+          ],
+          "title": "brughmans2024 (BR_01): Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI"
+        },
+        {
+          "at": [
+            "ev_goedbloed_sari"
+          ],
+          "idea_id": "idea_m1_stability_outcome_003",
+          "papers": [
+            "goedbloed2022"
+          ],
+          "title": "goedbloed2022 (GK_01, GK_02): Super-Alfvenic Rotational Instability emerges from overlap of Doppler-shifted Alfven continua"
+        }
+      ],
+      "title": "hameiri1985 (H_02): Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "N_01",
+        "N_02"
+      ],
+      "contributing_papers": [
+        "newcomb1960"
+      ],
+      "idea_id": "idea_m1_stability_outcome_007",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "ideal MHD node counting"
+        ],
+        "keywords": [
+          "newcomb",
+          "static"
+        ],
+        "systems": [
+          "static Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_newcomb_static": 0.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_newcomb_static"
+      ],
+      "supports": [],
+      "title": "newcomb1960 (N_01, N_02): Static Z-pinch at finite pressure cannot be linearly stable to m=1 in ideal MHD"
+    }
+  ],
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "What experiment or derivation, if it landed at a contrary value, would force a rewrite within m=1 kink stability in helical / rotating Z-pinches?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the field's consensus inside m=1 kink stability in helical / rotating Z-pinches, would force a rewrite. Document the device that could perform it and the parameter range it should sweep.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one.",
+          "kind": "literature",
+          "title": "Adjacent-regime survey"
+        },
+        {
+          "description": "Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface.",
+          "kind": "audit",
+          "title": "Foundational assumption audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "subjects_with_lifecycle_ideas",
+    "group": "m1_stability_outcome"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "Legolas SARI computation; MHD literature; SARI spectral theory; ideal MHD node counting; linear ideal MHD eigenmode analysis",
+    "regime": "alfven, angus, bondeson1989, claes2020, hameiri1985, legolas, ma, newcomb, profile, sari, shear, static",
+    "system": "magnetized plasma; rotating plasma; sheared-flow Z-pinch; static Z-pinch"
+  },
+  "tensions": [],
+  "tensions_resolved": [],
+  "title": "m=1 kink stability in helical / rotating Z-pinches"
+}

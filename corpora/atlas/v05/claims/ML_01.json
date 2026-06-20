@@ -1,0 +1,48 @@
+{
+  "claim_id": "ML_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "mahajan2024"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Hall MHD waves are fundamentally distinct from MHD waves at d_i scales",
+  "paper_id": "mahajan2024",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_sainterme_whistler"
+      ],
+      "observable": "ev_sainterme_whistler",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "IEEE TPS \u00a9 2024 IEEE. PERSONAL USE IS PERMITTED, BUT REPUBLICATION/REDISTRIBUTION REQUIRES IEEE PERMISSION. 1 The Kadomtsev pinch revisited for"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Flags that Hall-scale waves can differ qualitatively from ideal-MHD waves."
+  ],
+  "weaknesses": [
+    "It is a regime warning rather than direct evidence against the Atlas asymptotic theorem."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

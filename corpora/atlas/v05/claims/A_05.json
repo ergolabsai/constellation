@@ -1,0 +1,113 @@
+{
+  "claim_id": "A_05",
+  "home_regime": {
+    "framework": "ideal MHD Atlas H1-H5",
+    "regime_keywords": [
+      "atlas",
+      "h3",
+      "rigid-beltrami"
+    ],
+    "system": "rotating helical Z-pinch"
+  },
+  "label": "Below SARI bound M_A<1, ideal-MHD m=1 growth rate is zero in the asymptotic d_i/R -> 0 regime",
+  "paper_id": "atlas2026",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_atlas_kink_zero"
+      ],
+      "observable": "ev_atlas_kink_zero",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_pseudospec"
+      ],
+      "observable": "ev_atlas_pseudospec",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_120pts"
+      ],
+      "observable": "ev_atlas_120pts",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_newcomb_static"
+      ],
+      "observable": "ev_newcomb_static",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_angus_m1_persists"
+      ],
+      "observable": "ev_angus_m1_persists",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_bondeson_toroidal"
+      ],
+      "observable": "ev_bondeson_toroidal",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_goedbloed_sari"
+      ],
+      "observable": "ev_goedbloed_sari",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_brughmans_growth"
+      ],
+      "observable": "ev_brughmans_growth",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.72,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Global m = 1 Stabilization of a Rotating Helical Z-pinch at Finite Pressure A. Kumar,1 J. C. Turner,2 A. Stepanov,2 T. Karminskaya,2 J. Flygare,2 J. Dadras,2 and C. Rea1 1 Plasma Science and Fusion Center, Massachusetts Institute of Technology, Cambridge, MA 02139, USA 2"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Gives a concrete stability boundary below M_A=1 and ties directly to zero-growth Atlas evidence."
+  ],
+  "weaknesses": [
+    "Limited to ideal MHD and the d_i/R -> 0 regime; Hall, kinetic, nonlinear, and finite-device effects remain outside."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

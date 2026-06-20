@@ -1,0 +1,24 @@
+{
+  "contributing_claims": [
+    "ML_01",
+    "SE_01"
+  ],
+  "contributing_evidence": [
+    "ev_sainterme_whistler"
+  ],
+  "idea_id": "idea_07_ev_sainterme_whistler",
+  "open_questions": [],
+  "provenance": {
+    "consolidator": "deterministic_connected_components",
+    "corpus": "atlas_prior"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature; whistler instability",
+    "regime": "ML_01 / SE_01",
+    "system": "Hall-MHD plasma; magnetized plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Scoped claim-evidence knowledge unit",
+  "transitions_out": []
+}

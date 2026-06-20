@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "bondeson1989",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_bondeson_toroidal",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 0.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_bondeson_toroidal",
+  "label": "Toroidal rotation mitigates but does not eliminate kink in the cylindrical analogue",
+  "paper_id": "bondeson1989",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Ideal stability of cylindrical plasma in the presence of mass flow A. Bondeson, and R. Iacono Citation: Physics of Fluids B: Plasma Physics 1, 1431 (1989); View online: https://doi.org/10.1063/1.858973 View Table of Contents: http://aip.scitation.org/toc/pfb/1/7 Published by the American Institute of Physics Articles you may be interested in Importance o"
+  }
+}

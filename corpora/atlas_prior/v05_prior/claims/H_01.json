@@ -1,0 +1,48 @@
+{
+  "claim_id": "H_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "hameiri1981"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Sufficient stability conditions for rotating screw-pinch follow from circle theorems and spectral bounds",
+  "paper_id": "hameiri1981",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_hameiri_continuum"
+      ],
+      "observable": "ev_hameiri_continuum",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Spectral estimates, stability conditions, and the rotating screwpinch Eliezer Hameiri Citation: Journal of Mathematical Physics 22, 2080 (1981); doi: 10.1063/1.525137 View online: http://dx.doi.org/10.1063/1.525137 View Table of Contents: http://scitation.aip.org/content/aip/journal"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Connects rotating screw-pinch stability to spectral bounds and circle-theorem style constraints."
+  ],
+  "weaknesses": [
+    "Sufficient conditions may be conservative and may not map exactly to the Atlas H1-H5 formulation."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

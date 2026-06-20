@@ -1,0 +1,223 @@
+{
+  "contributing_claims": [
+    "FR_01",
+    "H_01",
+    "H_02"
+  ],
+  "contributing_evidence": [
+    "ev_friman_overstable",
+    "ev_hameiri_continuum"
+  ],
+  "contributing_papers": [
+    "frieman1960",
+    "hameiri1981",
+    "hameiri1985"
+  ],
+  "description": "Evidence about the structure of the Alfven continuum near its quartic minimum (Friman-Rotenberg, Hameiri-Lust-Hameiri operators) and the discrete spectrum accumulating there.",
+  "group_id": "continuum_spectrum_alfven_minimum",
+  "idea_id": "subject_02_continuum_spectrum_alfven_minimum",
+  "ideas": [
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "FR_01"
+      ],
+      "contributing_papers": [
+        "frieman1960"
+      ],
+      "idea_id": "idea_continuum_spectrum_alfven_minimum_001",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Continuum spectrum near the Alfven minimum, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "frieman1960"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_friman_overstable": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_friman_overstable"
+      ],
+      "supports": [],
+      "title": "frieman1960 (FR_01): Linear MHD stability with stationary flow is governed by a non-Hermitian operator"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "H_01"
+      ],
+      "contributing_papers": [
+        "hameiri1981"
+      ],
+      "idea_id": "idea_continuum_spectrum_alfven_minimum_002",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Continuum spectrum near the Alfven minimum, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "hameiri1981"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_hameiri_continuum": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_hameiri_continuum"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_hameiri_continuum"
+          ],
+          "idea_id": "idea_continuum_spectrum_alfven_minimum_003",
+          "papers": [
+            "hameiri1985"
+          ],
+          "title": "hameiri1985 (H_02): Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua"
+        }
+      ],
+      "title": "hameiri1981 (H_01): Sufficient stability conditions for rotating screw-pinch follow from circle theorems and spectral bounds"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "H_02"
+      ],
+      "contributing_papers": [
+        "hameiri1985"
+      ],
+      "idea_id": "idea_continuum_spectrum_alfven_minimum_003",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Continuum spectrum near the Alfven minimum, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "hameiri1985"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_hameiri_continuum": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_hameiri_continuum"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_hameiri_continuum"
+          ],
+          "idea_id": "idea_continuum_spectrum_alfven_minimum_002",
+          "papers": [
+            "hameiri1981"
+          ],
+          "title": "hameiri1981 (H_01): Sufficient stability conditions for rotating screw-pinch follow from circle theorems and spectral bounds"
+        }
+      ],
+      "title": "hameiri1985 (H_02): Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua"
+    }
+  ],
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "What experiment or derivation, if it landed at a contrary value, would force a rewrite within Continuum spectrum near the Alfven minimum?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the field's consensus inside Continuum spectrum near the Alfven minimum, would force a rewrite. Document the device that could perform it and the parameter range it should sweep.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one.",
+          "kind": "literature",
+          "title": "Adjacent-regime survey"
+        },
+        {
+          "description": "Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface.",
+          "kind": "audit",
+          "title": "Foundational assumption audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "subjects_with_lifecycle_ideas",
+    "group": "continuum_spectrum_alfven_minimum"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "frieman1960, hameiri1981, hameiri1985",
+    "system": "magnetized plasma"
+  },
+  "tensions": [],
+  "tensions_resolved": [],
+  "title": "Continuum spectrum near the Alfven minimum"
+}

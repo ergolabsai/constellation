@@ -1,0 +1,498 @@
+{
+  "contributing_claims": [
+    "A_01",
+    "A_04",
+    "A_05",
+    "CL_01",
+    "DJ_01",
+    "FR_01",
+    "N_02"
+  ],
+  "contributing_evidence": [
+    "ev_atlas_120pts",
+    "ev_atlas_newcomb_bench",
+    "ev_atlas_pseudospec",
+    "ev_legolas_bench"
+  ],
+  "contributing_papers": [
+    "atlas2026",
+    "claes2020",
+    "dejonghe2022",
+    "frieman1960",
+    "newcomb1960"
+  ],
+  "description": "Evidence from code-to-code MHD eigenvalue benchmarks and from violating Kumar's H1-H5 constraints to see the framework break in the predicted way.",
+  "group_id": "numerical_eigenvalue_benchmarks",
+  "idea_id": "subject_05_numerical_eigenvalue_benchmarks",
+  "ideas": [
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "A_01"
+      ],
+      "contributing_papers": [
+        "atlas2026"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_003",
+      "next_steps": [
+        {
+          "description": "Ask a different group to reproduce the supporting measurement(s) inside Numerical eigenvalue benchmarks and constraint-violation tests using their own pipeline. The map will record the new contributor as independent evidence and promote this idea toward established.",
+          "kind": "experiment",
+          "title": "Independent replication"
+        },
+        {
+          "description": "Sweep the parameters at the edge of the claimed scope and look for the threshold where the predicted outcome flips. This either ratifies a new causal state or absorbs this idea into an existing one.",
+          "kind": "simulation",
+          "title": "Probe the scope boundary"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "ideal MHD Atlas H1-H5"
+        ],
+        "keywords": [
+          "atlas",
+          "h3",
+          "rigid-beltrami"
+        ],
+        "systems": [
+          "rotating helical Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_atlas_120pts": 1.0
+      },
+      "status": "novel",
+      "supporting_evidence": [
+        "ev_atlas_120pts"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_atlas_120pts"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_005",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_05): Below SARI bound M_A<1, ideal-MHD m=1 growth rate is zero in the asymptotic d_i/R -> 0 regime"
+        }
+      ],
+      "title": "atlas2026 (A_01): 5 constraints H1-H5 are necessary and sufficient for m=1 stability in rotating helical Z-pinch"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "A_05"
+      ],
+      "contributing_papers": [
+        "atlas2026"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_005",
+      "next_steps": [
+        {
+          "description": "Ask a different group to reproduce the supporting measurement(s) inside Numerical eigenvalue benchmarks and constraint-violation tests using their own pipeline. The map will record the new contributor as independent evidence and promote this idea toward established.",
+          "kind": "experiment",
+          "title": "Independent replication"
+        },
+        {
+          "description": "Sweep the parameters at the edge of the claimed scope and look for the threshold where the predicted outcome flips. This either ratifies a new causal state or absorbs this idea into an existing one.",
+          "kind": "simulation",
+          "title": "Probe the scope boundary"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "ideal MHD Atlas H1-H5"
+        ],
+        "keywords": [
+          "atlas",
+          "h3",
+          "rigid-beltrami"
+        ],
+        "systems": [
+          "rotating helical Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_atlas_120pts": 1.0,
+        "ev_atlas_pseudospec": 1.0
+      },
+      "status": "novel",
+      "supporting_evidence": [
+        "ev_atlas_120pts",
+        "ev_atlas_pseudospec"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_atlas_120pts"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_003",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_01): 5 constraints H1-H5 are necessary and sufficient for m=1 stability in rotating helical Z-pinch"
+        },
+        {
+          "at": [
+            "ev_atlas_pseudospec"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_006",
+          "papers": [
+            "frieman1960"
+          ],
+          "title": "frieman1960 (FR_01): Linear MHD stability with stationary flow is governed by a non-Hermitian operator"
+        }
+      ],
+      "title": "atlas2026 (A_05): Below SARI bound M_A<1, ideal-MHD m=1 growth rate is zero in the asymptotic d_i/R -> 0 regime"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "CL_01"
+      ],
+      "contributing_papers": [
+        "claes2020"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_001",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "claes2020"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_legolas_bench": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_legolas_bench"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_legolas_bench"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_002",
+          "papers": [
+            "dejonghe2022"
+          ],
+          "title": "dejonghe2022 (DJ_01): Legolas extension with viscosity and Hall current is benchmarked against historic results"
+        }
+      ],
+      "title": "claes2020 (CL_01): Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "DJ_01"
+      ],
+      "contributing_papers": [
+        "dejonghe2022"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_002",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "dejonghe2022"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_legolas_bench": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_legolas_bench"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_legolas_bench"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_001",
+          "papers": [
+            "claes2020"
+          ],
+          "title": "claes2020 (CL_01): Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow"
+        }
+      ],
+      "title": "dejonghe2022 (DJ_01): Legolas extension with viscosity and Hall current is benchmarked against historic results"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "A_04"
+      ],
+      "contributing_papers": [
+        "atlas2026"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_004",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "ideal MHD Atlas H1-H5"
+        ],
+        "keywords": [
+          "atlas",
+          "h3",
+          "rigid-beltrami"
+        ],
+        "systems": [
+          "rotating helical Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_atlas_newcomb_bench": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_atlas_newcomb_bench"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_atlas_newcomb_bench"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_007",
+          "papers": [
+            "newcomb1960"
+          ],
+          "title": "newcomb1960 (N_02): Number of unstable eigenvalues equals number of interior nodes of the marginal mode"
+        }
+      ],
+      "title": "atlas2026 (A_04): Bi-orthogonal Picone identity generalizes Newcomb node-counting to non-self-adjoint operators"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "FR_01"
+      ],
+      "contributing_papers": [
+        "frieman1960"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_006",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "frieman1960"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_atlas_pseudospec": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_atlas_pseudospec"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_atlas_pseudospec"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_005",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_05): Below SARI bound M_A<1, ideal-MHD m=1 growth rate is zero in the asymptotic d_i/R -> 0 regime"
+        }
+      ],
+      "title": "frieman1960 (FR_01): Linear MHD stability with stationary flow is governed by a non-Hermitian operator"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "N_02"
+      ],
+      "contributing_papers": [
+        "newcomb1960"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_007",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "ideal MHD node counting"
+        ],
+        "keywords": [
+          "newcomb",
+          "static"
+        ],
+        "systems": [
+          "static Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_atlas_newcomb_bench": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_atlas_newcomb_bench"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_atlas_newcomb_bench"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_004",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_04): Bi-orthogonal Picone identity generalizes Newcomb node-counting to non-self-adjoint operators"
+        }
+      ],
+      "title": "newcomb1960 (N_02): Number of unstable eigenvalues equals number of interior nodes of the marginal mode"
+    }
+  ],
+  "open_questions": [
+    {
+      "priority": "blocking",
+      "question": "2 novel idea(s) in this subject need independent backing or refinement to ratify.",
+      "suggested_next_steps": [
+        {
+          "description": "Examine each novel idea's predicted scope and decide whether to commission a replication, a boundary probe, or a refinement that folds it into an established idea.",
+          "kind": "audit",
+          "title": "Novel-idea review"
+        }
+      ]
+    },
+    {
+      "priority": "exploratory",
+      "question": "What experiment or derivation, if it landed at a contrary value, would force a rewrite within Numerical eigenvalue benchmarks and constraint-violation tests?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the field's consensus inside Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document the device that could perform it and the parameter range it should sweep.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one.",
+          "kind": "literature",
+          "title": "Adjacent-regime survey"
+        },
+        {
+          "description": "Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface.",
+          "kind": "audit",
+          "title": "Foundational assumption audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "subjects_with_lifecycle_ideas",
+    "group": "numerical_eigenvalue_benchmarks"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature; ideal MHD Atlas H1-H5; ideal MHD node counting",
+    "regime": "atlas, claes2020, dejonghe2022, frieman1960, h3, newcomb, rigid-beltrami, static",
+    "system": "magnetized plasma; rotating helical Z-pinch; static Z-pinch"
+  },
+  "tensions": [],
+  "tensions_resolved": [],
+  "title": "Numerical eigenvalue benchmarks and constraint-violation tests"
+}

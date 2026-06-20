@@ -1,0 +1,58 @@
+{
+  "claim_id": "SH_01",
+  "home_regime": {
+    "framework": "Hall MHD",
+    "regime_keywords": [
+      "hall",
+      "di"
+    ],
+    "system": "Hall-MHD singular layer"
+  },
+  "label": "Hall effect regularizes the Alfven singularity over a layer of thickness about d_i",
+  "paper_id": "shiraishi2005",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_shiraishi_dilayer"
+      ],
+      "observable": "ev_shiraishi_dilayer",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_kink_zero"
+      ],
+      "observable": "ev_atlas_kink_zero",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Regularization of the Alfv\u00e9n singularity by the Hall effect Jun-ya Shiraishi, Shuichi Ohsaki, and Zensho Yoshida Citation: Physics of Plasmas (1994-present) 12, 092308 (2005); doi: 10.1063/1.2042948 View online: http://dx.doi.org/10.1063/1.2042948 View Table of Contents: http://scitation.aip.org/content/aip/journal/p"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Shows Hall terms regularize the ideal-MHD singular layer at finite d_i."
+  ],
+  "weaknesses": [
+    "That regularization may alter, not merely preserve, the Atlas ideal-MHD spectrum."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

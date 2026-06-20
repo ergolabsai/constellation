@@ -1,0 +1,59 @@
+{
+  "claim_id": "GK_02",
+  "home_regime": {
+    "framework": "SARI spectral theory",
+    "regime_keywords": [
+      "sari",
+      "alfven",
+      "ma"
+    ],
+    "system": "rotating plasma"
+  },
+  "label": "At M_A >= 1 continuum overlap opens uncontrolled SARI spectrum",
+  "paper_id": "goedbloed2022",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_goedbloed_sari"
+      ],
+      "observable": "ev_goedbloed_sari",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_kink_zero"
+      ],
+      "observable": "ev_atlas_kink_zero",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "The Astrophysical Journal Supplement Series, 259:65 (41pp), 2022 April https://doi.org/10.3847/1538-4365/ac573c \u00a9 2022. The Author(s). Published by the American Astronomical Society. The Super-Alfv\u00e9nic Rotational Instability in Accretion Disks about Black Holes"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Defines M_A >= 1 as a natural operating boundary for Atlas."
+  ],
+  "weaknesses": [
+    "The transition near M_A=1 still needs width and robustness analysis."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

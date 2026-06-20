@@ -1,0 +1,50 @@
+{
+  "claim_id": "S_02",
+  "home_regime": {
+    "framework": "experiment",
+    "regime_keywords": [
+      "zap",
+      "quiescent",
+      "shear"
+    ],
+    "system": "ZaP Z-pinch experiment"
+  },
+  "label": "ZaP experiment observes a long stable period coincident with sheared sub-Alfvenic flow",
+  "paper_id": "shumlak2001",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_shumlak_zap"
+      ],
+      "observable": "ev_shumlak_zap",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "VOLUME 87, NUMBER 20 PHYSICAL REVIEW LETTERS 12 NOVEMBER 2001 Evidence of Stabilization in the Z-Pinch U. Shumlak, R. P. Golingo, and B. A. Nelson University of Washington, Aerospace and Energetics Resear"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Anchors the graph in ZaP experimental quiescence rather than only theory."
+  ],
+  "weaknesses": [
+    "Observed quiescence and shear coincidence do not by themselves prove the Atlas H3 mechanism."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

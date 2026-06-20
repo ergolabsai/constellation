@@ -1,0 +1,57 @@
+{
+  "claim_id": "CL_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "claes2020"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow",
+  "paper_id": "claes2020",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_legolas_bench"
+      ],
+      "observable": "ev_legolas_bench",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_brughmans_growth"
+      ],
+      "observable": "ev_brughmans_growth",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Draft version June 2, 2021 Typeset using LATEX default style in AASTeX63 Legolas: a modern tool for magnetohydrodynamic spectroscopy"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Provides numerical infrastructure for full-spectrum MHD checks."
+  ],
+  "weaknesses": [
+    "Benchmark capability is indirect unless the Atlas equilibrium is actually run through the code."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "contributing_claims": [
+    "ML_01",
+    "SE_01",
+    "SH_01"
+  ],
+  "contributing_evidence": [
+    "ev_shiraishi_dilayer",
+    "ev_sainterme_whistler"
+  ],
+  "description": "Evidence about how Hall and two-fluid (whistler / di-layer) physics modify the ideal-MHD m=1 picture at finite d_i/R, where Kumar's asymptotic ideal limit does not apply.",
+  "group_id": "hall_two_fluid_corrections",
+  "idea_id": "idea_03_hall_two_fluid_corrections",
+  "open_questions": [
+    {
+      "priority": "blocking",
+      "question": "Which of the 2 surviving tension(s) in this group are real disagreements vs. extraction or comparability artifacts?",
+      "suggested_next_steps": [
+        {
+          "description": "Inspect each remaining high-residual edge inside this group against the source PDFs and decide whether the edge, regime tag, or claim scope is wrong.",
+          "kind": "audit",
+          "title": "Residual edge review"
+        }
+      ]
+    },
+    {
+      "priority": "high",
+      "question": "Are the implicit-headline claim(s) SE_01, SH_01 actually intended to generalize across this group, or do their authors scope them more narrowly than the propagator assumes?",
+      "suggested_next_steps": [
+        {
+          "description": "Read each implicit-headline claim's source paper and decide whether to add explicit out-of-regime predictions or to mark the claim as scoped only to its home regime.",
+          "kind": "literature",
+          "title": "Scope verification"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas_prior",
+    "group": "hall_two_fluid_corrections"
+  },
+  "remaining_tensions": [
+    {
+      "claim_id": "SE_01",
+      "edge_id": "SE_01__ev_shiraishi_dilayer__semantic",
+      "evidence_id": "ev_shiraishi_dilayer",
+      "interpretation": "SE_01 still predicts poorly at ev_shiraishi_dilayer after allowed rewrites.",
+      "residual": 1.0
+    },
+    {
+      "claim_id": "SH_01",
+      "edge_id": "SH_01__ev_sainterme_whistler__semantic",
+      "evidence_id": "ev_sainterme_whistler",
+      "interpretation": "SH_01 still predicts poorly at ev_sainterme_whistler after allowed rewrites.",
+      "residual": 1.0
+    }
+  ],
+  "scope": {
+    "framework": "Hall MHD; MHD literature; whistler instability",
+    "regime": "ML_01 / SE_01 / SH_01",
+    "system": "Hall-MHD plasma; Hall-MHD singular layer; magnetized plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Hall / two-fluid corrections at finite d_i/R",
+  "transitions_out": []
+}

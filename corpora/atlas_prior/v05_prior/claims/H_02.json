@@ -1,0 +1,57 @@
+{
+  "claim_id": "H_02",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "hameiri1985"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Essential spectrum of ideal MHD with flow consists of Doppler-shifted Alfven and slow continua",
+  "paper_id": "hameiri1985",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_hameiri_continuum"
+      ],
+      "observable": "ev_hameiri_continuum",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_goedbloed_sari"
+      ],
+      "observable": "ev_goedbloed_sari",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "On the Essential Spectrum of Ideal Magnetohydrodynamics ELIEZER HAMEIRI Courant Institute Dedicated to Harold Grad on the occasion of his sixtieth birthday Abstract The essential spectrum of magnetohydrodynamics (MHD) is s"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Identifies Doppler-shifted continua as central to ideal MHD with flow."
+  ],
+  "weaknesses": [
+    "Continuum structure alone does not decide whether the sub-Alfvenic Atlas regime is stable."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

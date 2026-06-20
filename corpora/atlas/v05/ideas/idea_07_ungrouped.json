@@ -1,0 +1,26 @@
+{
+  "contributing_claims": [
+    "W_01"
+  ],
+  "contributing_evidence": [
+    "ev_wang_smri"
+  ],
+  "description": "Claims and evidence not covered by any comparability group. Add a group to the corpus's comparability.json to surface these as a first-class idea with cross-paper accountability.",
+  "group_id": "ungrouped",
+  "idea_id": "idea_07_ungrouped",
+  "open_questions": [],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas",
+    "group": "ungrouped"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "W_01",
+    "system": "magnetized plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Ungrouped (no comparability group authored yet)",
+  "transitions_out": []
+}

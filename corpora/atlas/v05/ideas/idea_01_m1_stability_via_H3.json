@@ -1,0 +1,182 @@
+{
+  "contributing_claims": [
+    "A_01",
+    "A_02",
+    "A_03",
+    "A_04",
+    "A_05",
+    "A_06",
+    "A_07",
+    "N_01",
+    "AN_01",
+    "B_01"
+  ],
+  "contributing_evidence": [
+    "ev_atlas_kink_zero",
+    "ev_atlas_h3_value",
+    "ev_atlas_120pts",
+    "ev_atlas_h1_violate",
+    "ev_atlas_h3_violate",
+    "ev_atlas_pseudospec",
+    "ev_newcomb_static",
+    "ev_angus_m1_persists",
+    "ev_bondeson_toroidal"
+  ],
+  "description": "Atlas separates the rotating helical H3 regime from older static or shear-only kink obstructions.",
+  "idea_id": "idea_01_m1_stability_via_H3",
+  "open_questions": [
+    {
+      "priority": "high",
+      "question": "Which finite-device and nonlinear effects are still outside the H3 ideal-MHD closure?",
+      "suggested_next_steps": [
+        {
+          "description": "Run resistive and nonlinear MHD on RIGID-BELTRAMI-A-like profiles with finite-length boundaries, then compare m=1 growth against the ideal d_i/R -> 0 prediction.",
+          "kind": "simulation",
+          "title": "Finite-length Atlas profile scan"
+        },
+        {
+          "description": "Identify which nonlinear terms are excluded by the H1-H5 theorem and derive a perturbative bound for how large they can be before the closure fails.",
+          "kind": "theory",
+          "title": "Nonlinear remainder bound"
+        },
+        {
+          "description": "Design magnetic and flow diagnostics that can confirm whether an experimental pinch actually realizes the H3 quartic minimum and sub-Alfvenic rotation profile.",
+          "kind": "experiment",
+          "title": "Profile-realizability diagnostic"
+        }
+      ]
+    },
+    {
+      "priority": "blocking",
+      "question": "Which remaining residuals are real contradictions rather than seeded-scope artifacts?",
+      "suggested_next_steps": [
+        {
+          "description": "Inspect each remaining high-residual edge against the source PDFs and decide whether the edge, regime tag, or claim scope is wrong.",
+          "kind": "audit",
+          "title": "Residual edge review"
+        },
+        {
+          "description": "If a residual is real, split the broad claim into separate home-regime and cross-regime claims instead of weakening the evidence.",
+          "kind": "theory",
+          "title": "Scope split proposal"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "deterministic_atlas_seed",
+    "corpus": "atlas"
+  },
+  "remaining_tensions": [
+    {
+      "claim_id": "AN_01",
+      "edge_id": "AN_01__ev_atlas_kink_zero",
+      "evidence_id": "ev_atlas_kink_zero",
+      "interpretation": "AN_01 still predicts poorly at ev_atlas_kink_zero after allowed rewrites.",
+      "residual": 1.0
+    },
+    {
+      "claim_id": "B_01",
+      "edge_id": "B_01__ev_atlas_kink_zero",
+      "evidence_id": "ev_atlas_kink_zero",
+      "interpretation": "B_01 still predicts poorly at ev_atlas_kink_zero after allowed rewrites.",
+      "residual": 1.0
+    },
+    {
+      "claim_id": "N_01",
+      "edge_id": "N_01__ev_atlas_kink_zero",
+      "evidence_id": "ev_atlas_kink_zero",
+      "interpretation": "N_01 still predicts poorly at ev_atlas_kink_zero after allowed rewrites.",
+      "residual": 1.0
+    }
+  ],
+  "scope": {
+    "framework": "seeded v0.5 restriction-rewriting graph",
+    "regime": "Atlas separates the rotating helical H3 regime from older static or shear-only kink obstructions.",
+    "system": "Atlas Z-pinch corpus"
+  },
+  "tensions_resolved": [
+    {
+      "edge_id": "A_01__ev_atlas_kink_zero",
+      "resolution": "A_01 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_01__ev_atlas_120pts",
+      "resolution": "A_01 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_01__ev_atlas_h1_violate",
+      "resolution": "A_01 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_01__ev_atlas_h3_violate",
+      "resolution": "A_01 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_04__ev_atlas_kink_zero",
+      "resolution": "A_04 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_06__ev_atlas_kink_zero",
+      "resolution": "A_06 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_07__ev_atlas_h3_value",
+      "resolution": "A_07 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_07__ev_atlas_kink_zero",
+      "resolution": "A_07 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_01__ev_angus_m1_persists__semantic",
+      "resolution": "A_01 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_01__ev_bondeson_toroidal__semantic",
+      "resolution": "A_01 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_01__ev_newcomb_static__semantic",
+      "resolution": "A_01 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_04__ev_angus_m1_persists__semantic",
+      "resolution": "A_04 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_04__ev_bondeson_toroidal__semantic",
+      "resolution": "A_04 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_04__ev_newcomb_static__semantic",
+      "resolution": "A_04 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_06__ev_angus_m1_persists__semantic",
+      "resolution": "A_06 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_06__ev_bondeson_toroidal__semantic",
+      "resolution": "A_06 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_06__ev_newcomb_static__semantic",
+      "resolution": "A_06 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_07__ev_angus_m1_persists__semantic",
+      "resolution": "A_07 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_07__ev_bondeson_toroidal__semantic",
+      "resolution": "A_07 narrowed its out-of-regime strength."
+    },
+    {
+      "edge_id": "A_07__ev_newcomb_static__semantic",
+      "resolution": "A_07 narrowed its out-of-regime strength."
+    }
+  ],
+  "title": "m=1 stability of rotating helical Z-pinch is closed by the H3 quartic Alfven minimum",
+  "transitions_out": []
+}

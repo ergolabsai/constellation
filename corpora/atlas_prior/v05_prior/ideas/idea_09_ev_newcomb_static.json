@@ -1,0 +1,24 @@
+{
+  "contributing_claims": [
+    "N_01",
+    "N_02"
+  ],
+  "contributing_evidence": [
+    "ev_newcomb_static"
+  ],
+  "idea_id": "idea_09_ev_newcomb_static",
+  "open_questions": [],
+  "provenance": {
+    "consolidator": "deterministic_connected_components",
+    "corpus": "atlas_prior"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "ideal MHD node counting",
+    "regime": "N_01 / N_02",
+    "system": "static Z-pinch"
+  },
+  "tensions_resolved": [],
+  "title": "Scoped claim-evidence knowledge unit",
+  "transitions_out": []
+}

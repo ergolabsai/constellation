@@ -1,0 +1,58 @@
+{
+  "claim_id": "BR_01",
+  "home_regime": {
+    "framework": "Legolas SARI computation",
+    "regime_keywords": [
+      "sari",
+      "legolas"
+    ],
+    "system": "rotating plasma"
+  },
+  "label": "Non-axisymmetric SARI modes are confirmed numerically by Legolas with growth rates comparable to MRI",
+  "paper_id": "brughmans2024",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_brughmans_growth"
+      ],
+      "observable": "ev_brughmans_growth",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_goedbloed_sari"
+      ],
+      "observable": "ev_goedbloed_sari",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Draft version October 18, 2024 Typeset using LATEX default style in AASTeX631 Parametric Survey of Nonaxisymmetric Accretion Disk Instabilities: Magnetorotational Instability to"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Numerically confirms non-axisymmetric SARI behavior with a spectral code."
+  ],
+  "weaknesses": [
+    "It is primarily evidence for the unstable side of the boundary, not for Atlas stability below it."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

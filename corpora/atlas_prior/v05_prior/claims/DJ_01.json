@@ -1,0 +1,48 @@
+{
+  "claim_id": "DJ_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "dejonghe2022"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Legolas extension with viscosity and Hall current is benchmarked against historic results",
+  "paper_id": "dejonghe2022",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_legolas_bench"
+      ],
+      "observable": "ev_legolas_bench",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Under consideration for publication in J. Plasma Phys. 1 Legolas: magnetohydrodynamic spectroscopy arXiv:2206.07377v1 [physics.plasm-ph] 15 Jun 2022 with"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Extends numerical tooling toward viscosity and Hall current effects."
+  ],
+  "weaknesses": [
+    "Tool validation is not a substitute for a targeted Atlas-profile computation."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

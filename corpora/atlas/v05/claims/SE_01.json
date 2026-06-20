@@ -1,0 +1,58 @@
+{
+  "claim_id": "SE_01",
+  "home_regime": {
+    "framework": "whistler instability",
+    "regime_keywords": [
+      "hall",
+      "whistler"
+    ],
+    "system": "Hall-MHD plasma"
+  },
+  "label": "In the Hall regime, global whistler instabilities grow significantly faster than ideal-MHD modes",
+  "paper_id": "sainterme2026",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_sainterme_whistler"
+      ],
+      "observable": "ev_sainterme_whistler",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_kink_zero"
+      ],
+      "observable": "ev_atlas_kink_zero",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Draft version March 19, 2026 Typeset using LATEX default style in AASTeX7.0.1 Global Non-Axisymmetric Hall Instabilities in a Rotating Plasma"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Adds a concrete Hall-regime instability channel to test against Atlas-stable profiles."
+  ],
+  "weaknesses": [
+    "Whistler instability evidence may apply only outside the precise Atlas parameter regime."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

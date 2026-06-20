@@ -1,0 +1,57 @@
+{
+  "claim_id": "B_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "bondeson1989"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "In toroidal or cylindrical geometry, rotation mitigates but does not eliminate kink at finite pressure",
+  "paper_id": "bondeson1989",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_bondeson_toroidal"
+      ],
+      "observable": "ev_bondeson_toroidal",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_kink_zero"
+      ],
+      "observable": "ev_atlas_kink_zero",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Ideal stability of cylindrical plasma in the presence of mass flow A. Bondeson, and R. Iacono Citation: Physics of Fluids B: Plasma Physics 1, 1431 (1989); View online: https://doi.org/10.1063/1.858973 View Table of Contents: http://aip.scitation.org/toc/pfb/1/7 Published by the American Institute of Physics Articles you may be interested in Importance o"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Strong historical comparator showing rotation can mitigate kink without eliminating it."
+  ],
+  "weaknesses": [
+    "The studied geometries do not include the full Atlas H3 helical structure, so full-strength projection is too broad."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

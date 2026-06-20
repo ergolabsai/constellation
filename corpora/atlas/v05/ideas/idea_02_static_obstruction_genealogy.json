@@ -1,0 +1,56 @@
+{
+  "contributing_claims": [
+    "N_01",
+    "N_02",
+    "FR_01",
+    "B_01",
+    "AN_01",
+    "CR_01"
+  ],
+  "contributing_evidence": [
+    "ev_newcomb_static",
+    "ev_bondeson_toroidal",
+    "ev_angus_m1_persists",
+    "ev_atlas_newcomb_bench",
+    "ev_atlas_h3_violate",
+    "ev_crews_entropy"
+  ],
+  "description": "The older obstruction is real, but the atlas data scopes it to a narrower regime.",
+  "idea_id": "idea_02_static_obstruction_genealogy",
+  "open_questions": [
+    {
+      "priority": "medium",
+      "question": "Where exactly does the static Newcomb obstruction stop applying once helical rotation and H3 are present?",
+      "suggested_next_steps": [
+        {
+          "description": "Write the exact sequence of assumptions that transforms Newcomb's static operator into the Atlas non-self-adjoint helical-flow operator.",
+          "kind": "theory",
+          "title": "Assumption homotopy"
+        },
+        {
+          "description": "Numerically continue profiles from a Newcomb-unstable static pinch to an Atlas H3 profile and track where the m=1 eigenvalue changes sign.",
+          "kind": "simulation",
+          "title": "Static-to-H3 profile continuation"
+        },
+        {
+          "description": "Check Newcomb, Bondeson-Iacono, and Angus source assumptions line-by-line against Atlas H1-H5 so each rewrite is scoped precisely.",
+          "kind": "literature",
+          "title": "Comparator source audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "deterministic_atlas_seed",
+    "corpus": "atlas"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "seeded v0.5 restriction-rewriting graph",
+    "regime": "The older obstruction is real, but the atlas data scopes it to a narrower regime.",
+    "system": "Atlas Z-pinch corpus"
+  },
+  "tensions_resolved": [],
+  "title": "The static finite-beta m=1 obstruction survives as a special-case limit",
+  "transitions_out": []
+}

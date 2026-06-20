@@ -1,0 +1,48 @@
+{
+  "claim_id": "Z_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "zhang2019"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "FuZE experimentally demonstrates sustained microsecond-scale neutron production during a quiescent period",
+  "paper_id": "zhang2019",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_zhang_neutrons"
+      ],
+      "observable": "ev_zhang_neutrons",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "LETTER | SEPTEMBER 03 2024 Hall MHD waves: A fundamental departure from their MHD counterparts Swadesh M. Mahajan ; Prerana Sharma ; Manasvi Lingam \ue923 Phys. Plasmas 31, 090701 (2024) https://doi.org/10.1063/5.0227375 \ue929 \ue92d"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Adds FuZE operational evidence for quiescent, neutron-producing Z-pinch plasmas."
+  ],
+  "weaknesses": [
+    "Neutron production and quiescence do not identify the exact m=1 stabilization mechanism."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

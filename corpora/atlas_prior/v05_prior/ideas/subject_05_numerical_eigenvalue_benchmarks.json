@@ -1,0 +1,172 @@
+{
+  "contributing_claims": [
+    "CL_01",
+    "DJ_01"
+  ],
+  "contributing_evidence": [
+    "ev_legolas_bench"
+  ],
+  "contributing_papers": [
+    "claes2020",
+    "dejonghe2022"
+  ],
+  "description": "Evidence from code-to-code MHD eigenvalue benchmarks and from violating Kumar's H1-H5 constraints to see the framework break in the predicted way.",
+  "group_id": "numerical_eigenvalue_benchmarks",
+  "idea_id": "subject_05_numerical_eigenvalue_benchmarks",
+  "ideas": [
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "CL_01"
+      ],
+      "contributing_papers": [
+        "claes2020"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_001",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "claes2020"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_legolas_bench": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_legolas_bench"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_legolas_bench"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_002",
+          "papers": [
+            "dejonghe2022"
+          ],
+          "title": "dejonghe2022 (DJ_01): Legolas extension with viscosity and Hall current is benchmarked against historic results"
+        }
+      ],
+      "title": "claes2020 (CL_01): Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "DJ_01"
+      ],
+      "contributing_papers": [
+        "dejonghe2022"
+      ],
+      "idea_id": "idea_numerical_eigenvalue_benchmarks_002",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "dejonghe2022"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_legolas_bench": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_legolas_bench"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_legolas_bench"
+          ],
+          "idea_id": "idea_numerical_eigenvalue_benchmarks_001",
+          "papers": [
+            "claes2020"
+          ],
+          "title": "claes2020 (CL_01): Legolas finite-element MHD spectroscopy computes the full eigenspectrum for 1D equilibria with flow"
+        }
+      ],
+      "title": "dejonghe2022 (DJ_01): Legolas extension with viscosity and Hall current is benchmarked against historic results"
+    }
+  ],
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "What experiment or derivation, if it landed at a contrary value, would force a rewrite within Numerical eigenvalue benchmarks and constraint-violation tests?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the field's consensus inside Numerical eigenvalue benchmarks and constraint-violation tests, would force a rewrite. Document the device that could perform it and the parameter range it should sweep.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one.",
+          "kind": "literature",
+          "title": "Adjacent-regime survey"
+        },
+        {
+          "description": "Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface.",
+          "kind": "audit",
+          "title": "Foundational assumption audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "subjects_with_lifecycle_ideas",
+    "group": "numerical_eigenvalue_benchmarks"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "claes2020, dejonghe2022",
+    "system": "magnetized plasma"
+  },
+  "tensions": [],
+  "tensions_resolved": [],
+  "title": "Numerical eigenvalue benchmarks and constraint-violation tests"
+}

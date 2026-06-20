@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "crews2024",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_crews_entropy",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_crews_entropy",
+  "label": "Kadomtsev marginal-stable profile has an entropy-gradient interpretation",
+  "paper_id": "crews2024",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Sustained neutron production from a sheared-flow stabilized Z-pinch Y. Zhang,a) U. Shumlak, B. A. Nelson, R. P. Golingo, T. R. Weber, A. D. Stepanov, E. L. Claveau, E. G. Forbes, and Z."
+  }
+}

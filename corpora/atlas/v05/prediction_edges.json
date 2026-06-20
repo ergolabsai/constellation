@@ -1,0 +1,4559 @@
+{
+  "edges": [
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "Z_01",
+      "edge_id": "Z_01__ev_zhang_neutrons",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_zhang_neutrons",
+      "prediction_rationale": "Claim Z_01 predicts ev_zhang_neutrons=1.0 at evidence ev_zhang_neutrons.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CR_01",
+      "edge_id": "CR_01__ev_crews_entropy",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_crews_entropy",
+      "prediction_rationale": "Claim CR_01 predicts ev_crews_entropy=1.0 at evidence ev_crews_entropy.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CR_01",
+      "edge_id": "CR_01__ev_shumlak_threshold",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_threshold",
+      "prediction_rationale": "Claim CR_01 predicts ev_shumlak_threshold=1.0 at evidence ev_shumlak_threshold.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CL_01",
+      "edge_id": "CL_01__ev_legolas_bench",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_legolas_bench",
+      "prediction_rationale": "Claim CL_01 predicts ev_legolas_bench=1.0 at evidence ev_legolas_bench.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "CL_01",
+      "edge_id": "CL_01__ev_brughmans_growth",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "Claim CL_01 predicts ev_brughmans_growth=0.0 at evidence ev_brughmans_growth.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "DJ_01",
+      "edge_id": "DJ_01__ev_legolas_bench",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_legolas_bench",
+      "prediction_rationale": "Claim DJ_01 predicts ev_legolas_bench=1.0 at evidence ev_legolas_bench.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_sainterme_whistler",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "ML_01",
+      "edge_id": "ML_01__ev_sainterme_whistler",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_sainterme_whistler",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_sainterme_whistler",
+      "prediction_rationale": "Claim ML_01 predicts ev_sainterme_whistler=0.0 at evidence ev_sainterme_whistler.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "BR_01",
+      "edge_id": "BR_01__ev_brughmans_growth",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "Claim BR_01 predicts ev_brughmans_growth=0.0 at evidence ev_brughmans_growth.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "BR_01",
+      "edge_id": "BR_01__ev_goedbloed_sari",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "Claim BR_01 predicts ev_goedbloed_sari=0.0 at evidence ev_goedbloed_sari.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_sainterme_whistler",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "SE_01",
+      "edge_id": "SE_01__ev_sainterme_whistler",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_sainterme_whistler",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_sainterme_whistler",
+      "prediction_rationale": "Claim SE_01 predicts ev_sainterme_whistler=0.0 at evidence ev_sainterme_whistler.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "SE_01",
+      "edge_id": "SE_01__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim SE_01 predicts ev_atlas_kink_zero=1.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim A_01 predicts ev_atlas_kink_zero=1.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_120pts",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_atlas_120pts",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_120pts",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_120pts",
+      "prediction_rationale": "Claim A_01 predicts ev_atlas_120pts=1.0 at evidence ev_atlas_120pts.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h1_violate",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_atlas_h1_violate",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h1_violate",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h1_violate",
+      "prediction_rationale": "Claim A_01 predicts ev_atlas_h1_violate=0.0 at evidence ev_atlas_h1_violate.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_violate",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_atlas_h3_violate",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_violate",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h3_violate",
+      "prediction_rationale": "Claim A_01 predicts ev_atlas_h3_violate=0.0 at evidence ev_atlas_h3_violate.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_02",
+      "edge_id": "A_02__ev_atlas_h3_value",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h3_value",
+      "prediction_rationale": "Claim A_02 predicts ev_atlas_h3_value=1.0 at evidence ev_atlas_h3_value.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_violate",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_02",
+      "edge_id": "A_02__ev_atlas_h3_violate",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_violate",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h3_violate",
+      "prediction_rationale": "Claim A_02 predicts ev_atlas_h3_violate=0.0 at evidence ev_atlas_h3_violate.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_02",
+      "edge_id": "A_02__ev_angus_m1_persists",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "Claim A_02 predicts ev_angus_m1_persists=0.0 at evidence ev_angus_m1_persists.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_03",
+      "edge_id": "A_03__ev_atlas_h3_value",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h3_value",
+      "prediction_rationale": "Claim A_03 predicts ev_atlas_h3_value=1.0 at evidence ev_atlas_h3_value.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim A_04 predicts ev_atlas_kink_zero=1.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_atlas_newcomb_bench",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_newcomb_bench",
+      "prediction_rationale": "Claim A_04 predicts ev_atlas_newcomb_bench=1.0 at evidence ev_atlas_newcomb_bench.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_friman_overstable",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_friman_overstable",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_friman_overstable",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_friman_overstable",
+      "prediction_rationale": "Claim A_04 predicts ev_friman_overstable=1.0 at evidence ev_friman_overstable.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_hameiri_continuum",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_hameiri_continuum",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_hameiri_continuum",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_hameiri_continuum",
+      "prediction_rationale": "Claim A_04 predicts ev_hameiri_continuum=1.0 at evidence ev_hameiri_continuum.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim A_05 predicts ev_atlas_kink_zero=1.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_atlas_pseudospec",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_pseudospec",
+      "prediction_rationale": "Claim A_05 predicts ev_atlas_pseudospec=1.0 at evidence ev_atlas_pseudospec.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_120pts",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_atlas_120pts",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_120pts",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_120pts",
+      "prediction_rationale": "Claim A_05 predicts ev_atlas_120pts=1.0 at evidence ev_atlas_120pts.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_newcomb_static",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "Claim A_05 predicts ev_newcomb_static=0.0 at evidence ev_newcomb_static.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_angus_m1_persists",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "Claim A_05 predicts ev_angus_m1_persists=0.0 at evidence ev_angus_m1_persists.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_bondeson_toroidal",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "Claim A_05 predicts ev_bondeson_toroidal=0.0 at evidence ev_bondeson_toroidal.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_goedbloed_sari",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "Claim A_05 predicts ev_goedbloed_sari=0.0 at evidence ev_goedbloed_sari.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_brughmans_growth",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "Claim A_05 predicts ev_brughmans_growth=0.0 at evidence ev_brughmans_growth.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_06",
+      "edge_id": "A_06__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim A_06 predicts ev_atlas_kink_zero=1.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_atlas_h3_value",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h3_value",
+      "prediction_rationale": "Claim A_07 predicts ev_atlas_h3_value=1.0 at evidence ev_atlas_h3_value.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim A_07 predicts ev_atlas_kink_zero=1.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.72,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_chandra_ck",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_chandra_ck",
+      "prediction_rationale": "Claim A_07 predicts ev_chandra_ck=1.0 at evidence ev_chandra_ck.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_mahajan_db",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_mahajan_db",
+      "prediction_rationale": "Claim A_07 predicts ev_mahajan_db=1.0 at evidence ev_mahajan_db.",
+      "provenance": {
+        "confidence": 0.68,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_01",
+      "edge_id": "GK_01__ev_goedbloed_sari",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "Claim GK_01 predicts ev_goedbloed_sari=0.0 at evidence ev_goedbloed_sari.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_02",
+      "edge_id": "GK_02__ev_goedbloed_sari",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "Claim GK_02 predicts ev_goedbloed_sari=0.0 at evidence ev_goedbloed_sari.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "GK_02",
+      "edge_id": "GK_02__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim GK_02 predicts ev_atlas_kink_zero=1.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_wang_smri",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "W_01",
+      "edge_id": "W_01__ev_wang_smri",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_wang_smri",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_wang_smri",
+      "prediction_rationale": "Claim W_01 predicts ev_wang_smri=0.0 at evidence ev_wang_smri.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "AN_01",
+      "edge_id": "AN_01__ev_angus_m1_persists",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "Claim AN_01 predicts ev_angus_m1_persists=0.0 at evidence ev_angus_m1_persists.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "AN_01",
+      "edge_id": "AN_01__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim AN_01 predicts ev_atlas_kink_zero=0.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary",
+            "value": 0.85
+          }
+        ]
+      },
+      "claim_id": "AN_02",
+      "edge_id": "AN_02__ev_angus_m0_scaling",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m0_scaling",
+      "prediction_rationale": "Claim AN_02 predicts ev_angus_m0_scaling=0.85 at evidence ev_angus_m0_scaling.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "B_01",
+      "edge_id": "B_01__ev_bondeson_toroidal",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "Claim B_01 predicts ev_bondeson_toroidal=0.0 at evidence ev_bondeson_toroidal.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "B_01",
+      "edge_id": "B_01__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim B_01 predicts ev_atlas_kink_zero=0.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CK_01",
+      "edge_id": "CK_01__ev_chandra_ck",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_chandra_ck",
+      "prediction_rationale": "Claim CK_01 predicts ev_chandra_ck=1.0 at evidence ev_chandra_ck.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_friman_overstable",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "FR_01",
+      "edge_id": "FR_01__ev_friman_overstable",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_friman_overstable",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_friman_overstable",
+      "prediction_rationale": "Claim FR_01 predicts ev_friman_overstable=1.0 at evidence ev_friman_overstable.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "FR_01",
+      "edge_id": "FR_01__ev_atlas_pseudospec",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_pseudospec",
+      "prediction_rationale": "Claim FR_01 predicts ev_atlas_pseudospec=1.0 at evidence ev_atlas_pseudospec.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_hameiri_continuum",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "H_01",
+      "edge_id": "H_01__ev_hameiri_continuum",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_hameiri_continuum",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_hameiri_continuum",
+      "prediction_rationale": "Claim H_01 predicts ev_hameiri_continuum=1.0 at evidence ev_hameiri_continuum.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_hameiri_continuum",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "H_02",
+      "edge_id": "H_02__ev_hameiri_continuum",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_hameiri_continuum",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_hameiri_continuum",
+      "prediction_rationale": "Claim H_02 predicts ev_hameiri_continuum=1.0 at evidence ev_hameiri_continuum.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "H_02",
+      "edge_id": "H_02__ev_goedbloed_sari",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "Claim H_02 predicts ev_goedbloed_sari=0.0 at evidence ev_goedbloed_sari.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "MY_01",
+      "edge_id": "MY_01__ev_mahajan_db",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_mahajan_db",
+      "prediction_rationale": "Claim MY_01 predicts ev_mahajan_db=1.0 at evidence ev_mahajan_db.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "MY_01",
+      "edge_id": "MY_01__ev_atlas_h3_value",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h3_value",
+      "prediction_rationale": "Claim MY_01 predicts ev_atlas_h3_value=1.0 at evidence ev_atlas_h3_value.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_01",
+      "edge_id": "N_01__ev_newcomb_static",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "Claim N_01 predicts ev_newcomb_static=0.0 at evidence ev_newcomb_static.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_01",
+      "edge_id": "N_01__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim N_01 predicts ev_atlas_kink_zero=0.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_violate",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_01",
+      "edge_id": "N_01__ev_atlas_h3_violate",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_violate",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h3_violate",
+      "prediction_rationale": "Claim N_01 predicts ev_atlas_h3_violate=0.0 at evidence ev_atlas_h3_violate.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_02",
+      "edge_id": "N_02__ev_newcomb_static",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "Claim N_02 predicts ev_newcomb_static=0.0 at evidence ev_newcomb_static.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "N_02",
+      "edge_id": "N_02__ev_atlas_newcomb_bench",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_newcomb_bench",
+      "prediction_rationale": "Claim N_02 predicts ev_atlas_newcomb_bench=1.0 at evidence ev_atlas_newcomb_bench.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shiraishi_dilayer",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "SH_01",
+      "edge_id": "SH_01__ev_shiraishi_dilayer",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shiraishi_dilayer",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shiraishi_dilayer",
+      "prediction_rationale": "Claim SH_01 predicts ev_shiraishi_dilayer=1.0 at evidence ev_shiraishi_dilayer.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "SH_01",
+      "edge_id": "SH_01__ev_atlas_kink_zero",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "Claim SH_01 predicts ev_atlas_kink_zero=1.0 at evidence ev_atlas_kink_zero.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_01",
+      "edge_id": "S_01__ev_shumlak_threshold",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_threshold",
+      "prediction_rationale": "Claim S_01 predicts ev_shumlak_threshold=1.0 at evidence ev_shumlak_threshold.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary",
+            "value": 0.85
+          }
+        ]
+      },
+      "claim_id": "S_01",
+      "edge_id": "S_01__ev_angus_m0_scaling",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m0_scaling",
+      "prediction_rationale": "Claim S_01 predicts ev_angus_m0_scaling=0.85 at evidence ev_angus_m0_scaling.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_02",
+      "edge_id": "S_02__ev_shumlak_zap",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_zap",
+      "prediction_rationale": "Claim S_02 predicts ev_shumlak_zap=1.0 at evidence ev_shumlak_zap.",
+      "provenance": {
+        "confidence": 0.66,
+        "prediction_generated_by": "deterministic_observable_match",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "in_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "Z_01",
+      "edge_id": "Z_01__ev_angus_m0_scaling__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m0_scaling",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): Z_01 states ev_zhang_neutrons=1.0 but does not address comparable ev_angus_m0_scaling; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_zhang_neutrons",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "Z_01",
+      "edge_id": "Z_01__ev_crews_entropy__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_crews_entropy",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): Z_01 states ev_zhang_neutrons=1.0 but does not address comparable ev_crews_entropy; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_zhang_neutrons",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "Z_01",
+      "edge_id": "Z_01__ev_shumlak_threshold__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_threshold",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): Z_01 states ev_zhang_neutrons=1.0 but does not address comparable ev_shumlak_threshold; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_zhang_neutrons",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "Z_01",
+      "edge_id": "Z_01__ev_shumlak_zap__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_zap",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): Z_01 states ev_zhang_neutrons=1.0 but does not address comparable ev_shumlak_zap; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_zhang_neutrons",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CR_01",
+      "edge_id": "CR_01__ev_angus_m0_scaling__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m0_scaling",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): CR_01 states ev_crews_entropy=1.0 but does not address comparable ev_angus_m0_scaling; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_crews_entropy",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CR_01",
+      "edge_id": "CR_01__ev_shumlak_zap__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_zap",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): CR_01 states ev_crews_entropy=1.0 but does not address comparable ev_shumlak_zap; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_crews_entropy",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CR_01",
+      "edge_id": "CR_01__ev_zhang_neutrons__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_zhang_neutrons",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): CR_01 states ev_crews_entropy=1.0 but does not address comparable ev_zhang_neutrons; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_crews_entropy",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_120pts",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CL_01",
+      "edge_id": "CL_01__ev_atlas_120pts__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_120pts",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_120pts",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): CL_01 states ev_legolas_bench=1.0 but does not address comparable ev_atlas_120pts; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_legolas_bench",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CL_01",
+      "edge_id": "CL_01__ev_atlas_pseudospec__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_pseudospec",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): CL_01 states ev_legolas_bench=1.0 but does not address comparable ev_atlas_pseudospec; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_legolas_bench",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CL_01",
+      "edge_id": "CL_01__ev_atlas_newcomb_bench__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_newcomb_bench",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): CL_01 states ev_legolas_bench=1.0 but does not address comparable ev_atlas_newcomb_bench; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_legolas_bench",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "BR_01",
+      "edge_id": "BR_01__ev_atlas_kink_zero__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): BR_01 states ev_brughmans_growth=0.0 but does not address comparable ev_atlas_kink_zero; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_brughmans_growth",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "BR_01",
+      "edge_id": "BR_01__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): BR_01 states ev_brughmans_growth=0.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_brughmans_growth",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "BR_01",
+      "edge_id": "BR_01__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): BR_01 states ev_brughmans_growth=0.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_brughmans_growth",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "BR_01",
+      "edge_id": "BR_01__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): BR_01 states ev_brughmans_growth=0.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_brughmans_growth",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_01 states ev_atlas_kink_zero=1.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_01 states ev_atlas_kink_zero=1.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_01 states ev_atlas_kink_zero=1.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_goedbloed_sari__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_01 states ev_atlas_kink_zero=1.0 but does not address comparable ev_goedbloed_sari; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_01 states ev_atlas_kink_zero=1.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_legolas_bench__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_legolas_bench",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): A_01 states ev_atlas_120pts=1.0 but does not address comparable ev_legolas_bench; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_atlas_120pts",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_atlas_pseudospec__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_pseudospec",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): A_01 states ev_atlas_120pts=1.0 but does not address comparable ev_atlas_pseudospec; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_atlas_120pts",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_01",
+      "edge_id": "A_01__ev_atlas_newcomb_bench__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_newcomb_bench",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): A_01 states ev_atlas_120pts=1.0 but does not address comparable ev_atlas_newcomb_bench; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_atlas_120pts",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_02",
+      "edge_id": "A_02__ev_chandra_ck__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_chandra_ck",
+      "prediction_rationale": "semantic cross-edge (beltrami_equilibrium_class): A_02 states ev_atlas_h3_value=1.0 but does not address comparable ev_chandra_ck; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "beltrami_equilibrium_class",
+        "home_evidence": "ev_atlas_h3_value",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_02",
+      "edge_id": "A_02__ev_mahajan_db__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_mahajan_db",
+      "prediction_rationale": "semantic cross-edge (beltrami_equilibrium_class): A_02 states ev_atlas_h3_value=1.0 but does not address comparable ev_mahajan_db; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "beltrami_equilibrium_class",
+        "home_evidence": "ev_atlas_h3_value",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_03",
+      "edge_id": "A_03__ev_chandra_ck__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_chandra_ck",
+      "prediction_rationale": "semantic cross-edge (beltrami_equilibrium_class): A_03 states ev_atlas_h3_value=1.0 but does not address comparable ev_chandra_ck; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "beltrami_equilibrium_class",
+        "home_evidence": "ev_atlas_h3_value",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_03",
+      "edge_id": "A_03__ev_mahajan_db__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_mahajan_db",
+      "prediction_rationale": "semantic cross-edge (beltrami_equilibrium_class): A_03 states ev_atlas_h3_value=1.0 but does not address comparable ev_mahajan_db; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "beltrami_equilibrium_class",
+        "home_evidence": "ev_atlas_h3_value",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_04 states ev_atlas_kink_zero=1.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_04 states ev_atlas_kink_zero=1.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_04 states ev_atlas_kink_zero=1.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_goedbloed_sari__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_04 states ev_atlas_kink_zero=1.0 but does not address comparable ev_goedbloed_sari; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_04 states ev_atlas_kink_zero=1.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_legolas_bench__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_legolas_bench",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): A_04 states ev_atlas_newcomb_bench=1.0 but does not address comparable ev_legolas_bench; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_atlas_newcomb_bench",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_120pts",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_atlas_120pts__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_120pts",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_120pts",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): A_04 states ev_atlas_newcomb_bench=1.0 but does not address comparable ev_atlas_120pts; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_atlas_newcomb_bench",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_04",
+      "edge_id": "A_04__ev_atlas_pseudospec__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_pseudospec",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_pseudospec",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): A_04 states ev_atlas_newcomb_bench=1.0 but does not address comparable ev_atlas_pseudospec; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_atlas_newcomb_bench",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_legolas_bench__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_legolas_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_legolas_bench",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): A_05 states ev_atlas_pseudospec=1.0 but does not address comparable ev_legolas_bench; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_atlas_pseudospec",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_05",
+      "edge_id": "A_05__ev_atlas_newcomb_bench__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_newcomb_bench",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_newcomb_bench",
+      "prediction_rationale": "semantic cross-edge (numerical_eigenvalue_benchmarks): A_05 states ev_atlas_pseudospec=1.0 but does not address comparable ev_atlas_newcomb_bench; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "numerical_eigenvalue_benchmarks",
+        "home_evidence": "ev_atlas_pseudospec",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_06",
+      "edge_id": "A_06__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_06 states ev_atlas_kink_zero=1.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_06",
+      "edge_id": "A_06__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_06 states ev_atlas_kink_zero=1.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_06",
+      "edge_id": "A_06__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_06 states ev_atlas_kink_zero=1.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_06",
+      "edge_id": "A_06__ev_goedbloed_sari__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_06 states ev_atlas_kink_zero=1.0 but does not address comparable ev_goedbloed_sari; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_06",
+      "edge_id": "A_06__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_06 states ev_atlas_kink_zero=1.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_07 states ev_atlas_kink_zero=1.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_07 states ev_atlas_kink_zero=1.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_07 states ev_atlas_kink_zero=1.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_goedbloed_sari__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_07 states ev_atlas_kink_zero=1.0 but does not address comparable ev_goedbloed_sari; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "A_07",
+      "edge_id": "A_07__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): A_07 states ev_atlas_kink_zero=1.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_atlas_kink_zero",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_01",
+      "edge_id": "GK_01__ev_atlas_kink_zero__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_01 states ev_goedbloed_sari=0.0 but does not address comparable ev_atlas_kink_zero; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_01",
+      "edge_id": "GK_01__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_01 states ev_goedbloed_sari=0.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_01",
+      "edge_id": "GK_01__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_01 states ev_goedbloed_sari=0.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_01",
+      "edge_id": "GK_01__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_01 states ev_goedbloed_sari=0.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_01",
+      "edge_id": "GK_01__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_01 states ev_goedbloed_sari=0.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_02",
+      "edge_id": "GK_02__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_02 states ev_goedbloed_sari=0.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_02",
+      "edge_id": "GK_02__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_02 states ev_goedbloed_sari=0.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_02",
+      "edge_id": "GK_02__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_02 states ev_goedbloed_sari=0.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "GK_02",
+      "edge_id": "GK_02__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): GK_02 states ev_goedbloed_sari=0.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_goedbloed_sari",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "AN_01",
+      "edge_id": "AN_01__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): AN_01 states ev_angus_m1_persists=0.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_angus_m1_persists",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "AN_01",
+      "edge_id": "AN_01__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): AN_01 states ev_angus_m1_persists=0.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_angus_m1_persists",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "AN_01",
+      "edge_id": "AN_01__ev_goedbloed_sari__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): AN_01 states ev_angus_m1_persists=0.0 but does not address comparable ev_goedbloed_sari; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_angus_m1_persists",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "AN_01",
+      "edge_id": "AN_01__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): AN_01 states ev_angus_m1_persists=0.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_angus_m1_persists",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary",
+            "value": 0.85
+          }
+        ]
+      },
+      "claim_id": "AN_02",
+      "edge_id": "AN_02__ev_crews_entropy__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_crews_entropy",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): AN_02 states ev_angus_m0_scaling=0.85 but does not address comparable ev_crews_entropy; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_angus_m0_scaling",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary",
+            "value": 0.85
+          }
+        ]
+      },
+      "claim_id": "AN_02",
+      "edge_id": "AN_02__ev_shumlak_threshold__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_threshold",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): AN_02 states ev_angus_m0_scaling=0.85 but does not address comparable ev_shumlak_threshold; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_angus_m0_scaling",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary",
+            "value": 0.85
+          }
+        ]
+      },
+      "claim_id": "AN_02",
+      "edge_id": "AN_02__ev_shumlak_zap__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_zap",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): AN_02 states ev_angus_m0_scaling=0.85 but does not address comparable ev_shumlak_zap; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_angus_m0_scaling",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary",
+            "value": 0.85
+          }
+        ]
+      },
+      "claim_id": "AN_02",
+      "edge_id": "AN_02__ev_zhang_neutrons__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_zhang_neutrons",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): AN_02 states ev_angus_m0_scaling=0.85 but does not address comparable ev_zhang_neutrons; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_angus_m0_scaling",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "B_01",
+      "edge_id": "B_01__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): B_01 states ev_bondeson_toroidal=0.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_bondeson_toroidal",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "B_01",
+      "edge_id": "B_01__ev_newcomb_static__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_newcomb_static",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_newcomb_static",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): B_01 states ev_bondeson_toroidal=0.0 but does not address comparable ev_newcomb_static; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_bondeson_toroidal",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "B_01",
+      "edge_id": "B_01__ev_goedbloed_sari__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): B_01 states ev_bondeson_toroidal=0.0 but does not address comparable ev_goedbloed_sari; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_bondeson_toroidal",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "B_01",
+      "edge_id": "B_01__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): B_01 states ev_bondeson_toroidal=0.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_bondeson_toroidal",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CK_01",
+      "edge_id": "CK_01__ev_mahajan_db__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_mahajan_db",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_mahajan_db",
+      "prediction_rationale": "semantic cross-edge (beltrami_equilibrium_class): CK_01 states ev_chandra_ck=1.0 but does not address comparable ev_mahajan_db; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "beltrami_equilibrium_class",
+        "home_evidence": "ev_chandra_ck",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "CK_01",
+      "edge_id": "CK_01__ev_atlas_h3_value__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_h3_value",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_h3_value",
+      "prediction_rationale": "semantic cross-edge (beltrami_equilibrium_class): CK_01 states ev_chandra_ck=1.0 but does not address comparable ev_atlas_h3_value; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "beltrami_equilibrium_class",
+        "home_evidence": "ev_chandra_ck",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_hameiri_continuum",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "FR_01",
+      "edge_id": "FR_01__ev_hameiri_continuum__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_hameiri_continuum",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_hameiri_continuum",
+      "prediction_rationale": "semantic cross-edge (continuum_spectrum_alfven_minimum): FR_01 states ev_friman_overstable=1.0 but does not address comparable ev_hameiri_continuum; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "continuum_spectrum_alfven_minimum",
+        "home_evidence": "ev_friman_overstable",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_friman_overstable",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "H_02",
+      "edge_id": "H_02__ev_friman_overstable__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_friman_overstable",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_friman_overstable",
+      "prediction_rationale": "semantic cross-edge (continuum_spectrum_alfven_minimum): H_02 states ev_hameiri_continuum=1.0 but does not address comparable ev_friman_overstable; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "continuum_spectrum_alfven_minimum",
+        "home_evidence": "ev_hameiri_continuum",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "MY_01",
+      "edge_id": "MY_01__ev_chandra_ck__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_chandra_ck",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_chandra_ck",
+      "prediction_rationale": "semantic cross-edge (beltrami_equilibrium_class): MY_01 states ev_mahajan_db=1.0 but does not address comparable ev_chandra_ck; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "beltrami_equilibrium_class",
+        "home_evidence": "ev_mahajan_db",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_01",
+      "edge_id": "N_01__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_01 states ev_newcomb_static=0.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_01",
+      "edge_id": "N_01__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_01 states ev_newcomb_static=0.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_01",
+      "edge_id": "N_01__ev_goedbloed_sari__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_01 states ev_newcomb_static=0.0 but does not address comparable ev_goedbloed_sari; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_01",
+      "edge_id": "N_01__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_01 states ev_newcomb_static=0.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_02",
+      "edge_id": "N_02__ev_atlas_kink_zero__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_atlas_kink_zero",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_atlas_kink_zero",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_02 states ev_newcomb_static=0.0 but does not address comparable ev_atlas_kink_zero; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_02",
+      "edge_id": "N_02__ev_angus_m1_persists__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m1_persists",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m1_persists",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_02 states ev_newcomb_static=0.0 but does not address comparable ev_angus_m1_persists; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_02",
+      "edge_id": "N_02__ev_bondeson_toroidal__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_bondeson_toroidal",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_bondeson_toroidal",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_02 states ev_newcomb_static=0.0 but does not address comparable ev_bondeson_toroidal; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_02",
+      "edge_id": "N_02__ev_goedbloed_sari__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_goedbloed_sari",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_goedbloed_sari",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_02 states ev_newcomb_static=0.0 but does not address comparable ev_goedbloed_sari; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary",
+            "value": 0.0
+          }
+        ]
+      },
+      "claim_id": "N_02",
+      "edge_id": "N_02__ev_brughmans_growth__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_brughmans_growth",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_brughmans_growth",
+      "prediction_rationale": "semantic cross-edge (m1_stability_outcome): N_02 states ev_newcomb_static=0.0 but does not address comparable ev_brughmans_growth; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m1_stability_outcome",
+        "home_evidence": "ev_newcomb_static",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_01",
+      "edge_id": "S_01__ev_crews_entropy__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_crews_entropy",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): S_01 states ev_shumlak_threshold=1.0 but does not address comparable ev_crews_entropy; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_shumlak_threshold",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_01",
+      "edge_id": "S_01__ev_shumlak_zap__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_zap",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_zap",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): S_01 states ev_shumlak_threshold=1.0 but does not address comparable ev_shumlak_zap; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_shumlak_threshold",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_01",
+      "edge_id": "S_01__ev_zhang_neutrons__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_zhang_neutrons",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): S_01 states ev_shumlak_threshold=1.0 but does not address comparable ev_zhang_neutrons; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_shumlak_threshold",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_02",
+      "edge_id": "S_02__ev_angus_m0_scaling__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_angus_m0_scaling",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_angus_m0_scaling",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): S_02 states ev_shumlak_zap=1.0 but does not address comparable ev_angus_m0_scaling; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_shumlak_zap",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_02",
+      "edge_id": "S_02__ev_crews_entropy__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_crews_entropy",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_crews_entropy",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): S_02 states ev_shumlak_zap=1.0 but does not address comparable ev_crews_entropy; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_shumlak_zap",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_02",
+      "edge_id": "S_02__ev_shumlak_threshold__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_shumlak_threshold",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_shumlak_threshold",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): S_02 states ev_shumlak_zap=1.0 but does not address comparable ev_shumlak_threshold; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_shumlak_zap",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    },
+    {
+      "base_prediction": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary",
+            "value": 1.0
+          }
+        ]
+      },
+      "claim_id": "S_02",
+      "edge_id": "S_02__ev_zhang_neutrons__semantic",
+      "edge_stalk": {
+        "dimensions": [
+          {
+            "name": "ev_zhang_neutrons",
+            "scale": "normalized_binary"
+          }
+        ]
+      },
+      "evidence_id": "ev_zhang_neutrons",
+      "prediction_rationale": "semantic cross-edge (m0_sausage_stabilization): S_02 states ev_shumlak_zap=1.0 but does not address comparable ev_zhang_neutrons; propagating home stance.",
+      "provenance": {
+        "confidence": 0.5,
+        "group": "m0_sausage_stabilization",
+        "home_evidence": "ev_shumlak_zap",
+        "prediction_generated_by": "semantic_comparability_group",
+        "review_status": "unreviewed"
+      },
+      "regime_tag": "out_of_regime"
+    }
+  ]
+}

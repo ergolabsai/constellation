@@ -1,0 +1,42 @@
+{
+  "contributing_claims": [
+    "A_04",
+    "FR_01",
+    "H_01",
+    "H_02"
+  ],
+  "contributing_evidence": [
+    "ev_friman_overstable",
+    "ev_hameiri_continuum"
+  ],
+  "description": "Evidence about the structure of the Alfven continuum near its quartic minimum (Friman-Rotenberg, Hameiri-Lust-Hameiri operators) and the discrete spectrum accumulating there.",
+  "group_id": "continuum_spectrum_alfven_minimum",
+  "idea_id": "idea_02_continuum_spectrum_alfven_minimum",
+  "open_questions": [
+    {
+      "priority": "high",
+      "question": "Are the implicit-headline claim(s) A_04 actually intended to generalize across this group, or do their authors scope them more narrowly than the propagator assumes?",
+      "suggested_next_steps": [
+        {
+          "description": "Read each implicit-headline claim's source paper and decide whether to add explicit out-of-regime predictions or to mark the claim as scoped only to its home regime.",
+          "kind": "literature",
+          "title": "Scope verification"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas",
+    "group": "continuum_spectrum_alfven_minimum"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature; ideal MHD Atlas H1-H5",
+    "regime": "A_04 / FR_01 / H_01 / H_02",
+    "system": "magnetized plasma; rotating helical Z-pinch"
+  },
+  "tensions_resolved": [],
+  "title": "Continuum spectrum near the Alfven minimum",
+  "transitions_out": []
+}

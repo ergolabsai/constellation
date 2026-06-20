@@ -8,13 +8,19 @@ from .util import Json
 
 
 def write_report(run_dir: Path, papers: list[Json], claims: list[Json], evidence: list[Json], sheaf: Json, ideas: list[Json]) -> None:
+    semantic_count = len(sheaf.get("semantic_edge_ids") or [])
+    incoming = sheaf.get("incoming_paper_ids") or []
+    lambda_model = sheaf["objective"].get("lambda_model", "flat")
     lines = [
         "# Constellation Report",
         "",
         f"- Papers: {len(papers)}",
         f"- Claims: {len(claims)}",
         f"- Evidence pieces: {len(evidence)}",
-        f"- Claim-evidence edges: {len(sheaf['edges'])}",
+        f"- Claim-evidence edges: {len(sheaf['edges'])} "
+        f"({semantic_count} from semantic cross-paper propagation)",
+        f"- Cost model: `{lambda_model}`"
+        + (f" (incoming paper(s): {', '.join(f'`{p}`' for p in incoming)})" if incoming else ""),
         f"- Initial residual: {sheaf['objective']['initial_residual']:.3f}",
         f"- Final residual: {sheaf['objective']['final_residual']:.3f}",
         f"- Claim rewrite distance: {sheaf['objective']['claim_rewrite_distance']:.3f}",
@@ -24,28 +30,112 @@ def write_report(run_dir: Path, papers: list[Json], claims: list[Json], evidence
     ]
     if sheaf["operations"]:
         for op in sheaf["operations"]:
+            lam = op.get("lambda")
+            lam_note = f"; lambda={lam:.2f}" if lam is not None else ""
             lines.append(
                 f"- `{op['claim_id']}`: `{op['from']}` -> `{op['to']}`; "
                 f"residual {op['initial_residual']:.3f} -> {op['final_residual']:.3f}"
+                f"{lam_note}"
             )
     else:
         lines.append("- No claim rewrites were accepted.")
 
-    lines.extend(["", "## Ideas", ""])
-    for idea in ideas:
-        lines.append(f"### {idea['title']}")
+    stature = sheaf.get("stature") or {}
+    hygiene = sheaf.get("claim_hygiene") or {}
+    by_status: dict[str, list[str]] = {}
+    for cid, info in hygiene.items():
+        by_status.setdefault(info.get("status", "not_applicable"), []).append(cid)
+    implicit = sorted(by_status.get("implicit_headline", []))
+    consensus = sorted(by_status.get("consensus_aligned", []))
+    scoped = sorted(by_status.get("scoped_explicit", []))
+    if stature or hygiene:
+        lines.extend(["", "## Map state", ""])
+        if stature:
+            top = sorted(stature.items(), key=lambda kv: (-kv[1], kv[0]))[:8]
+            top_str = ", ".join(f"`{cid}` ({n})" for cid, n in top)
+            lines.append(f"- Highest stature claims (independent backing papers): {top_str}")
+        if implicit:
+            lines.append(
+                "- Implicit-headline claims (propagation contradicts comparable "
+                "evidence; structural suspects): "
+                f"{', '.join(f'`{c}`' for c in implicit)}"
+            )
+        if consensus:
+            lines.append(
+                "- Consensus-aligned claims (propagation agrees with the rest of "
+                f"the field): {', '.join(f'`{c}`' for c in consensus)}"
+            )
+        if scoped:
+            lines.append(
+                "- Scope-aware claims (explicit predictions cover the comparability "
+                f"group): {', '.join(f'`{c}`' for c in scoped)}"
+            )
+
+    lines.extend(["", "## Subjects", ""])
+    for subject in ideas:
+        lines.append(f"### {subject['title']}")
+        if subject.get("description"):
+            lines.append("")
+            lines.append(f"_{subject['description']}_")
         lines.append("")
-        lines.append(f"- Claims: {', '.join(f'`{c}`' for c in idea['contributing_claims'])}")
-        lines.append(f"- Evidence: {', '.join(f'`{e}`' for e in idea['contributing_evidence'])}")
-        if idea["tensions_resolved"]:
-            lines.append(f"- Resolved tensions: {len(idea['tensions_resolved'])}")
-        if idea["remaining_tensions"]:
-            lines.append(f"- Remaining tensions: {len(idea['remaining_tensions'])}")
-        for question in idea["open_questions"]:
-            lines.append(f"- Open question ({question['priority']}): {question['question']}")
-            for step in question.get("suggested_next_steps", []):
-                lines.append(f"  - Next {_step_kind(step)}: {_step_title(step)}")
+        subject_ideas = subject.get("ideas") or []
+        if not subject_ideas:
+            lines.append(f"- _No ideas yet (ungrouped subject)._")
+            if subject.get("contributing_evidence"):
+                lines.append(
+                    f"- Evidence: {', '.join(f'`{e}`' for e in subject['contributing_evidence'])}"
+                )
+            lines.append("")
+            continue
+        counts = {"novel": 0, "contested": 0, "established": 0}
+        for idea in subject_ideas:
+            counts[idea.get("status", "established")] = counts.get(idea.get("status", "established"), 0) + 1
+        lines.append(
+            f"_{counts['established']} established · "
+            f"{counts['contested']} contested · "
+            f"{counts['novel']} novel_"
+        )
         lines.append("")
+        for i_idx, idea in enumerate(subject_ideas, 1):
+            status = idea.get("status", "established").upper()
+            lines.append(f"**Idea {i_idx} [{status}]: {idea['title']}**")
+            claims_list = sorted(idea["contributing_claims"])
+            marked = [
+                f"`{c}` [implicit-headline]" if c in implicit else f"`{c}`"
+                for c in claims_list
+            ]
+            lines.append(f"- Papers: `{idea['contributing_papers'][0]}`  ·  Claims: {', '.join(marked)}")
+            scope = idea.get("scope") or {}
+            if scope.get("keywords"):
+                lines.append(f"- Scope.keywords: {', '.join(scope['keywords'])}")
+            if idea.get("supporting_evidence"):
+                lines.append(
+                    f"- Supporting evidence: {', '.join(f'`{e}`' for e in idea['supporting_evidence'])}"
+                )
+            if idea.get("contesting_evidence"):
+                lines.append(
+                    f"- Contesting evidence: {', '.join(f'`{e}`' for e in idea['contesting_evidence'])}"
+                )
+            if idea.get("contests"):
+                contest_lines = []
+                for c in idea["contests"]:
+                    contest_lines.append(
+                        f"`{c['idea_id']}` ({', '.join(c['papers'])}) at "
+                        f"{', '.join(f'`{e}`' for e in c['at'])}"
+                    )
+                lines.append(f"- Contests: {'; '.join(contest_lines)}")
+            if idea.get("supports"):
+                support_papers = sorted({
+                    p for s in idea["supports"] for p in s["papers"]
+                })
+                lines.append(
+                    f"- Supported by: {', '.join(f'`{p}`' for p in support_papers)}"
+                )
+            if idea.get("next_steps"):
+                lines.append("- Next steps:")
+                for step in idea["next_steps"]:
+                    lines.append(f"  - **{step['kind']}** — {step['title']}: {step['description']}")
+            lines.append("")
 
     run_dir.joinpath("report.md").write_text("\n".join(lines))
     write_html(run_dir, sheaf, ideas)
@@ -135,7 +225,8 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
       min-height: 0;
     }}
     #stage {{ position: relative; min-height: 0; overflow: hidden; }}
-    #graph-svg {{ width: 100%; height: 100%; display: block; background: var(--bg); }}
+    #graph-svg {{ width: 100%; height: 100%; display: block; background: var(--bg); cursor: grab; }}
+    #graph-svg:active {{ cursor: grabbing; }}
     #side {{
       border-left: 1px solid var(--border);
       background: var(--panel);
@@ -147,14 +238,28 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
       position: absolute;
       left: 12px;
       top: 12px;
+      z-index: 10;
       display: flex;
       gap: 6px;
       padding: 6px;
       border: 1px solid var(--border);
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.92);
       box-shadow: var(--shadow);
       backdrop-filter: blur(8px);
+    }}
+    .status-indicator {{
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 10;
+      font: 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--muted);
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.92);
+      pointer-events: none;
     }}
     .tooltip {{
       position: absolute;
@@ -180,7 +285,9 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
     .edge.tiny {{ stroke: #94a3b8; stroke-width: 1.5; opacity: 0.78; }}
     .edge.mild {{ stroke: var(--warn); stroke-width: 2.6; opacity: 0.9; }}
     .edge.high {{ stroke: var(--bad); stroke-width: 3.2; opacity: 0.95; }}
-    .edge.dimmed, .node.dimmed, .label.dimmed, .idea-hull.dimmed, .idea-label.dimmed {{ opacity: 0.12; }}
+    .edge.semantic {{ stroke-dasharray: 5 3; }}
+    .edge.dimmed, .node.dimmed, .label.dimmed, .idea-hull.dimmed, .idea-label.dimmed,
+    .assertion-hull.dimmed, .assertion-label.dimmed {{ opacity: 0.12; }}
     .idea-hull {{
       fill-opacity: 0.14;
       stroke-opacity: 0.72;
@@ -190,6 +297,38 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
       transition: opacity 160ms, fill-opacity 160ms, stroke-width 160ms;
     }}
     .idea-hull.focused {{ fill-opacity: 0.24; stroke-width: 3; }}
+    .assertion-hull {{
+      fill-opacity: 0.16;
+      stroke-opacity: 0.85;
+      stroke-width: 1.6;
+      stroke-linejoin: round;
+      stroke-dasharray: 5 3;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 180ms;
+    }}
+    .assertion-hull.expanded {{ opacity: 1; pointer-events: auto; cursor: pointer; }}
+    .assertion-hull.inner-focused {{ fill-opacity: 0.32; stroke-width: 2.6; }}
+    .assertion-hull.inner-dimmed {{ opacity: 0.18; }}
+    .assertion-hull.established {{ fill: var(--ok); stroke: var(--ok); }}
+    .assertion-hull.contested {{ fill: var(--bad); stroke: var(--bad); }}
+    .assertion-hull.novel {{ fill: var(--accent); stroke: var(--accent); }}
+    .assertion-label {{
+      pointer-events: none;
+      font-size: 9.5px;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: white;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+      letter-spacing: 0.4px;
+      opacity: 0;
+      transition: opacity 180ms;
+    }}
+    .assertion-label.expanded {{ opacity: 1; }}
+    .assertion-label.established {{ fill: var(--ok); }}
+    .assertion-label.contested {{ fill: var(--bad); }}
+    .assertion-label.novel {{ fill: var(--accent); }}
     .idea-label {{
       pointer-events: none;
       font-size: 11px;
@@ -238,6 +377,8 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
       background: white;
       cursor: pointer;
       transition: border 120ms, background 120ms, transform 120ms;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }}
     .legend-card:hover {{ background: #f8fafc; transform: translateY(-1px); }}
     .legend-card.active {{ border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }}
@@ -245,6 +386,7 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
     .swatch {{ flex: 0 0 14px; width: 14px; height: 14px; border-radius: 4px; margin-top: 2px; }}
     .legend-title {{ font-weight: 700; font-size: 12px; line-height: 1.25; }}
     .legend-sub {{ color: var(--muted); font-size: 11px; margin-top: 2px; }}
+    .legend-card > .legend-row > div {{ min-width: 0; flex: 1; }}
     .paper-row {{ display: flex; align-items: center; gap: 7px; font-size: 12px; margin: 5px 0; }}
     .paper-dot {{ width: 10px; height: 10px; border-radius: 50%; flex: 0 0 10px; }}
     .shape-legend, .edge-legend {{ display: grid; gap: 7px; }}
@@ -273,7 +415,14 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
       padding: 8px 10px;
       border-radius: 0 6px 6px 0;
       margin: 7px 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      max-height: 240px;
+      overflow-y: auto;
+      cursor: zoom-in;
+      transition: max-height 200ms;
     }}
+    .callout.expanded {{ max-height: none; cursor: zoom-out; }}
     .callout.warn {{ border-left-color: var(--warn); background: #fff7ed; }}
     .callout.bad {{ border-left-color: var(--bad); background: #fef2f2; }}
     .callout.question.blocking {{ border-left-color: var(--bad); background: #fef2f2; }}
@@ -359,9 +508,12 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
     <section id="stage">
       <svg id="graph-svg" role="img" aria-label="Claim and evidence constellation"></svg>
       <div class="toolbar">
-        <button id="fit-btn" type="button" title="Fit graph">Fit</button>
-        <button id="clear-btn" type="button" title="Clear focus">Clear</button>
+        <button id="zoom-out-btn" type="button" title="Zoom out" onclick="window.stepZoom && window.stepZoom(0.8);">−</button>
+        <button id="zoom-in-btn" type="button" title="Zoom in" onclick="window.stepZoom && window.stepZoom(1.25);">+</button>
+        <button id="fit-btn" type="button" title="Fit graph" onclick="window.fitGraph && window.fitGraph(true);">Fit</button>
+        <button id="clear-btn" type="button" title="Clear focus" onclick="window.clearFocus && window.clearFocus();">Clear</button>
       </div>
+      <div class="status-indicator" id="status-indicator">init…</div>
       <div class="tooltip" id="tooltip"></div>
     </section>
     <aside id="side">
@@ -389,11 +541,19 @@ def write_html(run_dir: Path, sheaf: Json, ideas: list[Json]) -> None:
         <div class="edge-line"><svg width="42" height="12"><line x1="2" y1="6" x2="40" y2="6" stroke="#cbd5e1" stroke-width="2"/></svg><span><b>agreement</b> residual near 0</span></div>
         <div class="edge-line"><svg width="42" height="12"><line x1="2" y1="6" x2="40" y2="6" stroke="#d97706" stroke-width="3"/></svg><span><b>mild tension</b> residual below 0.5</span></div>
         <div class="edge-line"><svg width="42" height="12"><line x1="2" y1="6" x2="40" y2="6" stroke="#dc2626" stroke-width="4"/></svg><span><b>strong tension</b> residual 0.5 or above</span></div>
+        <div class="edge-line"><svg width="42" height="12"><line x1="2" y1="6" x2="40" y2="6" stroke="#475569" stroke-width="2" stroke-dasharray="5 3"/></svg><span><b>semantic</b> cross-paper propagation</span></div>
+      </div>
+      <h2>Ideas (visible when a subject is selected)</h2>
+      <div class="edge-legend">
+        <div class="edge-line"><svg width="42" height="14"><rect x="2" y="2" width="38" height="10" fill="#16a34a" fill-opacity="0.18" stroke="#16a34a" stroke-width="1.6" stroke-dasharray="5 3" rx="2"/></svg><span><b>established</b> backed and uncontested</span></div>
+        <div class="edge-line"><svg width="42" height="14"><rect x="2" y="2" width="38" height="10" fill="#dc2626" fill-opacity="0.18" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 3" rx="2"/></svg><span><b>contested</b> contradicts another idea</span></div>
+        <div class="edge-line"><svg width="42" height="14"><rect x="2" y="2" width="38" height="10" fill="#2563eb" fill-opacity="0.18" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="5 3" rx="2"/></svg><span><b>novel</b> incoming, awaits replication</span></div>
       </div>
       <div class="score-grid" id="score-grid"></div>
       <h2>Papers</h2>
       <div id="papers"></div>
-      <h2>Ideas</h2>
+      <h2>Subjects</h2>
+      <div class="muted" style="font-size: 11px; margin-bottom: 6px;">Click a subject to expand its ideas.</div>
       <div id="ideas"></div>
       <div id="detail" class="detail"></div>
     </aside>
@@ -404,7 +564,7 @@ const DATA = {data_json};
 const SVG_NS = "http://www.w3.org/2000/svg";
 const svg = document.getElementById("graph-svg");
 const tooltip = document.getElementById("tooltip");
-const state = {{ focusType: null, focusId: null, scale: 1, tx: 0, ty: 0 }};
+const state = {{ focusType: null, focusId: null, innerIdeaId: null, scale: 1, tx: 0, ty: 0 }};
 const nodeById = Object.fromEntries([...DATA.claims, ...DATA.evidence].map(n => [n.id, n]));
 const ideaById = Object.fromEntries(DATA.ideas.map(i => [i.id, i]));
 const edgesByNode = Object.fromEntries(Object.keys(nodeById).map(id => [id, []]));
@@ -418,13 +578,23 @@ for (const edge of DATA.edges) {{
 const layers = {{
   root: el("g"),
   hulls: el("g"),
+  assertionHulls: el("g"),
   edges: el("g"),
   nodes: el("g"),
   labels: el("g"),
   ideaLabels: el("g"),
+  assertionLabels: el("g"),
 }};
 svg.appendChild(layers.root);
-layers.root.append(layers.hulls, layers.edges, layers.nodes, layers.labels, layers.ideaLabels);
+layers.root.append(
+  layers.hulls,
+  layers.assertionHulls,
+  layers.edges,
+  layers.nodes,
+  layers.labels,
+  layers.ideaLabels,
+  layers.assertionLabels,
+);
 
 function el(name, attrs={{}}) {{
   const node = document.createElementNS(SVG_NS, name);
@@ -441,17 +611,61 @@ function metric(value) {{
   return Number(value).toFixed(3).replace(/\\.000$/, "");
 }}
 
-function init() {{
-  layoutNodes();
-  renderStatic();
-  renderSide();
-  applyFocus();
-  fitGraph();
-  window.addEventListener("resize", () => {{ layoutNodes(); renderPositions(); fitGraph(); }});
-  document.getElementById("fit-btn").addEventListener("click", fitGraph);
+function showInitError(err) {{
+  console.error("constellation init error:", err);
+  const banner = document.createElement("div");
+  banner.style.cssText = "position:fixed;top:0;left:0;right:0;background:#fef2f2;border-bottom:2px solid #dc2626;color:#991b1b;padding:8px 14px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace;z-index:999;white-space:pre-wrap;max-height:40vh;overflow:auto;";
+  banner.textContent = "Constellation render error: " + (err && err.message || err) + "\\n\\n" + (err && err.stack || "");
+  document.body.appendChild(banner);
+}}
+
+function wireControls() {{
+  // Wire UI controls first so they always work even if layout/render
+  // later throws. This was a real bug in the previous init order --
+  // a thrown exception in fitGraph() left every button disconnected.
+  window.addEventListener("resize", () => {{
+    try {{ layoutNodes(); renderPositions(); fitGraph(false); }} catch (e) {{ console.error(e); }}
+  }});
+  document.getElementById("fit-btn").addEventListener("click", () => fitGraph(true));
   document.getElementById("clear-btn").addEventListener("click", clearFocus);
-  svg.addEventListener("click", clearFocus);
+  document.getElementById("zoom-in-btn").addEventListener("click", () => stepZoom(1.25));
+  document.getElementById("zoom-out-btn").addEventListener("click", () => stepZoom(0.8));
+  svg.addEventListener("click", ev => {{
+    if (dragState.moved) {{ dragState.moved = false; return; }}
+    if (isBackgroundTarget(ev.target)) clearFocus();
+  }});
+  // Wheel on svg AND parent stage as a fallback for sandboxed embeds.
   svg.addEventListener("wheel", onWheel, {{ passive: false }});
+  document.getElementById("stage").addEventListener("wheel", onWheel, {{ passive: false }});
+  // Pointer events first (universal), mouse events as a fallback.
+  svg.addEventListener("pointerdown", onSvgPointerDown);
+  window.addEventListener("pointermove", onSvgPointerMove);
+  window.addEventListener("pointerup", onSvgPointerUp);
+  window.addEventListener("pointercancel", onSvgPointerUp);
+  svg.addEventListener("mousedown", onSvgMouseDown);
+  window.addEventListener("mousemove", onSvgMouseMove);
+  window.addEventListener("mouseup", onSvgMouseUp);
+}}
+
+function setStatus(text) {{
+  const el = document.getElementById("status-indicator");
+  if (el) el.textContent = text;
+}}
+
+function init() {{
+  // Expose key handlers on window so inline onclick attrs work even if
+  // addEventListener fails for some reason.
+  window.stepZoom = stepZoom;
+  window.fitGraph = fitGraph;
+  window.clearFocus = clearFocus;
+  window.fitToSubject = fitToSubject;
+  try {{ wireControls(); }} catch (e) {{ showInitError(e); }}
+  try {{ layoutNodes(); }} catch (e) {{ showInitError(e); return; }}
+  try {{ renderStatic(); }} catch (e) {{ showInitError(e); return; }}
+  try {{ renderSide(); }} catch (e) {{ showInitError(e); return; }}
+  try {{ applyFocus(); }} catch (e) {{ showInitError(e); }}
+  try {{ fitGraph(false); }} catch (e) {{ showInitError(e); }}
+  setStatus(`init OK · scale ${{state.scale.toFixed(2)}}`);
 }}
 
 function layoutNodes() {{
@@ -497,6 +711,18 @@ function layoutNodes() {{
       nodeById[id].x = nodeById[id].cx + spread;
       nodeById[id].y = nodeById[id].cy + 58 + Math.abs(spread) * 0.08;
     }});
+  }}
+
+  // Belt-and-suspenders: any node that didn't get placed by the
+  // subject-membership loop (orphan claim or evidence) gets parked at
+  // the canvas center so downstream Math.min / Math.max can't see NaN.
+  for (const node of Object.values(nodeById)) {{
+    if (!isFinite(node.x) || !isFinite(node.y)) {{
+      node.x = centerX;
+      node.y = centerY;
+      node.cx = centerX;
+      node.cy = centerY;
+    }}
   }}
 
   relaxLayout();
@@ -548,10 +774,12 @@ function relaxLayout() {{
 
 function renderStatic() {{
   layers.hulls.textContent = "";
+  layers.assertionHulls.textContent = "";
   layers.edges.textContent = "";
   layers.nodes.textContent = "";
   layers.labels.textContent = "";
   layers.ideaLabels.textContent = "";
+  layers.assertionLabels.textContent = "";
 
   for (const idea of DATA.ideas) {{
     const path = el("path", {{"class": "idea-hull", fill: idea.color, stroke: idea.color, "data-id": idea.id}});
@@ -561,8 +789,48 @@ function renderStatic() {{
     layers.hulls.appendChild(path);
   }}
 
+  // Inner idea hulls -- one per idea inside the subject, colored by
+  // lifecycle status. Only drawn when a subject has 2+ ideas (otherwise
+  // there's nothing to distinguish visually).
+  for (const subject of DATA.ideas) {{
+    const nested = (subject.ideas || []).filter(i => i.member_ids && i.member_ids.length);
+    if (nested.length < 2) continue;
+    for (const ni of nested) {{
+      const status = ni.status || "established";
+      const path = el("path", {{
+        "class": `assertion-hull ${{status}}`,
+        "data-subject": subject.id,
+        "data-idea": ni.id,
+      }});
+      const tipHtml = (
+        `<div class="id">${{escapeHtml(ni.id)}} · ${{escapeHtml(status.toUpperCase())}}</div>` +
+        `<b>${{escapeHtml(ni.title || "")}}</b><br>` +
+        `paper: ${{escapeHtml(ni.paper || "")}}` +
+        (ni.contests && ni.contests.length ? `<br>contests ${{ni.contests.length}} idea(s)` : "") +
+        (ni.supports && ni.supports.length ? `<br>supported by ${{ni.supports.length}} idea(s)` : "")
+      );
+      path.addEventListener("mousemove", ev => showTip(ev, tipHtml));
+      path.addEventListener("mouseleave", hideTip);
+      path.addEventListener("click", ev => {{
+        ev.stopPropagation();
+        focusInnerIdea(subject.id, ni.id);
+      }});
+      layers.assertionHulls.appendChild(path);
+
+      const label = el("text", {{
+        "class": `assertion-label ${{status}}`,
+        "data-subject": subject.id,
+        "data-idea": ni.id,
+        "text-anchor": "middle",
+      }});
+      label.textContent = status.toUpperCase() + " · " + (ni.paper || "");
+      layers.assertionLabels.appendChild(label);
+    }}
+  }}
+
   for (const edge of DATA.edges) {{
-    const path = el("path", {{"class": `edge ${{edgeClass(edge.residual)}}`, "data-source": edge.source, "data-target": edge.target}});
+    const cls = `edge ${{edgeClass(edge.residual)}}${{edge.semantic ? " semantic" : ""}}`;
+    const path = el("path", {{"class": cls, "data-source": edge.source, "data-target": edge.target}});
     path.addEventListener("mousemove", ev => showTip(ev, edgeTip(edge)));
     path.addEventListener("mouseleave", hideTip);
     layers.edges.appendChild(path);
@@ -585,7 +853,7 @@ function renderStatic() {{
   for (let i = 0; i < DATA.ideas.length; i++) {{
     const idea = DATA.ideas[i];
     const label = el("text", {{"class": "idea-label", "data-id": idea.id, "text-anchor": "middle"}});
-    label.textContent = `Idea ${{i + 1}}`;
+    label.textContent = `Subject ${{i + 1}}`;
     layers.ideaLabels.appendChild(label);
   }}
   renderPositions();
@@ -608,6 +876,24 @@ function renderPositions() {{
   for (const path of layers.hulls.querySelectorAll(".idea-hull")) {{
     const idea = ideaById[path.dataset.id];
     path.setAttribute("d", hullPath(idea));
+  }}
+  for (const path of layers.assertionHulls.querySelectorAll(".assertion-hull")) {{
+    const subject = ideaById[path.dataset.subject];
+    if (!subject || !subject.ideas) continue;
+    const ni = subject.ideas.find(x => x.id === path.dataset.idea);
+    if (!ni) continue;
+    const nodes = (ni.member_ids || []).map(id => nodeById[id]).filter(Boolean);
+    path.setAttribute("d", assertionHullPath(nodes));
+  }}
+  for (const label of layers.assertionLabels.querySelectorAll(".assertion-label")) {{
+    const subject = ideaById[label.dataset.subject];
+    if (!subject || !subject.ideas) continue;
+    const ni = subject.ideas.find(x => x.id === label.dataset.idea);
+    if (!ni) continue;
+    const nodes = (ni.member_ids || []).map(id => nodeById[id]).filter(Boolean);
+    const center = nodes.length ? {{x: avg(nodes, "x"), y: avg(nodes, "y")}} : {{x: 0, y: 0}};
+    label.setAttribute("x", center.x);
+    label.setAttribute("y", center.y - 32);
   }}
   for (const path of layers.edges.querySelectorAll(".edge")) {{
     const a = nodeById[path.dataset.source];
@@ -647,9 +933,37 @@ function hullPath(idea) {{
   if (points.length === 1) return circleBlob(points[0], pad + 18);
   const hull = convexHull(points);
   if (hull.length === 1) return circleBlob(hull[0], pad + 18);
-  if (hull.length === 2) return capsuleBlob(hull[0], hull[1], pad + 14);
+  if (hull.length === 2) return pairBlob(hull[0], hull[1], pad + 18);
   return smoothClosedPath(inflateHull(hull, pad));
 }}
+
+function assertionHullPath(nodes) {{
+  if (!nodes.length) return "";
+  const points = nodes.map(n => ({{x: n.x, y: n.y}}));
+  const pad = 18;
+  if (points.length === 1) return circleBlob(points[0], pad + 12);
+  const hull = convexHull(points);
+  if (hull.length === 1) return circleBlob(hull[0], pad + 12);
+  if (hull.length === 2) return pairBlob(hull[0], hull[1], pad + 12);
+  return smoothClosedPath(inflateHull(hull, pad));
+}}
+
+function pairBlob(a, b, pad) {{
+  // Circle that comfortably contains both endpoints. Much cleaner than
+  // the elongated capsule when a hull has only two members.
+  const cx = (a.x + b.x) / 2;
+  const cy = (a.y + b.y) / 2;
+  const r = Math.hypot(b.x - a.x, b.y - a.y) / 2 + pad;
+  return circleBlob({{x: cx, y: cy}}, r);
+}}
+
+function assertionLabelPoint(nodes, direction) {{
+  if (!nodes.length) return {{x: 0, y: 0}};
+  const center = {{x: avg(nodes, "x"), y: avg(nodes, "y")}};
+  const offset = direction === "positive" ? -34 : 34;
+  return {{x: center.x, y: center.y + offset}};
+}}
+
 
 function circleBlob(point, radius) {{
   const c = radius * 0.5522847498;
@@ -732,11 +1046,13 @@ function avg(nodes, key) {{
 }}
 
 function renderSide() {{
+  const ideaCount = DATA.ideas.reduce((n, s) => n + (s.ideas ? s.ideas.length : 0), 0);
   document.getElementById("meta").innerHTML = `
     <span><b>${{DATA.claims.length}}</b> claims</span>
     <span><b>${{DATA.evidence.length}}</b> evidence</span>
     <span><b>${{DATA.edges.length}}</b> edges</span>
-    <span><b>${{DATA.ideas.length}}</b> ideas</span>
+    <span><b>${{DATA.ideas.length}}</b> subjects</span>
+    <span><b>${{ideaCount}}</b> ideas</span>
   `;
   document.getElementById("score-grid").innerHTML = `
     <div class="score"><div class="v">${{metric(DATA.metrics.initial_residual)}}</div><div class="k">initial residual</div></div>
@@ -746,20 +1062,37 @@ function renderSide() {{
   document.getElementById("papers").innerHTML = DATA.papers.map(p => `
     <div class="paper-row"><span class="paper-dot" style="background:${{p.color}}"></span><span>${{escapeHtml(p.label)}}</span></div>
   `).join("");
-  document.getElementById("ideas").innerHTML = DATA.ideas.map((idea, i) => `
-    <div class="legend-card" data-id="${{idea.id}}">
+  document.getElementById("ideas").innerHTML = DATA.ideas.map((subject, i) => {{
+    const nested = subject.ideas || [];
+    const counts = {{ established: 0, contested: 0, novel: 0 }};
+    for (const ni of nested) {{
+      counts[ni.status] = (counts[ni.status] || 0) + 1;
+    }}
+    const breakdown = [
+      counts.novel ? `<span style="color:var(--accent)"><b>${{counts.novel}}</b> novel</span>` : "",
+      counts.contested ? `<span style="color:var(--bad)"><b>${{counts.contested}}</b> contested</span>` : "",
+      counts.established ? `<span style="color:var(--ok)"><b>${{counts.established}}</b> established</span>` : "",
+    ].filter(Boolean).join(" · ");
+    return `
+    <div class="legend-card" data-id="${{subject.id}}">
       <div class="legend-row">
-        <span class="swatch" style="background:${{idea.color}}"></span>
+        <span class="swatch" style="background:${{subject.color}}"></span>
         <div>
-          <div class="legend-title">Idea ${{i + 1}} - ${{escapeHtml(idea.label)}}</div>
-          <div class="legend-sub">${{idea.claim_ids.length}} claims, ${{idea.evidence_ids.length}} evidence, ${{idea.remaining_tensions.length}} tensions</div>
+          <div class="legend-title">Subject ${{i + 1}} - ${{escapeHtml(subject.label)}}</div>
+          <div class="legend-sub">${{nested.length}} idea${{nested.length === 1 ? "" : "s"}}${{breakdown ? " · " + breakdown : ""}}</div>
         </div>
       </div>
     </div>
-  `).join("");
+  `;}}).join("");
   for (const card of document.querySelectorAll(".legend-card")) {{
     card.addEventListener("click", () => focusIdea(card.dataset.id));
   }}
+  // Delegate callout expand-on-click for any callout in the detail panel
+  // (which is re-rendered on focus changes, so use event delegation).
+  document.getElementById("detail").addEventListener("click", ev => {{
+    const callout = ev.target.closest(".callout");
+    if (callout) callout.classList.toggle("expanded");
+  }});
   renderDefaultDetail();
 }}
 
@@ -769,17 +1102,40 @@ function renderDefaultDetail() {{
   const zero = DATA.edges.filter(e => e.residual === 0).length;
   document.getElementById("detail").innerHTML = `
     <h3>Reading the graph</h3>
-    <p class="muted">Claims are circles, evidence pieces are squares. Edges show where a claim predicts at an evidence piece. Color shows residual after rewriting.</p>
+    <p class="muted">Claims are circles, evidence pieces are squares. Outer hulls are <b>subjects</b> (one per comparability group). Edges show where a claim predicts at an evidence piece. Color shows residual after rewriting.</p>
     <div class="callout"><div class="k">Residual edge summary</div>${{zero}} agreement, ${{mild}} mild tension, ${{high}} strong tension.</div>
-    <p class="muted">Click any Idea, claim, evidence piece, or edge-connected neighbor to focus the graph.</p>
+    <p class="muted">Click a Subject card on the right (or its hull) to expand its <b>ideas</b> with lifecycle status.</p>
   `;
 }}
 
 function focusIdea(id) {{
-  if (state.focusType === "idea" && state.focusId === id) return clearFocus();
+  if (state.focusType === "idea" && state.focusId === id && !state.innerIdeaId) return clearFocus();
   state.focusType = "idea";
   state.focusId = id;
+  state.innerIdeaId = null;
+  expandSubject(id);
   renderIdeaDetail(ideaById[id]);
+  applyFocus();
+  fitToSubject(id);
+}}
+
+function focusInnerIdea(subjectId, innerIdeaId) {{
+  // If subject isn't yet focused (e.g., user clicks a hull from a
+  // partially-focused state), bring it up first.
+  if (state.focusType !== "idea" || state.focusId !== subjectId) {{
+    state.focusType = "idea";
+    state.focusId = subjectId;
+    expandSubject(subjectId);
+  }}
+  // Toggle off if clicked twice in a row.
+  if (state.innerIdeaId === innerIdeaId) {{
+    state.innerIdeaId = null;
+    renderIdeaDetail(ideaById[subjectId]);
+    applyFocus();
+    return;
+  }}
+  state.innerIdeaId = innerIdeaId;
+  renderInnerIdeaDetail(subjectId, innerIdeaId);
   applyFocus();
 }}
 
@@ -792,10 +1148,14 @@ function focusNode(id) {{
 }}
 
 function clearFocus() {{
+  const wasFocused = !!state.focusType;
   state.focusType = null;
   state.focusId = null;
+  state.innerIdeaId = null;
+  collapseSubjects();
   renderDefaultDetail();
   applyFocus();
+  if (wasFocused) fitGraph(true);
 }}
 
 function applyFocus() {{
@@ -808,6 +1168,24 @@ function applyFocus() {{
     const related = state.focusType === "node" && ideaById[path.dataset.id].member_ids.includes(state.focusId);
     path.classList.toggle("focused", activeIdea);
     path.classList.toggle("dimmed", !!state.focusType && !activeIdea && !related);
+  }}
+  for (const path of layers.assertionHulls.querySelectorAll(".assertion-hull")) {{
+    // Inner idea hulls are hidden by default. They expand only when their
+    // parent subject is the focused subject -- progressive disclosure.
+    const expand = state.focusType === "idea" && path.dataset.subject === state.focusId;
+    path.classList.toggle("expanded", expand);
+    const isInnerFocus = expand && state.innerIdeaId === path.dataset.idea;
+    const isOtherInner = expand && state.innerIdeaId && !isInnerFocus;
+    path.classList.toggle("inner-focused", isInnerFocus);
+    path.classList.toggle("inner-dimmed", isOtherInner);
+  }}
+  for (const label of layers.assertionLabels.querySelectorAll(".assertion-label")) {{
+    const expand = state.focusType === "idea" && label.dataset.subject === state.focusId;
+    label.classList.toggle("expanded", expand);
+    const isInnerFocus = expand && state.innerIdeaId === label.dataset.idea;
+    const isOtherInner = expand && state.innerIdeaId && !isInnerFocus;
+    label.classList.toggle("inner-focused", isInnerFocus);
+    label.classList.toggle("inner-dimmed", isOtherInner);
   }}
   for (const label of layers.ideaLabels.querySelectorAll(".idea-label")) {{
     const related = !state.focusType || (state.focusType === "idea" && label.dataset.id === state.focusId) || (state.focusType === "node" && ideaById[label.dataset.id].member_ids.includes(state.focusId));
@@ -830,7 +1208,14 @@ function applyFocus() {{
 
 function activeSet() {{
   if (!state.focusType) return new Set(Object.keys(nodeById));
-  if (state.focusType === "idea") return new Set(ideaById[state.focusId].member_ids);
+  if (state.focusType === "idea") {{
+    if (state.innerIdeaId) {{
+      const subject = ideaById[state.focusId];
+      const inner = ((subject && subject.ideas) || []).find(i => i.id === state.innerIdeaId);
+      if (inner && inner.member_ids) return new Set(inner.member_ids);
+    }}
+    return new Set(ideaById[state.focusId].member_ids);
+  }}
   const set = new Set([state.focusId]);
   for (const edge of edgesByNode[state.focusId] || []) {{
     set.add(edge.source === state.focusId ? edge.target : edge.source);
@@ -838,16 +1223,58 @@ function activeSet() {{
   return set;
 }}
 
-function renderIdeaDetail(idea) {{
+function renderInnerIdeaDetail(subjectId, innerIdeaId) {{
+  const subject = ideaById[subjectId];
+  if (!subject) return;
+  const ni = (subject.ideas || []).find(i => i.id === innerIdeaId);
+  if (!ni) return;
+  const status = ni.status || "established";
+  const statusClass = status === "contested" ? "high" : status === "novel" ? "blocking" : "exploratory";
+  const memberPills = (ni.member_ids || []).map(id => pill(nodeById[id])).join("");
   document.getElementById("detail").innerHTML = `
-    <h3>${{escapeHtml(idea.label)}}</h3>
-    <p class="muted">${{escapeHtml(idea.scope.system)}}<br>${{escapeHtml(idea.scope.framework)}}</p>
-    <h2>Claims</h2>
-    <div class="pill-row">${{idea.claim_ids.map(id => pill(nodeById[id])).join("")}}</div>
-    <h2>Evidence</h2>
-    <div class="pill-row">${{idea.evidence_ids.map(id => pill(nodeById[id])).join("")}}</div>
-    ${{idea.remaining_tensions.map(t => `<div class="callout bad"><div class="k">${{escapeHtml(t.edge_id)}}</div>${{escapeHtml(t.interpretation)}}<br><span class="mono">residual=${{metric(t.residual)}}</span></div>`).join("")}}
-    ${{idea.open_questions.map(questionBlock).join("")}}
+    <h3>${{escapeHtml(subject.label)}}</h3>
+    <p class="muted">Idea inside this subject:</p>
+    <div class="callout">
+      <div class="k"><span class="priority ${{statusClass}}">${{status.toUpperCase()}}</span>${{escapeHtml(ni.paper || "")}}</div>
+      <div>${{escapeHtml(ni.title || ni.id)}}</div>
+    </div>
+    <h2>Claims and evidence in this idea</h2>
+    <div class="pill-row">${{memberPills}}</div>
+    ${{(ni.contests || []).length ? `<h2>Contests</h2><div class="pill-row">${{(ni.contests || []).map(cid => {{ const t = ideaById[subjectId] && (ideaById[subjectId].ideas || []).find(x => x.id === cid); return t ? `<span class="pill" style="background:var(--bad)">${{escapeHtml(t.paper || cid)}}</span>` : ""; }}).join("")}}</div>` : ""}}
+    ${{(ni.supports || []).length ? `<h2>Supported by</h2><div class="pill-row">${{(ni.supports || []).map(sid => {{ const t = ideaById[subjectId] && (ideaById[subjectId].ideas || []).find(x => x.id === sid); return t ? `<span class="pill" style="background:var(--ok)">${{escapeHtml(t.paper || sid)}}</span>` : ""; }}).join("")}}</div>` : ""}}
+    <p class="muted" style="margin-top:14px;">Click the same idea hull again or click elsewhere in the subject to return to the subject view.</p>
+  `;
+  wirePills();
+}}
+
+function renderIdeaDetail(subject) {{
+  const nested = subject.ideas || [];
+  const statusBlock = ni => {{
+    const cls = ni.status || "established";
+    const contests = (ni.contests || []).length;
+    const supports = (ni.supports || []).length;
+    return `
+      <div class="callout ${{cls === "contested" ? "bad" : cls === "novel" ? "" : ""}}">
+        <div class="k"><span class="priority ${{cls === "contested" ? "high" : cls === "novel" ? "blocking" : "exploratory"}}">${{cls.toUpperCase()}}</span>${{escapeHtml(ni.paper || "")}}</div>
+        <div>${{escapeHtml(ni.title || ni.id)}}</div>
+        <div class="muted" style="margin-top:4px;font-size:11px;">
+          ${{ni.claim_ids ? ni.claim_ids.length : 0}} claim(s) ·
+          ${{ni.evidence_ids ? ni.evidence_ids.length : 0}} evidence ·
+          ${{contests}} contests · ${{supports}} supports
+        </div>
+      </div>
+    `;
+  }};
+  document.getElementById("detail").innerHTML = `
+    <h3>${{escapeHtml(subject.label)}}</h3>
+    <p class="muted">${{escapeHtml(subject.scope.system || "")}}<br>${{escapeHtml(subject.scope.framework || "")}}</p>
+    <h2>Ideas in this subject</h2>
+    ${{nested.length ? nested.map(statusBlock).join("") : "<p class='muted'>No ideas yet (ungrouped subject).</p>"}}
+    <h2>All claims</h2>
+    <div class="pill-row">${{subject.claim_ids.map(id => pill(nodeById[id])).join("")}}</div>
+    <h2>All evidence</h2>
+    <div class="pill-row">${{subject.evidence_ids.map(id => pill(nodeById[id])).join("")}}</div>
+    ${{subject.open_questions.map(questionBlock).join("")}}
   `;
   wirePills();
 }}
@@ -904,7 +1331,27 @@ function renderNodeDetail(node) {{
 }}
 
 function claimState(node) {{
-  return `${{rewriteBlock(node)}}${{claimList("Strengths", node.strengths, "No strengths recorded.")}}${{claimList("Weaknesses", node.weaknesses, "No weaknesses recorded.")}}`;
+  return `${{hygieneBlock(node)}}${{rewriteBlock(node)}}${{claimList("Strengths", node.strengths, "No strengths recorded.")}}${{claimList("Weaknesses", node.weaknesses, "No weaknesses recorded.")}}`;
+}}
+
+function hygieneBlock(node) {{
+  const h = node.hygiene || {{}};
+  const status = h.status || "not_applicable";
+  if (status === "not_applicable" && !node.stature) return "";
+  let body = "";
+  if (status === "implicit_headline") {{
+    const targets = (h.contradicting_targets || []).map(t => `<span class="mono">${{escapeHtml(t)}}</span>`).join(", ");
+    body = `<div class="callout bad"><div class="k">Implicit headline</div>This claim's home stance propagated to comparable evidence in other papers and CONTRADICTS them at: ${{targets || "(none)"}}. Structural suspect.</div>`;
+  }} else if (status === "consensus_aligned") {{
+    const targets = (h.propagated_targets || []).map(t => `<span class="mono">${{escapeHtml(t)}}</span>`).join(", ");
+    body = `<div class="callout"><div class="k">Consensus-aligned</div>Propagated to comparable evidence in other papers and agreed at full strength: ${{targets || "(none)"}}.</div>`;
+  }} else if (status === "scoped_explicit") {{
+    body = `<div class="callout"><div class="k">Scope-aware</div>Explicitly addresses every member of its comparability group(s).</div>`;
+  }}
+  if (node.stature !== undefined) {{
+    body += `<div class="callout"><div class="k">Stature</div>Backed by <b>${{node.stature}}</b> independent paper(s) at full strength.</div>`;
+  }}
+  return body;
 }}
 
 function rewriteBlock(node) {{
@@ -968,28 +1415,124 @@ function hideTip() {{
   tooltip.style.opacity = "0";
 }}
 
-function fitGraph() {{
+function fitGraph(animate = true) {{
   const nodes = Object.values(nodeById);
-  const rect = svg.getBoundingClientRect();
+  if (!nodes.length) return;
   const minX = Math.min(...nodes.map(n => n.x)) - 90;
   const maxX = Math.max(...nodes.map(n => n.x)) + 90;
   const minY = Math.min(...nodes.map(n => n.y)) - 90;
   const maxY = Math.max(...nodes.map(n => n.y)) + 90;
-  const scale = Math.min(rect.width / Math.max(1, maxX - minX), rect.height / Math.max(1, maxY - minY), 1.4);
-  state.scale = scale;
-  state.tx = (rect.width - (minX + maxX) * scale) / 2;
-  state.ty = (rect.height - (minY + maxY) * scale) / 2;
-  applyTransform();
+  fitToBox(minX, maxX, minY, maxY, {{ animate, maxScale: 1.4 }});
+}}
+
+function fitToSubject(subjectId, animate = true) {{
+  const subject = ideaById[subjectId];
+  if (!subject || !subject.member_ids) return;
+  const nodes = subject.member_ids.map(id => nodeById[id]).filter(Boolean);
+  if (!nodes.length) return;
+  const pad = 70;
+  const minX = Math.min(...nodes.map(n => n.x)) - pad;
+  const maxX = Math.max(...nodes.map(n => n.x)) + pad;
+  const minY = Math.min(...nodes.map(n => n.y)) - pad;
+  const maxY = Math.max(...nodes.map(n => n.y)) + pad;
+  fitToBox(minX, maxX, minY, maxY, {{ animate, maxScale: 3.0 }});
+}}
+
+// --- expand-on-focus ---
+// When a subject is focused, scale its members outward from the subject
+// center so they spread apart. Save originals so clearFocus can collapse
+// them back to the tight global layout.
+const SPREAD_FACTOR = 2.6;
+const savedPositions = {{}};
+
+function expandSubject(subjectId) {{
+  // Always collapse any previously expanded subject before expanding a new one.
+  collapseSubjects();
+  const subject = ideaById[subjectId];
+  if (!subject || !subject.member_ids) return;
+  const members = subject.member_ids.map(id => nodeById[id]).filter(Boolean);
+  if (members.length < 2) return;
+  const cx = members.reduce((s, n) => s + n.x, 0) / members.length;
+  const cy = members.reduce((s, n) => s + n.y, 0) / members.length;
+  for (const node of members) {{
+    savedPositions[node.id] = {{ x: node.x, y: node.y }};
+    node.x = cx + (node.x - cx) * SPREAD_FACTOR;
+    node.y = cy + (node.y - cy) * SPREAD_FACTOR;
+  }}
+  renderPositions();
+}}
+
+function collapseSubjects() {{
+  let touched = false;
+  for (const [id, pos] of Object.entries(savedPositions)) {{
+    const node = nodeById[id];
+    if (node) {{ node.x = pos.x; node.y = pos.y; touched = true; }}
+    delete savedPositions[id];
+  }}
+  if (touched) renderPositions();
+}}
+
+function fitToBox(minX, maxX, minY, maxY, opts = {{}}) {{
+  const animate = opts.animate !== false;
+  const maxScale = opts.maxScale || 3.0;
+  const rect = svg.getBoundingClientRect();
+  const dx = Math.max(50, maxX - minX);
+  const dy = Math.max(50, maxY - minY);
+  const targetScale = Math.min(rect.width / dx, rect.height / dy, maxScale);
+  const targetTx = (rect.width - (minX + maxX) * targetScale) / 2;
+  const targetTy = (rect.height - (minY + maxY) * targetScale) / 2;
+  if (animate) {{
+    animateTransform(targetScale, targetTx, targetTy);
+  }} else {{
+    state.scale = targetScale;
+    state.tx = targetTx;
+    state.ty = targetTy;
+    applyTransform();
+  }}
+}}
+
+let animationFrame = null;
+function animateTransform(scale, tx, ty, duration = 360) {{
+  if (animationFrame) cancelAnimationFrame(animationFrame);
+  const s0 = state.scale, x0 = state.tx, y0 = state.ty;
+  const t0 = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  function step(now) {{
+    const u = Math.min(1, (now - t0) / duration);
+    const e = ease(u);
+    state.scale = s0 + (scale - s0) * e;
+    state.tx = x0 + (tx - x0) * e;
+    state.ty = y0 + (ty - y0) * e;
+    applyTransform();
+    if (u < 1) animationFrame = requestAnimationFrame(step);
+    else animationFrame = null;
+  }}
+  animationFrame = requestAnimationFrame(step);
 }}
 
 function applyTransform() {{
   layers.root.setAttribute("transform", `translate(${{state.tx}},${{state.ty}}) scale(${{state.scale}})`);
+  const el = document.getElementById("status-indicator");
+  if (el) el.textContent = `scale ${{state.scale.toFixed(2)}}` + (state.focusType === "idea" ? ` · subject ${{state.focusId}}` : "");
+}}
+
+function stepZoom(factor) {{
+  if (animationFrame) {{ cancelAnimationFrame(animationFrame); animationFrame = null; }}
+  const next = Math.max(0.4, Math.min(5.0, state.scale * factor));
+  const rect = svg.getBoundingClientRect();
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  state.tx = cx - (cx - state.tx) * (next / state.scale);
+  state.ty = cy - (cy - state.ty) * (next / state.scale);
+  state.scale = next;
+  applyTransform();
 }}
 
 function onWheel(ev) {{
   ev.preventDefault();
+  if (animationFrame) {{ cancelAnimationFrame(animationFrame); animationFrame = null; }}
   const factor = ev.deltaY < 0 ? 1.08 : 0.92;
-  const next = Math.max(0.45, Math.min(2.8, state.scale * factor));
+  const next = Math.max(0.4, Math.min(5.0, state.scale * factor));
   const rect = svg.getBoundingClientRect();
   const mx = ev.clientX - rect.left;
   const my = ev.clientY - rect.top;
@@ -997,6 +1540,80 @@ function onWheel(ev) {{
   state.ty = my - (my - state.ty) * (next / state.scale);
   state.scale = next;
   applyTransform();
+}}
+
+// --- drag-to-pan ---
+const dragState = {{ active: false, startX: 0, startY: 0, baseTx: 0, baseTy: 0, moved: false }};
+
+function isBackgroundTarget(el) {{
+  // pan when clicking on raw svg, the root <g>, or the hulls layer
+  // (never start a pan on a node, label, edge, or interactive hull).
+  if (!el) return false;
+  if (el === svg) return true;
+  const tag = el.tagName;
+  if (tag === "g") return true;
+  if (el.classList && el.classList.contains("idea-hull")) return false;  // hulls click-focus
+  return false;
+}}
+
+function onSvgMouseDown(ev) {{
+  if (ev.button !== 0) return;
+  if (!isBackgroundTarget(ev.target)) return;
+  if (animationFrame) {{ cancelAnimationFrame(animationFrame); animationFrame = null; }}
+  dragState.active = true;
+  dragState.moved = false;
+  dragState.startX = ev.clientX;
+  dragState.startY = ev.clientY;
+  dragState.baseTx = state.tx;
+  dragState.baseTy = state.ty;
+  svg.style.cursor = "grabbing";
+}}
+
+function onSvgMouseMove(ev) {{
+  if (!dragState.active) return;
+  const dx = ev.clientX - dragState.startX;
+  const dy = ev.clientY - dragState.startY;
+  if (Math.abs(dx) + Math.abs(dy) > 3) dragState.moved = true;
+  state.tx = dragState.baseTx + dx;
+  state.ty = dragState.baseTy + dy;
+  applyTransform();
+}}
+
+function onSvgMouseUp() {{
+  if (!dragState.active) return;
+  dragState.active = false;
+  svg.style.cursor = "";
+}}
+
+// Pointer-event versions (cover trackpad / pen / mobile).
+function onSvgPointerDown(ev) {{
+  if (ev.pointerType === "mouse" && ev.button !== 0) return;
+  if (!isBackgroundTarget(ev.target)) return;
+  if (animationFrame) {{ cancelAnimationFrame(animationFrame); animationFrame = null; }}
+  try {{ svg.setPointerCapture && svg.setPointerCapture(ev.pointerId); }} catch (_) {{}}
+  dragState.active = true;
+  dragState.moved = false;
+  dragState.startX = ev.clientX;
+  dragState.startY = ev.clientY;
+  dragState.baseTx = state.tx;
+  dragState.baseTy = state.ty;
+  svg.style.cursor = "grabbing";
+}}
+
+function onSvgPointerMove(ev) {{
+  if (!dragState.active) return;
+  const dx = ev.clientX - dragState.startX;
+  const dy = ev.clientY - dragState.startY;
+  if (Math.abs(dx) + Math.abs(dy) > 3) dragState.moved = true;
+  state.tx = dragState.baseTx + dx;
+  state.ty = dragState.baseTy + dy;
+  applyTransform();
+}}
+
+function onSvgPointerUp() {{
+  if (!dragState.active) return;
+  dragState.active = false;
+  svg.style.cursor = "";
 }}
 
 init();
@@ -1023,29 +1640,47 @@ def _viz_data(
         "#0891b2",
         "#be185d",
         "#475569",
+        "#0d9488",
+        "#9333ea",
+        "#ca8a04",
+        "#e11d48",
+        "#0284c7",
+        "#65a30d",
     ]
-    paper_colors = {
-        paper["paper_id"]: palette[i % len(palette)] for i, paper in enumerate(papers)
-    }
     paper_labels = {
         paper["paper_id"]: _paper_label(paper) for paper in papers
     }
-    for paper_id, label in paper_labels.items():
-        if _is_kumar_paper(paper_id, label):
-            paper_colors[paper_id] = "#eab308"
+    # Assign paper colors deterministically by sorted paper_id so the
+    # same paper gets the same color across runs (prior vs situate).
+    # Kumar papers always use gold and don't consume a palette slot.
+    paper_colors: Json = {}
+    non_kumar_sorted = sorted(
+        (p for p in papers if not _is_kumar_paper(p["paper_id"], paper_labels.get(p["paper_id"], ""))),
+        key=lambda p: p["paper_id"],
+    )
+    for i, paper in enumerate(non_kumar_sorted):
+        paper_colors[paper["paper_id"]] = palette[i % len(palette)]
+    for paper in papers:
+        if _is_kumar_paper(paper["paper_id"], paper_labels.get(paper["paper_id"], "")):
+            paper_colors[paper["paper_id"]] = "#eab308"
     claim_by_id = {claim["claim_id"]: claim for claim in claims}
     evidence_by_id = {ev["evidence_id"]: ev for ev in evidence}
     final_residual_by_edge = {
         item["edge_id"]: item for item in sheaf["residuals"]["final"]
     }
 
+    stature_map = sheaf.get("stature") or {}
+    hygiene_map = sheaf.get("claim_hygiene") or {}
+    semantic_edge_ids = set(sheaf.get("semantic_edge_ids") or [])
+
     claim_nodes = []
     for claim in claims:
         paper_id = claim["paper_id"]
+        cid = claim["claim_id"]
         claim_nodes.append(
             {
-                "id": claim["claim_id"],
-                "short_id": claim["claim_id"],
+                "id": cid,
+                "short_id": cid,
                 "kind": "claim",
                 "label": claim["label"],
                 "original_label": claim["label"],
@@ -1062,6 +1697,8 @@ def _viz_data(
                 "rewrite_history": claim.get("rewrite_history", []),
                 "strengths": claim.get("strengths", _claim_strengths(claim)),
                 "weaknesses": claim.get("weaknesses", []),
+                "stature": stature_map.get(cid, 0),
+                "hygiene": hygiene_map.get(cid, {"status": "not_applicable"}),
             }
         )
 
@@ -1111,18 +1748,50 @@ def _viz_data(
                 "strength": dim["strength"],
                 "residual": residual["residual_sq"],
                 "observable": dim["name"],
+                "semantic": edge["edge_id"] in semantic_edge_ids,
             }
         )
 
-    idea_colors = ["#2563eb", "#0891b2", "#16a34a", "#d97706", "#7c3aed", "#be185d"]
+    idea_palette = ["#2563eb", "#0891b2", "#16a34a", "#d97706", "#7c3aed", "#be185d", "#475569"]
+    # Stable color per subject: sort by group_id (which is the same
+    # comparability key in both corpora) so the same subject gets the
+    # same color across runs. Ungrouped always lands at the tail.
+    def _idea_sort_key(idea: Json) -> tuple[int, str]:
+        gid = idea.get("group_id", idea["idea_id"])
+        return (1 if gid == "ungrouped" else 0, gid)
+    sorted_ideas = sorted(ideas, key=_idea_sort_key)
+    idea_color_by_id = {
+        idea["idea_id"]: idea_palette[i % len(idea_palette)]
+        for i, idea in enumerate(sorted_ideas)
+    }
     idea_nodes = []
-    for i, idea in enumerate(ideas):
+    for idea in ideas:
         member_ids = [*idea["contributing_claims"], *idea["contributing_evidence"]]
+        # Build per-(nested) idea data for the inner hull renderer. Each
+        # subject can contain many ideas with lifecycle status; we render
+        # one dashed inner hull per idea colored by its status (green =
+        # established, red = contested, blue = novel).
+        nested: list[Json] = []
+        for nested_idea in idea.get("ideas", []) or []:
+            nested.append({
+                "id": nested_idea["idea_id"],
+                "title": nested_idea.get("title", ""),
+                "status": nested_idea.get("status", "established"),
+                "paper": (nested_idea.get("contributing_papers") or [""])[0],
+                "claim_ids": nested_idea.get("contributing_claims", []),
+                "evidence_ids": sorted(set((nested_idea.get("stance") or {}).keys())),
+                "member_ids": [
+                    *nested_idea.get("contributing_claims", []),
+                    *sorted(set((nested_idea.get("stance") or {}).keys())),
+                ],
+                "contests": [c["idea_id"] for c in (nested_idea.get("contests") or [])],
+                "supports": [s["idea_id"] for s in (nested_idea.get("supports") or [])],
+            })
         idea_nodes.append(
             {
                 "id": idea["idea_id"],
                 "label": idea["title"],
-                "color": idea_colors[i % len(idea_colors)],
+                "color": idea_color_by_id[idea["idea_id"]],
                 "claim_ids": idea["contributing_claims"],
                 "evidence_ids": idea["contributing_evidence"],
                 "member_ids": member_ids,
@@ -1130,6 +1799,8 @@ def _viz_data(
                 "remaining_tensions": idea.get("remaining_tensions", []),
                 "tensions_resolved": idea.get("tensions_resolved", []),
                 "open_questions": idea.get("open_questions", []),
+                "ideas": nested,
+                "tensions": idea.get("tensions") or [],
             }
         )
 

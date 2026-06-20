@@ -1,0 +1,86 @@
+{
+  "contributing_claims": [
+    "GK_01",
+    "GK_02",
+    "BR_01",
+    "W_01",
+    "A_05",
+    "H_02"
+  ],
+  "contributing_evidence": [
+    "ev_goedbloed_sari",
+    "ev_brughmans_growth",
+    "ev_wang_smri",
+    "ev_atlas_kink_zero",
+    "ev_hameiri_continuum"
+  ],
+  "description": "The SARI literature marks the super-Alfvenic boundary of the atlas-stable region.",
+  "idea_id": "idea_04_sari_boundary",
+  "open_questions": [
+    {
+      "priority": "medium",
+      "question": "How wide is the transition region as M_A approaches 1 from below?",
+      "suggested_next_steps": [
+        {
+          "description": "Sweep M_A upward on the Atlas equilibrium and measure how the least-stable non-axisymmetric modes behave before continuum overlap.",
+          "kind": "simulation",
+          "title": "Approach M_A = 1 from below"
+        },
+        {
+          "description": "Derive the scaling law for residual growth as M_A approaches one and identify whether H3 delays or sharpens the SARI onset.",
+          "kind": "theory",
+          "title": "Transition-width asymptotics"
+        },
+        {
+          "description": "Map achievable radial rotation and Alfven speed profiles to determine whether devices can stay safely below the SARI boundary.",
+          "kind": "experiment",
+          "title": "Rotation-boundary measurement"
+        }
+      ]
+    },
+    {
+      "priority": "blocking",
+      "question": "Which remaining residuals are real contradictions rather than seeded-scope artifacts?",
+      "suggested_next_steps": [
+        {
+          "description": "Inspect each remaining high-residual edge against the source PDFs and decide whether the edge, regime tag, or claim scope is wrong.",
+          "kind": "audit",
+          "title": "Residual edge review"
+        },
+        {
+          "description": "If a residual is real, split the broad claim into separate home-regime and cross-regime claims instead of weakening the evidence.",
+          "kind": "theory",
+          "title": "Scope split proposal"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "deterministic_atlas_seed",
+    "corpus": "atlas"
+  },
+  "remaining_tensions": [
+    {
+      "claim_id": "BR_01",
+      "edge_id": "BR_01__ev_atlas_kink_zero__semantic",
+      "evidence_id": "ev_atlas_kink_zero",
+      "interpretation": "BR_01 still predicts poorly at ev_atlas_kink_zero after allowed rewrites.",
+      "residual": 1.0
+    },
+    {
+      "claim_id": "GK_01",
+      "edge_id": "GK_01__ev_atlas_kink_zero__semantic",
+      "evidence_id": "ev_atlas_kink_zero",
+      "interpretation": "GK_01 still predicts poorly at ev_atlas_kink_zero after allowed rewrites.",
+      "residual": 1.0
+    }
+  ],
+  "scope": {
+    "framework": "seeded v0.5 restriction-rewriting graph",
+    "regime": "The SARI literature marks the super-Alfvenic boundary of the atlas-stable region.",
+    "system": "Atlas Z-pinch corpus"
+  },
+  "tensions_resolved": [],
+  "title": "Atlas's regime ends at M_A=1 where SARI continuum overlap takes over",
+  "transitions_out": []
+}

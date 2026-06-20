@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "hameiri1985",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_hameiri_continuum",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_hameiri_continuum",
+  "label": "Ideal MHD with flow has Doppler-shifted Alfven continua governing essential spectrum",
+  "paper_id": "hameiri1985",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "On the Essential Spectrum of Ideal Magnetohydrodynamics ELIEZER HAMEIRI Courant Institute Dedicated to Harold Grad on the occasion of his sixtieth birthday Abstract The essential spectrum of magnetohydrodynamics (MHD) is s"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "zhang2019",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_zhang_neutrons",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_zhang_neutrons",
+  "label": "FuZE sustains neutron emission during the quiescent period with density-squared scaling",
+  "paper_id": "zhang2019",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "LETTER | SEPTEMBER 03 2024 Hall MHD waves: A fundamental departure from their MHD counterparts Swadesh M. Mahajan ; Prerana Sharma ; Manasvi Lingam \ue923 Phys. Plasmas 31, 090701 (2024) https://doi.org/10.1063/5.0227375 \ue929 \ue92d"
+  }
+}

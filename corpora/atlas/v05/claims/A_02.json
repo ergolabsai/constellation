@@ -1,0 +1,68 @@
+{
+  "claim_id": "A_02",
+  "home_regime": {
+    "framework": "ideal MHD Atlas H1-H5",
+    "regime_keywords": [
+      "atlas",
+      "h3",
+      "rigid-beltrami"
+    ],
+    "system": "rotating helical Z-pinch"
+  },
+  "label": "H3 quartic Alfven minimum is the structural ingredient absent from shear-flow-only treatments",
+  "paper_id": "atlas2026",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_atlas_h3_value"
+      ],
+      "observable": "ev_atlas_h3_value",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_h3_violate"
+      ],
+      "observable": "ev_atlas_h3_violate",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_angus_m1_persists"
+      ],
+      "observable": "ev_angus_m1_persists",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.72,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Global m = 1 Stabilization of a Rotating Helical Z-pinch at Finite Pressure A. Kumar,1 J. C. Turner,2 A. Stepanov,2 T. Karminskaya,2 J. Flygare,2 J. Dadras,2 and C. Rea1 1 Plasma Science and Fusion Center, Massachusetts Institute of Technology, Cambridge, MA 02139, USA 2"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Identifies H3 as the structural ingredient that separates Atlas from shear-flow-only arguments."
+  ],
+  "weaknesses": [
+    "Needs source audit that comparator papers truly lack the H3 quartic mechanism rather than using different language."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

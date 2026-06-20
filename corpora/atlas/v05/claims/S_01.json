@@ -1,0 +1,59 @@
+{
+  "claim_id": "S_01",
+  "home_regime": {
+    "framework": "linear and numerical MHD",
+    "regime_keywords": [
+      "shumlak",
+      "m=0",
+      "shear"
+    ],
+    "system": "sheared-flow Z-pinch"
+  },
+  "label": "Sheared axial flow v'/(kV_A) above about 0.1 stabilizes the m=0 sausage mode in static Z-pinch",
+  "paper_id": "shumlak1995",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_shumlak_threshold"
+      ],
+      "observable": "ev_shumlak_threshold",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_angus_m0_scaling"
+      ],
+      "observable": "ev_angus_m0_scaling",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 0.85
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "VOLUME 75, NUMBER 18 PHYSICAL REVIEW LETTERS 30 OCTOBER 1995 Sheared Flow Stabilization of the m = 1 Kink Mode in Z Pinches U. Shumlak~ High Energy Plasma Division, Phillips Laboratory, Kirtland A"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Gives a concrete m=0 shear threshold that is useful for mode-family separation."
+  ],
+  "weaknesses": [
+    "It addresses m=0 sausage stabilization, not the m=1 kink closure claimed by Atlas."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

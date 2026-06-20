@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "mahajan1998",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_mahajan_db",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_mahajan_db",
+  "label": "Double-curl Beltrami equilibrium admits non-trivial pressure and minimum-|B| confinement",
+  "paper_id": "mahajan1998",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "VOLUME 81, NUMBER 22 PHYSICAL REVIEW LETTERS 30 NOVEMBER 1998 Double Curl Beltrami Flow: Diamagnetic Structures S. M. Mahajan Institute for Fusion Studies, The University of Texa"
+  }
+}

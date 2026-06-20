@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "wang2022",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_wang_smri",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 0.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_wang_smri",
+  "label": "Axisymmetric SMRI onset is observed at critical magnetic Reynolds number",
+  "paper_id": "wang2022",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "PHYSICAL REVIEW LETTERS 129, 115001 (2022) Editors' Suggestion Featured in Physics Observation of Axisymmetric Standard Magnetorotational Instability in the Laboratory Yin Wang ,1,* Erik P. Gilson ,1 Fatima Ebrahimi ,1,2 Jeremy Goodman ,2 and Hantao Ji 1,2"
+  }
+}

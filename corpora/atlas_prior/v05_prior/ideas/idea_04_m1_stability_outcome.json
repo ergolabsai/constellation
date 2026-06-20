@@ -1,0 +1,50 @@
+{
+  "contributing_claims": [
+    "AN_01",
+    "BR_01",
+    "B_01",
+    "CL_01",
+    "GK_01",
+    "GK_02",
+    "H_02",
+    "N_01",
+    "N_02"
+  ],
+  "contributing_evidence": [
+    "ev_angus_m1_persists",
+    "ev_bondeson_toroidal",
+    "ev_newcomb_static",
+    "ev_goedbloed_sari",
+    "ev_brughmans_growth"
+  ],
+  "description": "Evidence reporting whether the m=1 kink mode is stable in helical or rotating Z-pinch settings at moderate Mach-Alfven number. Value 1 = stable, 0 = unstable / persists.",
+  "group_id": "m1_stability_outcome",
+  "idea_id": "idea_04_m1_stability_outcome",
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "The field appears to agree about m=1 kink stability in helical / rotating Z-pinches. What experiment or derivation would actually change this consensus?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the current consensus, would force a rewrite within the group.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas_prior",
+    "group": "m1_stability_outcome"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "Legolas SARI computation; MHD literature; SARI spectral theory; ideal MHD node counting; linear ideal MHD eigenmode analysis",
+    "regime": "AN_01 / BR_01 / B_01 / CL_01 / GK_01 / GK_02 / H_02 / N_01 / N_02",
+    "system": "magnetized plasma; rotating plasma; sheared-flow Z-pinch; static Z-pinch"
+  },
+  "tensions_resolved": [],
+  "title": "m=1 kink stability in helical / rotating Z-pinches",
+  "transitions_out": []
+}

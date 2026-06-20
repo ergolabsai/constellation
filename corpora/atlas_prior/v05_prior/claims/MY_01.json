@@ -1,0 +1,57 @@
+{
+  "claim_id": "MY_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "mahajan1998"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure",
+  "paper_id": "mahajan1998",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_mahajan_db"
+      ],
+      "observable": "ev_mahajan_db",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_h3_value"
+      ],
+      "observable": "ev_atlas_h3_value",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "VOLUME 81, NUMBER 22 PHYSICAL REVIEW LETTERS 30 NOVEMBER 1998 Double Curl Beltrami Flow: Diamagnetic Structures S. M. Mahajan Institute for Fusion Studies, The University of Texa"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Supports the existence of double-Beltrami equilibria with flow and pressure."
+  ],
+  "weaknesses": [
+    "Equilibrium existence does not automatically imply spectral stability."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

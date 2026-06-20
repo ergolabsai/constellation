@@ -1,0 +1,41 @@
+{
+  "contributing_claims": [
+    "FR_01",
+    "H_01",
+    "H_02"
+  ],
+  "contributing_evidence": [
+    "ev_friman_overstable",
+    "ev_hameiri_continuum"
+  ],
+  "description": "Evidence about the structure of the Alfven continuum near its quartic minimum (Friman-Rotenberg, Hameiri-Lust-Hameiri operators) and the discrete spectrum accumulating there.",
+  "group_id": "continuum_spectrum_alfven_minimum",
+  "idea_id": "idea_02_continuum_spectrum_alfven_minimum",
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "The field appears to agree about Continuum spectrum near the Alfven minimum. What experiment or derivation would actually change this consensus?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the current consensus, would force a rewrite within the group.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas_prior",
+    "group": "continuum_spectrum_alfven_minimum"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "FR_01 / H_01 / H_02",
+    "system": "magnetized plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Continuum spectrum near the Alfven minimum",
+  "transitions_out": []
+}

@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "experiment",
+    "regime": "zap, quiescent, shear",
+    "system": "ZaP Z-pinch experiment"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_shumlak_zap",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_shumlak_zap",
+  "label": "ZaP stable period of 15-20 microseconds is coincident with shear",
+  "paper_id": "shumlak2001",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "VOLUME 87, NUMBER 20 PHYSICAL REVIEW LETTERS 12 NOVEMBER 2001 Evidence of Stabilization in the Z-Pinch U. Shumlak, R. P. Golingo, and B. A. Nelson University of Washington, Aerospace and Energetics Resear"
+  }
+}

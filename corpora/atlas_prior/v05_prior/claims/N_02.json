@@ -1,0 +1,58 @@
+{
+  "claim_id": "N_02",
+  "home_regime": {
+    "framework": "ideal MHD node counting",
+    "regime_keywords": [
+      "newcomb",
+      "static"
+    ],
+    "system": "static Z-pinch"
+  },
+  "label": "Number of unstable eigenvalues equals number of interior nodes of the marginal mode",
+  "paper_id": "newcomb1960",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_newcomb_static"
+      ],
+      "observable": "ev_newcomb_static",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    },
+    {
+      "evidence_ids": [
+        "ev_atlas_newcomb_bench"
+      ],
+      "observable": "ev_atlas_newcomb_bench",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "ANNALS OF PHYSICS: 10, 232-267 (1960) Hydromagnetic Stability of a Diffuse Linear Pinch* WILLIAM A. NEWCOMB Lawrence Radiation Laboratory, University of California,"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Provides a precise node-counting diagnostic rather than only a qualitative instability statement."
+  ],
+  "weaknesses": [
+    "The diagnostic is not automatically valid for the non-self-adjoint flow operator without additional machinery."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "contributing_claims": [
+    "CK_01"
+  ],
+  "contributing_evidence": [
+    "ev_chandra_ck"
+  ],
+  "idea_id": "idea_05_ev_chandra_ck",
+  "open_questions": [],
+  "provenance": {
+    "consolidator": "deterministic_connected_components",
+    "corpus": "atlas_prior"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "CK_01",
+    "system": "magnetized plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Scoped claim-evidence knowledge unit",
+  "transitions_out": []
+}

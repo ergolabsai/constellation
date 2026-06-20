@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "chandrasekhar1957",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_chandra_ck",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_chandra_ck",
+  "label": "Force-free curl H=alpha H is solvable in a poloidal and toroidal basis",
+  "paper_id": "chandrasekhar1957",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "1957 Ap J. . .126. .457C ON FORCE-FREE MAGNETIC FIELDS* S. Chandrasekhar University of Chicago"
+  }
+}

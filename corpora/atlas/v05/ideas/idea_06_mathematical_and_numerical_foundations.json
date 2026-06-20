@@ -1,0 +1,55 @@
+{
+  "contributing_claims": [
+    "CK_01",
+    "MY_01",
+    "H_01",
+    "FR_01",
+    "CL_01",
+    "DJ_01"
+  ],
+  "contributing_evidence": [
+    "ev_chandra_ck",
+    "ev_mahajan_db",
+    "ev_hameiri_continuum",
+    "ev_friman_overstable",
+    "ev_legolas_bench"
+  ],
+  "description": "Foundational Beltrami equilibria, non-Hermitian flow operators, and spectral solvers provide the substrate on which the Atlas argument is built.",
+  "idea_id": "idea_06_mathematical_and_numerical_foundations",
+  "open_questions": [
+    {
+      "priority": "medium",
+      "question": "Which foundation pieces need direct validation before they can support the Atlas construction?",
+      "suggested_next_steps": [
+        {
+          "description": "Map the Chandrasekhar-Kendall, Mahajan-Yoshida, Hameiri, and Frieman operator assumptions onto the exact Atlas H1-H5 requirements.",
+          "kind": "theory",
+          "title": "Foundation-to-H1-H5 map"
+        },
+        {
+          "description": "Run the Atlas equilibrium through a Legolas-style or shooting-method benchmark and compare eigenvalues against the seeded pseudospectral result.",
+          "kind": "simulation",
+          "title": "Independent spectral benchmark"
+        },
+        {
+          "description": "Verify each foundation source is being used at its native scope instead of being promoted into direct experimental evidence.",
+          "kind": "audit",
+          "title": "Foundational source audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "deterministic_atlas_seed",
+    "corpus": "atlas"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "seeded v0.5 restriction-rewriting graph",
+    "regime": "Foundational Beltrami equilibria, non-Hermitian flow operators, and spectral solvers provide the substrate on which the Atlas argument is built.",
+    "system": "Atlas Z-pinch corpus"
+  },
+  "tensions_resolved": [],
+  "title": "Beltrami, operator, and numerical foundations support the Atlas construction",
+  "transitions_out": []
+}

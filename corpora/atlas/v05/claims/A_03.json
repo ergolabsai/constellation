@@ -1,0 +1,50 @@
+{
+  "claim_id": "A_03",
+  "home_regime": {
+    "framework": "ideal MHD Atlas H1-H5",
+    "regime_keywords": [
+      "atlas",
+      "h3",
+      "rigid-beltrami"
+    ],
+    "system": "rotating helical Z-pinch"
+  },
+  "label": "Discrete spectrum near quartic continuum minimum accumulates as n^-4 with sharp exponent",
+  "paper_id": "atlas2026",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_atlas_h3_value"
+      ],
+      "observable": "ev_atlas_h3_value",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.72,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Global m = 1 Stabilization of a Rotating Helical Z-pinch at Finite Pressure A. Kumar,1 J. C. Turner,2 A. Stepanov,2 T. Karminskaya,2 J. Flygare,2 J. Dadras,2 and C. Rea1 1 Plasma Science and Fusion Center, Massachusetts Institute of Technology, Cambridge, MA 02139, USA 2"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Makes a sharp spectral accumulation claim that can be tested numerically and analytically."
+  ],
+  "weaknesses": [
+    "The n^-4 exponent may be sensitive to asymptotic assumptions, discretization, and how the continuum minimum is resolved."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

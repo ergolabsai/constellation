@@ -1,0 +1,112 @@
+{
+  "groups": [
+    {
+      "evidence_ids": [
+        "ev_angus_m0_scaling"
+      ],
+      "observable": "ev_angus_m0_scaling"
+    },
+    {
+      "evidence_ids": [
+        "ev_angus_m1_persists"
+      ],
+      "observable": "ev_angus_m1_persists"
+    },
+    {
+      "evidence_ids": [
+        "ev_bondeson_toroidal"
+      ],
+      "observable": "ev_bondeson_toroidal"
+    },
+    {
+      "evidence_ids": [
+        "ev_brughmans_growth"
+      ],
+      "observable": "ev_brughmans_growth"
+    },
+    {
+      "evidence_ids": [
+        "ev_chandra_ck"
+      ],
+      "observable": "ev_chandra_ck"
+    },
+    {
+      "evidence_ids": [
+        "ev_crews_entropy"
+      ],
+      "observable": "ev_crews_entropy"
+    },
+    {
+      "evidence_ids": [
+        "ev_friman_overstable"
+      ],
+      "observable": "ev_friman_overstable"
+    },
+    {
+      "evidence_ids": [
+        "ev_goedbloed_sari"
+      ],
+      "observable": "ev_goedbloed_sari"
+    },
+    {
+      "evidence_ids": [
+        "ev_hameiri_continuum"
+      ],
+      "observable": "ev_hameiri_continuum"
+    },
+    {
+      "evidence_ids": [
+        "ev_legolas_bench"
+      ],
+      "observable": "ev_legolas_bench"
+    },
+    {
+      "evidence_ids": [
+        "ev_mahajan_db"
+      ],
+      "observable": "ev_mahajan_db"
+    },
+    {
+      "evidence_ids": [
+        "ev_newcomb_static"
+      ],
+      "observable": "ev_newcomb_static"
+    },
+    {
+      "evidence_ids": [
+        "ev_sainterme_whistler"
+      ],
+      "observable": "ev_sainterme_whistler"
+    },
+    {
+      "evidence_ids": [
+        "ev_shiraishi_dilayer"
+      ],
+      "observable": "ev_shiraishi_dilayer"
+    },
+    {
+      "evidence_ids": [
+        "ev_shumlak_threshold"
+      ],
+      "observable": "ev_shumlak_threshold"
+    },
+    {
+      "evidence_ids": [
+        "ev_shumlak_zap"
+      ],
+      "observable": "ev_shumlak_zap"
+    },
+    {
+      "evidence_ids": [
+        "ev_wang_smri"
+      ],
+      "observable": "ev_wang_smri"
+    },
+    {
+      "evidence_ids": [
+        "ev_zhang_neutrons"
+      ],
+      "observable": "ev_zhang_neutrons"
+    }
+  ]
+}

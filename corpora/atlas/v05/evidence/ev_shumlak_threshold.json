@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "linear and numerical MHD",
+    "regime": "shumlak, m=0, shear",
+    "system": "sheared-flow Z-pinch"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_shumlak_threshold",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_shumlak_threshold",
+  "label": "m=0 stabilization at v'/(kV_A) around 0.1 is demonstrated numerically",
+  "paper_id": "shumlak1995",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "VOLUME 75, NUMBER 18 PHYSICAL REVIEW LETTERS 30 OCTOBER 1995 Sheared Flow Stabilization of the m = 1 Kink Mode in Z Pinches U. Shumlak~ High Energy Plasma Division, Phillips Laboratory, Kirtland A"
+  }
+}

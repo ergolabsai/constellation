@@ -1,0 +1,48 @@
+{
+  "claim_id": "W_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "wang2022"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Axisymmetric SMRI is directly observed in a liquid-metal Taylor-Couette experiment",
+  "paper_id": "wang2022",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_wang_smri"
+      ],
+      "observable": "ev_wang_smri",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 0.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "PHYSICAL REVIEW LETTERS 129, 115001 (2022) Editors' Suggestion Featured in Physics Observation of Axisymmetric Standard Magnetorotational Instability in the Laboratory Yin Wang ,1,* Erik P. Gilson ,1 Fatima Ebrahimi ,1,2 Jeremy Goodman ,2 and Hantao Ji 1,2"
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Provides experimental support that rotation-driven MHD instabilities can be observed in the lab."
+  ],
+  "weaknesses": [
+    "SMRI is axisymmetric and not the same non-axisymmetric SARI/kink regime as Atlas."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

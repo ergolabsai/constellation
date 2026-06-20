@@ -1,0 +1,13 @@
+{
+  "authors": [],
+  "paper_id": "wang2022",
+  "pdf_path": "/sessions/compassionate-clever-cori/mnt/constellation/corpora/atlas/pdfs/PhysRevLett.129.115001.pdf",
+  "provenance": {
+    "confidence": 0.95,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "PHYSICAL REVIEW LETTERS 129, 115001 (2022) Editors' Suggestion Featured in Physics Observation of Axisymmetric Standard Magnetorotational Instability in the Laboratory Yin Wang ,1,* Erik P. Gilson ,1 Fatima Ebrahimi ,1,2 Jeremy Goodman ,2 and Hantao Ji 1,2"
+  },
+  "title": "Wang et al. 2022 (SMRI exp)",
+  "year": 2022
+}

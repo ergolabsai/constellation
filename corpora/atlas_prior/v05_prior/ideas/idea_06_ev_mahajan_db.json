@@ -1,0 +1,23 @@
+{
+  "contributing_claims": [
+    "MY_01"
+  ],
+  "contributing_evidence": [
+    "ev_mahajan_db"
+  ],
+  "idea_id": "idea_06_ev_mahajan_db",
+  "open_questions": [],
+  "provenance": {
+    "consolidator": "deterministic_connected_components",
+    "corpus": "atlas_prior"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "MY_01",
+    "system": "magnetized plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Scoped claim-evidence knowledge unit",
+  "transitions_out": []
+}

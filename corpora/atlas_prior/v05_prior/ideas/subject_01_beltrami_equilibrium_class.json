@@ -1,0 +1,151 @@
+{
+  "contributing_claims": [
+    "CK_01",
+    "MY_01"
+  ],
+  "contributing_evidence": [
+    "ev_chandra_ck",
+    "ev_mahajan_db"
+  ],
+  "contributing_papers": [
+    "chandrasekhar1957",
+    "mahajan1998"
+  ],
+  "description": "Evidence about the existence, beta, and structure of Beltrami / double-Beltrami equilibria that admit the H3 quartic Alfven minimum.",
+  "group_id": "beltrami_equilibrium_class",
+  "idea_id": "subject_01_beltrami_equilibrium_class",
+  "ideas": [
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "CK_01"
+      ],
+      "contributing_papers": [
+        "chandrasekhar1957"
+      ],
+      "idea_id": "idea_beltrami_equilibrium_class_001",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Beltrami / double-Beltrami equilibrium constructions, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "chandrasekhar1957"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_chandra_ck": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_chandra_ck"
+      ],
+      "supports": [],
+      "title": "chandrasekhar1957 (CK_01): Force-free curl H = alpha H fields admit poloidal and toroidal eigenfunction solutions"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "MY_01"
+      ],
+      "contributing_papers": [
+        "mahajan1998"
+      ],
+      "idea_id": "idea_beltrami_equilibrium_class_002",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Beltrami / double-Beltrami equilibrium constructions, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "mahajan1998"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_mahajan_db": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_mahajan_db"
+      ],
+      "supports": [],
+      "title": "mahajan1998 (MY_01): Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure"
+    }
+  ],
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "What experiment or derivation, if it landed at a contrary value, would force a rewrite within Beltrami / double-Beltrami equilibrium constructions?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the field's consensus inside Beltrami / double-Beltrami equilibrium constructions, would force a rewrite. Document the device that could perform it and the parameter range it should sweep.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one.",
+          "kind": "literature",
+          "title": "Adjacent-regime survey"
+        },
+        {
+          "description": "Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface.",
+          "kind": "audit",
+          "title": "Foundational assumption audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "subjects_with_lifecycle_ideas",
+    "group": "beltrami_equilibrium_class"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "chandrasekhar1957, mahajan1998",
+    "system": "magnetized plasma"
+  },
+  "tensions": [],
+  "tensions_resolved": [],
+  "title": "Beltrami / double-Beltrami equilibrium constructions"
+}

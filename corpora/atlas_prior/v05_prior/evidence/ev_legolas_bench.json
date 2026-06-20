@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "claes2020",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_legolas_bench",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_legolas_bench",
+  "label": "Legolas reproduces canonical MHD spectra across benchmark problems",
+  "paper_id": "claes2020",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Draft version June 2, 2021 Typeset using LATEX default style in AASTeX63 Legolas: a modern tool for magnetohydrodynamic spectroscopy"
+  }
+}

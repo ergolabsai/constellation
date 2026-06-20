@@ -1,0 +1,57 @@
+{
+  "claim_id": "CR_01",
+  "home_regime": {
+    "framework": "MHD literature",
+    "regime_keywords": [
+      "crews2024"
+    ],
+    "system": "magnetized plasma"
+  },
+  "label": "Kadomtsev interchange criterion has an entropy-gradient interpretation analogous to Schwarzschild-Ledoux",
+  "paper_id": "crews2024",
+  "predictions": [
+    {
+      "evidence_ids": [
+        "ev_crews_entropy"
+      ],
+      "observable": "ev_crews_entropy",
+      "regime_tag": "in_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    },
+    {
+      "evidence_ids": [
+        "ev_shumlak_threshold"
+      ],
+      "observable": "ev_shumlak_threshold",
+      "regime_tag": "out_of_regime",
+      "scale": "normalized_binary",
+      "value": 1.0
+    }
+  ],
+  "provenance": {
+    "confidence": 0.66,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "Sustained neutron production from a sheared-flow stabilized Z-pinch Y. Zhang,a) U. Shumlak, B. A. Nelson, R. P. Golingo, T. R. Weber, A. D. Stepanov, E. L. Claveau, E. G. Forbes, and Z."
+  },
+  "rewrite_history": [],
+  "stalk_basis": [
+    "in_regime_strength",
+    "out_regime_strength"
+  ],
+  "strengths": [
+    "Connects interchange criteria to an entropy-gradient interpretation that may clarify mode families."
+  ],
+  "weaknesses": [
+    "The analogy may not transfer cleanly to helical flow with H3 without further derivation."
+  ],
+  "x_final": [
+    1.0,
+    1.0
+  ],
+  "x_init": [
+    1.0,
+    1.0
+  ]
+}

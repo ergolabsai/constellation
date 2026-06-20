@@ -1,0 +1,350 @@
+{
+  "contributing_claims": [
+    "A_02",
+    "A_03",
+    "A_07",
+    "CK_01",
+    "MY_01"
+  ],
+  "contributing_evidence": [
+    "ev_atlas_h3_value",
+    "ev_chandra_ck",
+    "ev_mahajan_db"
+  ],
+  "contributing_papers": [
+    "atlas2026",
+    "chandrasekhar1957",
+    "mahajan1998"
+  ],
+  "description": "Evidence about the existence, beta, and structure of Beltrami / double-Beltrami equilibria that admit the H3 quartic Alfven minimum.",
+  "group_id": "beltrami_equilibrium_class",
+  "idea_id": "subject_01_beltrami_equilibrium_class",
+  "ideas": [
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "A_02",
+        "A_03"
+      ],
+      "contributing_papers": [
+        "atlas2026"
+      ],
+      "idea_id": "idea_beltrami_equilibrium_class_001",
+      "next_steps": [
+        {
+          "description": "Ask a different group to reproduce the supporting measurement(s) inside Beltrami / double-Beltrami equilibrium constructions using their own pipeline. The map will record the new contributor as independent evidence and promote this idea toward established.",
+          "kind": "experiment",
+          "title": "Independent replication"
+        },
+        {
+          "description": "Sweep the parameters at the edge of the claimed scope and look for the threshold where the predicted outcome flips. This either ratifies a new causal state or absorbs this idea into an existing one.",
+          "kind": "simulation",
+          "title": "Probe the scope boundary"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "ideal MHD Atlas H1-H5"
+        ],
+        "keywords": [
+          "atlas",
+          "h3",
+          "rigid-beltrami"
+        ],
+        "systems": [
+          "rotating helical Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_atlas_h3_value": 1.0
+      },
+      "status": "novel",
+      "supporting_evidence": [
+        "ev_atlas_h3_value"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_atlas_h3_value"
+          ],
+          "idea_id": "idea_beltrami_equilibrium_class_002",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_07): RIGID-BELTRAMI-A double-Beltrami equilibrium achieves beta=12.3% with all H1-H5 satisfied"
+        },
+        {
+          "at": [
+            "ev_atlas_h3_value"
+          ],
+          "idea_id": "idea_beltrami_equilibrium_class_004",
+          "papers": [
+            "mahajan1998"
+          ],
+          "title": "mahajan1998 (MY_01): Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure"
+        }
+      ],
+      "title": "atlas2026 (A_02, A_03): H3 quartic Alfven minimum is the structural ingredient absent from shear-flow-only treatments"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "A_07"
+      ],
+      "contributing_papers": [
+        "atlas2026"
+      ],
+      "idea_id": "idea_beltrami_equilibrium_class_002",
+      "next_steps": [
+        {
+          "description": "Ask a different group to reproduce the supporting measurement(s) inside Beltrami / double-Beltrami equilibrium constructions using their own pipeline. The map will record the new contributor as independent evidence and promote this idea toward established.",
+          "kind": "experiment",
+          "title": "Independent replication"
+        },
+        {
+          "description": "Sweep the parameters at the edge of the claimed scope and look for the threshold where the predicted outcome flips. This either ratifies a new causal state or absorbs this idea into an existing one.",
+          "kind": "simulation",
+          "title": "Probe the scope boundary"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "ideal MHD Atlas H1-H5"
+        ],
+        "keywords": [
+          "atlas",
+          "h3",
+          "rigid-beltrami"
+        ],
+        "systems": [
+          "rotating helical Z-pinch"
+        ]
+      },
+      "stance": {
+        "ev_atlas_h3_value": 1.0,
+        "ev_chandra_ck": 1.0,
+        "ev_mahajan_db": 1.0
+      },
+      "status": "novel",
+      "supporting_evidence": [
+        "ev_atlas_h3_value",
+        "ev_chandra_ck",
+        "ev_mahajan_db"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_atlas_h3_value"
+          ],
+          "idea_id": "idea_beltrami_equilibrium_class_001",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_02, A_03): H3 quartic Alfven minimum is the structural ingredient absent from shear-flow-only treatments"
+        },
+        {
+          "at": [
+            "ev_chandra_ck"
+          ],
+          "idea_id": "idea_beltrami_equilibrium_class_003",
+          "papers": [
+            "chandrasekhar1957"
+          ],
+          "title": "chandrasekhar1957 (CK_01): Force-free curl H = alpha H fields admit poloidal and toroidal eigenfunction solutions"
+        },
+        {
+          "at": [
+            "ev_atlas_h3_value",
+            "ev_mahajan_db"
+          ],
+          "idea_id": "idea_beltrami_equilibrium_class_004",
+          "papers": [
+            "mahajan1998"
+          ],
+          "title": "mahajan1998 (MY_01): Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure"
+        }
+      ],
+      "title": "atlas2026 (A_07): RIGID-BELTRAMI-A double-Beltrami equilibrium achieves beta=12.3% with all H1-H5 satisfied"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "CK_01"
+      ],
+      "contributing_papers": [
+        "chandrasekhar1957"
+      ],
+      "idea_id": "idea_beltrami_equilibrium_class_003",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Beltrami / double-Beltrami equilibrium constructions, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "chandrasekhar1957"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_chandra_ck": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_chandra_ck"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_chandra_ck"
+          ],
+          "idea_id": "idea_beltrami_equilibrium_class_002",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_07): RIGID-BELTRAMI-A double-Beltrami equilibrium achieves beta=12.3% with all H1-H5 satisfied"
+        }
+      ],
+      "title": "chandrasekhar1957 (CK_01): Force-free curl H = alpha H fields admit poloidal and toroidal eigenfunction solutions"
+    },
+    {
+      "contesting_evidence": [],
+      "contests": [],
+      "contributing_claims": [
+        "MY_01"
+      ],
+      "contributing_papers": [
+        "mahajan1998"
+      ],
+      "idea_id": "idea_beltrami_equilibrium_class_004",
+      "next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to this idea's prediction within Beltrami / double-Beltrami equilibrium constructions, would force a rewrite. Document what such a measurement would look like and which device could perform it.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Walk the chain of assumptions that this idea rests on. Mark any that have NOT been directly tested in their own right -- those are the soft spots where a future counter-experiment could surface.",
+          "kind": "theory",
+          "title": "Foundational assumption review"
+        },
+        {
+          "description": "Sweep into the boundary of this idea's claimed scope and report where its predictions become unreliable. The result is a refined scope description; it may also surface a new candidate subject the registry does not yet cover.",
+          "kind": "simulation",
+          "title": "Adjacent-regime extrapolation"
+        }
+      ],
+      "scope": {
+        "frameworks": [
+          "MHD literature"
+        ],
+        "keywords": [
+          "mahajan1998"
+        ],
+        "systems": [
+          "magnetized plasma"
+        ]
+      },
+      "stance": {
+        "ev_atlas_h3_value": 1.0,
+        "ev_mahajan_db": 1.0
+      },
+      "status": "established",
+      "supporting_evidence": [
+        "ev_atlas_h3_value",
+        "ev_mahajan_db"
+      ],
+      "supports": [
+        {
+          "at": [
+            "ev_atlas_h3_value"
+          ],
+          "idea_id": "idea_beltrami_equilibrium_class_001",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_02, A_03): H3 quartic Alfven minimum is the structural ingredient absent from shear-flow-only treatments"
+        },
+        {
+          "at": [
+            "ev_atlas_h3_value",
+            "ev_mahajan_db"
+          ],
+          "idea_id": "idea_beltrami_equilibrium_class_002",
+          "papers": [
+            "atlas2026"
+          ],
+          "title": "atlas2026 (A_07): RIGID-BELTRAMI-A double-Beltrami equilibrium achieves beta=12.3% with all H1-H5 satisfied"
+        }
+      ],
+      "title": "mahajan1998 (MY_01): Coupled magnetofluid admits two-parameter double-Beltrami equilibria with non-trivial flow and pressure"
+    }
+  ],
+  "open_questions": [
+    {
+      "priority": "blocking",
+      "question": "2 novel idea(s) in this subject need independent backing or refinement to ratify.",
+      "suggested_next_steps": [
+        {
+          "description": "Examine each novel idea's predicted scope and decide whether to commission a replication, a boundary probe, or a refinement that folds it into an established idea.",
+          "kind": "audit",
+          "title": "Novel-idea review"
+        }
+      ]
+    },
+    {
+      "priority": "exploratory",
+      "question": "What experiment or derivation, if it landed at a contrary value, would force a rewrite within Beltrami / double-Beltrami equilibrium constructions?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the field's consensus inside Beltrami / double-Beltrami equilibrium constructions, would force a rewrite. Document the device that could perform it and the parameter range it should sweep.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        },
+        {
+          "description": "Identify regimes adjacent to the scope this subject covers where the field has NOT yet looked. Each is a candidate next step that could either extend the subject or split off a new one.",
+          "kind": "literature",
+          "title": "Adjacent-regime survey"
+        },
+        {
+          "description": "Walk the chain of structural assumptions every established idea in this subject shares. Any assumption that hasn't been directly tested is a soft spot where future work could surface.",
+          "kind": "audit",
+          "title": "Foundational assumption audit"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "subjects_with_lifecycle_ideas",
+    "group": "beltrami_equilibrium_class"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature; ideal MHD Atlas H1-H5",
+    "regime": "atlas, chandrasekhar1957, h3, mahajan1998, rigid-beltrami",
+    "system": "magnetized plasma; rotating helical Z-pinch"
+  },
+  "tensions": [],
+  "tensions_resolved": [],
+  "title": "Beltrami / double-Beltrami equilibrium constructions"
+}

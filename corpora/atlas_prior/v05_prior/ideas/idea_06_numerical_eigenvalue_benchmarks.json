@@ -1,0 +1,39 @@
+{
+  "contributing_claims": [
+    "CL_01",
+    "DJ_01"
+  ],
+  "contributing_evidence": [
+    "ev_legolas_bench"
+  ],
+  "description": "Evidence from code-to-code MHD eigenvalue benchmarks and from violating Kumar's H1-H5 constraints to see the framework break in the predicted way.",
+  "group_id": "numerical_eigenvalue_benchmarks",
+  "idea_id": "idea_06_numerical_eigenvalue_benchmarks",
+  "open_questions": [
+    {
+      "priority": "exploratory",
+      "question": "The field appears to agree about Numerical eigenvalue benchmarks and constraint-violation tests. What experiment or derivation would actually change this consensus?",
+      "suggested_next_steps": [
+        {
+          "description": "Identify a measurement that, if it landed at a value contrary to the current consensus, would force a rewrite within the group.",
+          "kind": "experiment",
+          "title": "Counter-experiment proposal"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "consolidator": "comparability_group",
+    "corpus": "atlas_prior",
+    "group": "numerical_eigenvalue_benchmarks"
+  },
+  "remaining_tensions": [],
+  "scope": {
+    "framework": "MHD literature",
+    "regime": "CL_01 / DJ_01",
+    "system": "magnetized plasma"
+  },
+  "tensions_resolved": [],
+  "title": "Numerical eigenvalue benchmarks and constraint-violation tests",
+  "transitions_out": []
+}

@@ -1,0 +1,29 @@
+{
+  "context": {
+    "explicit_in_source": true,
+    "filled_by_pipeline": false,
+    "framework": "MHD literature",
+    "regime": "frieman1960",
+    "system": "magnetized plasma"
+  },
+  "core": {
+    "dimensions": [
+      {
+        "name": "ev_friman_overstable",
+        "scale": "normalized_binary",
+        "uncertainty": null,
+        "value": 1.0
+      }
+    ],
+    "locked": true
+  },
+  "evidence_id": "ev_friman_overstable",
+  "label": "Stationary-flow MHD operator is non-Hermitian, so overstability is possible",
+  "paper_id": "frieman1960",
+  "provenance": {
+    "confidence": 0.68,
+    "extractor": "deterministic_seed",
+    "review_status": "unreviewed",
+    "source_span": "REVIEWS OF MODERN PHYSICS VOLUME 32, NUMBER 4 OCTOB ER, 1960 On . .\u2014..yc romagnetic Sta &i. ity o1': Stationary :~ qui. .i aria* E. FRIEMAN AND MANUEL ROTENIIERGt"
+  }
+}
